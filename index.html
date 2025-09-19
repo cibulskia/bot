@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Moj novi sajt</title>
+</head>
+<body>
+  <h1>Dobrodošli na moj sajt!</h1>
+  <p>Ovo je moja prva GitHub Pages stranica.</p>
+
+  <!-- Telegram iframe -->
+  <iframe src="https://t.me/s/imekanala" width="100%" height="600" frameborder="0"></iframe>
+
+  <!-- Discord Widget (WidgetBot) -->
+  <div id="discord-widget"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@widgetbot/html-embed"></script>
+  <script>
+    new window.WidgetBot({
+      server: 'ID_TVOG_SERVERA',
+      channel: 'ID_TVOG_KANALA',
+      shard: 'https://e.widgetbot.io'
+    }).render(document.getElementById('discord-widget'));
+  </script>
+</body>
+</html>
