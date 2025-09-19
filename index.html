@@ -21,7 +21,7 @@
             text-align: center;
         }
 
-        nav a {
+        nav a, nav .telegram-btn {
             color: black;
             margin: 0 15px;
             text-decoration: none;
@@ -30,8 +30,15 @@
             cursor: pointer;
         }
 
-        nav a:hover {
+        nav a:hover, nav .telegram-btn:hover {
             color: #ff9800;
+        }
+
+        .telegram-btn {
+            background-color: #0088cc;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white !important;
         }
 
         section {
@@ -76,6 +83,7 @@
         <a data-target="sekcija2">Sekcija 2</a>
         <a data-target="sekcija3">Sekcija 3</a>
         <a data-target="sekcija4">Sekcija 4</a>
+        <a href="https://t.me/YOUR_TELEGRAM_USERNAME" target="_blank" class="telegram-btn">Telegram</a>
     </nav>
 
     <section id="sekcija1">Sekcija 1</section>
@@ -104,7 +112,7 @@
         }
 
         // Glatko skrolovanje za linkove u navigaciji
-        document.querySelectorAll('nav a').forEach(link => {
+        document.querySelectorAll('nav a[data-target]').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault(); // onemogućava instant "skok"
                 const targetId = this.getAttribute('data-target');
