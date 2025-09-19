@@ -3,42 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jednostranična stranica</title>
+    <title>Jednostranična stranica sa sidebarom</title>
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
         }
 
-        nav {
+        /* Sidebar */
+        .sidebar {
             position: fixed;
+            left: 0;
             top: 0;
-            width: 100%;
-            background-color: #F5F5F5;
+            width: 250px;
+            height: 100%;
+            background-color: #333;
             color: white;
-            padding: 10px 0;
-            z-index: 1000;
-            text-align: center;
+            padding-top: 60px;
+            transition: transform 0.3s ease;
         }
 
-        nav a, nav .telegram-btn {
-            color: black;
-            margin: 0 15px;
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 15px 20px;
             text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s;
-            cursor: pointer;
+            transition: background 0.3s;
         }
 
-        nav a:hover, nav .telegram-btn:hover {
-            color: #ff9800;
+        .sidebar a:hover {
+            background-color: #555;
         }
 
-        .telegram-btn {
-            background-color: #0088cc;
-            padding: 5px 10px;
-            border-radius: 5px;
-            color: white !important;
+        /* Glavni sadržaj */
+        #main {
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
         }
 
         section {
@@ -47,7 +47,6 @@
             justify-content: center;
             align-items: center;
             font-size: 2em;
-            color: black;
         }
 
         #sekcija1 { background-color: #FFFFFF; }
@@ -55,13 +54,14 @@
         #sekcija3 { background-color: #FFFFFF; }
         #sekcija4 { background-color: #F5F5F5; }
 
+        /* Dugme Idi na vrh */
         #topBtn {
             display: none;
             position: fixed;
-            bottom: 30px;
+            top: 20px;
             right: 30px;
-            z-index: 1001;
-            font-size: 18px;
+            z-index: 1002;
+            font-size: 16px;
             padding: 10px 15px;
             background-color: #333;
             color: white;
@@ -74,28 +74,111 @@
         #topBtn:hover {
             background-color: #ff9800;
         }
+
+        /* Telegram dugme na dnu */
+        #telegramBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            z-index: 1002;
+            background-color: #888; /* siva boja */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        #telegramBtn:hover {
+            background-color: #555;
+        }
+
+        /* Dugme za otvaranje sidebar-a na mobilnom */
+        #toggleBtn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            color: #333;
+            cursor: pointer;
+            z-index: 1003;
+        }
+
+        /* Mobile verzija: sidebar sklopljen po defaultu */
+        @media screen and (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-250px);
+            }
+            #main {
+                margin-left: 0;
+            }
+            #toggleBtn {
+                display: block;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+
     </style>
 </head>
 <body>
 
-    <nav>
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
         <a data-target="sekcija1">Sekcija 1</a>
         <a data-target="sekcija2">Sekcija 2</a>
         <a data-target="sekcija3">Sekcija 3</a>
         <a data-target="sekcija4">Sekcija 4</a>
-        <a href="https://t.me/Cileaibot" target="_blank" class="telegram-btn">Telegram</a>
-    </nav>
+    </div>
 
-    <section id="sekcija1">Sekcija 1</section>
-    <section id="sekcija2">Sekcija 2</section>
-    <section id="sekcija3">Sekcija 3</section>
-    <section id="sekcija4">Sekcija 4</section>
+    <!-- Glavni sadržaj -->
+    <div id="main">
+        <button id="toggleBtn">☰</button>
 
-    <button id="topBtn" onclick="scrollToTop()">Vrh</button>
+        <section id="sekcija1">Sekcija 1</section>
+        <section id="sekcija2">Sekcija 2</section>
+        <section id="sekcija3">Sekcija 3</section>
+        <section id="sekcija4">Sekcija 4</section>
+    </div>
+
+    <!-- Dugme Idi na vrh -->
+    <button id="topBtn" onclick="scrollToTop()">Idi na vrh</button>
+
+    <!-- Telegram dugme -->
+    <a href="https://t.me/Cileaibot" target="_blank" id="telegramBtn">Postavi pitanje (Telegram)</a>
 
     <script>
-        const topBtn = document.getElementById("topBtn");
+        // Toggle sidebar na mobilnom
+        const toggleBtn = document.getElementById('toggleBtn');
+        const sidebar = document.getElementById('sidebar');
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
 
+        // Glatko skrolovanje za sidebar linkove
+        document.querySelectorAll('.sidebar a[data-target]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                const targetEl = document.getElementById(targetId);
+                targetEl.scrollIntoView({ behavior: 'smooth' });
+                // Ako je mobilni, zatvori sidebar
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+
+        // Dugme Idi na vrh
+        const topBtn = document.getElementById("topBtn");
         window.onscroll = function() {
             if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
                 topBtn.style.display = "block";
@@ -105,21 +188,8 @@
         };
 
         function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
-        // Glatko skrolovanje za linkove u navigaciji
-        document.querySelectorAll('nav a[data-target]').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault(); // onemogućava instant "skok"
-                const targetId = this.getAttribute('data-target');
-                const targetEl = document.getElementById(targetId);
-                targetEl.scrollIntoView({ behavior: 'smooth' });
-            });
-        });
     </script>
 </body>
 </html>
