@@ -1,25 +1,116 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sr">
 <head>
-  <meta charset="UTF-8">
-  <title>Moj novi sajt</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jednostranična stranica</title>
+    <style>
+        /* --- Osnovni stilovi --- */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            scroll-behavior: smooth; /* glatko skrolovanje */
+        }
+
+        /* --- Navigacija --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #ff9800;
+        }
+
+        /* --- Sekcije --- */
+        section {
+            height: 100vh; /* visina ekrana */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            color: white;
+        }
+
+        #sekcija1 { background-color: #2196F3; }
+        #sekcija2 { background-color: #4CAF50; }
+        #sekcija3 { background-color: #f44336; }
+        #sekcija4 { background-color: #9C27B0; }
+
+        /* --- Dugme za vrh --- */
+        #topBtn {
+            display: none; /* sakriveno dok ne skrolujemo */
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1001;
+            font-size: 18px;
+            padding: 10px 15px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #topBtn:hover {
+            background-color: #ff9800;
+        }
+    </style>
 </head>
 <body>
-  <h1>Dobrodošli na moj sajt!</h1>
-  <p>Ovo je moja prva GitHub Pages stranica.</p>
 
-  <!-- Telegram iframe -->
-  <iframe src="https://t.me/s/imekanala" width="100%" height="600" frameborder="0"></iframe>
+    <!-- Navigacija -->
+    <nav>
+        <a href="#sekcija1">Sekcija 1</a>
+        <a href="#sekcija2">Sekcija 2</a>
+        <a href="#sekcija3">Sekcija 3</a>
+        <a href="#sekcija4">Sekcija 4</a>
+    </nav>
 
-  <!-- Discord Widget (WidgetBot) -->
-  <div id="discord-widget"></div>
-  <script src="https://cdn.jsdelivr.net/npm/@widgetbot/html-embed"></script>
-  <script>
-    new window.WidgetBot({
-      server: 'ID_TVOG_SERVERA',
-      channel: 'ID_TVOG_KANALA',
-      shard: 'https://e.widgetbot.io'
-    }).render(document.getElementById('discord-widget'));
-  </script>
+    <!-- Sekcije -->
+    <section id="sekcija1">Sekcija 1</section>
+    <section id="sekcija2">Sekcija 2</section>
+    <section id="sekcija3">Sekcija 3</section>
+    <section id="sekcija4">Sekcija 4</section>
+
+    <!-- Dugme za povratak na vrh -->
+    <button id="topBtn" onclick="scrollToTop()">Vrh</button>
+
+    <script>
+        // Prikazivanje dugmeta za vrh kada se skroluje
+        const topBtn = document.getElementById("topBtn");
+
+        window.onscroll = function() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                topBtn.style.display = "block";
+            } else {
+                topBtn.style.display = "none";
+            }
+        };
+
+        // Funkcija za povratak na vrh
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
 </body>
 </html>
