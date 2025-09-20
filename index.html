@@ -53,11 +53,6 @@
             text-align: center;
         }
 
-        #sekcija1 { background-color: #FFFFFF; }
-        #sekcija2 { background-color: #F5F5F5; }
-        #sekcija3 { background-color: #FFFFFF; }
-        #sekcija4 { background-color: #F5F5F5; }
-
         /* Dugme Idi na vrh */
         #topBtn {
             display: none;
@@ -130,27 +125,17 @@
                 display: block;
             }
         }
-
     </style>
 </head>
 <body>
 
     <!-- Sidebar -->
-    <div id="sidebar" class="sidebar">
-        <a data-target="sekcija1">Sekcija 1</a>
-        <a data-target="sekcija2">Sekcija 2</a>
-        <a data-target="sekcija3">Sekcija 3</a>
-        <a data-target="sekcija4">Sekcija 4</a>
-    </div>
+    <div id="sidebar" class="sidebar"></div>
 
     <!-- Glavni sadržaj -->
     <div id="main">
         <button id="toggleBtn">☰</button>
-
-        <section id="sekcija1">Učitavam...</section>
-        <section id="sekcija2">Učitavam...</section>
-        <section id="sekcija3">Učitavam...</section>
-        <section id="sekcija4">Učitavam...</section>
+        <div id="sections"></div>
     </div>
 
     <!-- Dugme Idi na vrh -->
@@ -162,24 +147,22 @@
     <script>
         const toggleBtn = document.getElementById('toggleBtn');
         const sidebar = document.getElementById('sidebar');
+        const sectionsContainer = document.getElementById('sections');
 
         // Dugme za toggle sidebar
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('open');
         });
 
-        // Touch swipe za otvaranje i zatvaranje sidebar-a (mobilni)
+        // Touch swipe (mobilni)
         let touchStartX = null;
-
-        document.addEventListener('touchstart', function(e) {
+        document.addEventListener('touchstart', e => {
             touchStartX = e.changedTouches[0].screenX;
         });
-
-        document.addEventListener('touchend', function(e) {
+        document.addEventListener('touchend', e => {
             if (!touchStartX) return;
             let touchEndX = e.changedTouches[0].screenX;
             let diffX = touchEndX - touchStartX;
-
             if (window.innerWidth <= 768) {
                 if (diffX > 50) sidebar.classList.add('open');
                 if (diffX < -50) sidebar.classList.remove('open');
@@ -187,42 +170,46 @@
             touchStartX = null;
         });
 
-        // Glatko skrolovanje za linkove
-        document.querySelectorAll('.sidebar a[data-target]').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('data-target');
-                const targetEl = document.getElementById(targetId);
-                targetEl.scrollIntoView({ behavior: 'smooth' });
-
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('open');
-                }
-            });
-        });
-
         // Dugme Idi na vrh
         const topBtn = document.getElementById("topBtn");
         window.onscroll = function() {
-            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-                topBtn.style.display = "block";
-            } else {
-                topBtn.style.display = "none";
-            }
+            topBtn.style.display = (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) ? "block" : "none";
         };
-
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Učitavanje sadržaja iz JSON fajla
+        // Dinamičko učitavanje sadržaja iz JSON-a
         fetch("content.json")
             .then(res => res.json())
             .then(data => {
-                document.getElementById("sekcija1").innerHTML = data.sekcija1;
-                document.getElementById("sekcija2").innerHTML = data.sekcija2;
-                document.getElementById("sekcija3").innerHTML = data.sekcija3;
-                document.getElementById("sekcija4").innerHTML = data.sekcija4;
+                sidebar.innerHTML = "";
+                sectionsContainer.innerHTML = "";
+
+                let index = 0;
+                for (let key in data) {
+                    index++;
+
+                    // Sidebar link
+                    const link = document.createElement("a");
+                    link.dataset.target = key;
+                    link.textContent = data[key].title;
+                    link.addEventListener("click", function(e) {
+                        e.preventDefault();
+                        const targetEl = document.getElementById(key);
+                        targetEl.scrollIntoView({ behavior: 'smooth' });
+                        if (window.innerWidth <= 768) sidebar.classList.remove('open');
+                    });
+                    sidebar.appendChild(link);
+
+                    // Sekcija
+                    const section = document.createElement("section");
+                    section.id = key;
+                    section.style.backgroundColor = data[key].bgColor || (index % 2 === 0 ? "#F5F5F5" : "#FFFFFF");
+                    section.style.color = data[key].textColor || "black";
+                    section.innerHTML = data[key].content;
+                    sectionsContainer.appendChild(section);
+                }
             })
             .catch(err => {
                 console.error("Greška pri učitavanju JSON-a:", err);
@@ -230,5 +217,3 @@
     </script>
 </body>
 </html>
-
-
