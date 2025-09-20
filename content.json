@@ -1,25 +1,25 @@
 {
   "sekcija1": {
-    "title": "Početna",
-    "content": "<h1>Dobrodošli!</h1><p>Ovo je sadržaj početne sekcije.</p>",
+    "title": "Botanica",
+    "content": "<h1>Botanica</h1><p><strong>Mreža znanja iza generisanih odgovora</strong></p><p>Botanica je kolektiv posvećen istraživanju i mapiranju načina na koji se informacije prikupljaju, obrađuju i prenose u digitalnom ekosistemu. Naš blog ne prodaje usluge i ne nudi prečice — ovde beležimo kako funkcioniše sistem u kome centralni hub povezuje specijalizovane servise:</p><ul><li>jezičke modele,</li><li>baze podataka,</li><li>RAG generatore,</li><li>i komunikacione alate.</li></ul><p>Naša ideja je jednostavna: umesto površnih, generičkih odgovora, gradimo modularan i specijalizovan pristup znanju. Botanica pokazuje kako se budućnost veba udaljava od klasičnih pretraživača i prelazi u svet u kome informacije nisu „na izvolite“, već se provereno i kontekstualno integrišu kroz dijalog sa mašinama.</p><p>Ovaj blog je mapa jednog sistema — arhitekture, principa i procesa koji stoje iza sledeće generacije informacione distribucije.</p><p><em>Dobrodošli u Botanica — mrežu u kojoj znanje raste kao živi organizam, korak po korak, grana po grana.</em></p>",
     "bgColor": "#ffffff",
     "textColor": "#000000"
   },
   "sekcija2": {
     "title": "O nama",
-    "content": "<h3>O nama</h3><p>Mi smo tim koji razvija sajt.</p>",
+    "content": "<h2>O nama</h2><p>Mi smo tim koji razvija sajt.</p>",
     "bgColor": "#f5f5f5",
     "textColor": "#000000"
   },
   "sekcija3": {
     "title": "Usluge",
-    "content": "<h6>Usluge</h6><p>Pružamo različite usluge za naše korisnike.</p>",
+    "content": "<h2>Usluge</h2><p>Pružamo različite usluge za naše korisnike.</p>",
     "bgColor": "#ffffff",
     "textColor": "#000000"
   },
   "sekcija4": {
     "title": "Kontakt",
-    "content": "<h4>Kontakt</h4><p>Pošaljite nam poruku putem Telegrama.</p>",
+    "content": "<h1>Kontakt</h1><p>Pošaljite nam poruku putem Telegrama.</p>",
     "bgColor": "#f5f5f5",
     "textColor": "#000000"
   },
