@@ -17,11 +17,12 @@
             top: 0;
             width: 250px;
             height: 100%;
-            background-color: #ffffff; /* bela boja kao original */
+            background-color: #ffffff; /* bela boja */
             color: black;
             padding-top: 60px;
             transition: transform 0.3s ease;
             z-index: 1002;
+            overflow-y: auto;
         }
 
         .sidebar a {
@@ -40,7 +41,7 @@
         #main {
             margin-left: 250px;
             transition: margin-left 0.3s ease;
-            padding-top: 50px; 
+            padding-top: 50px;
         }
 
         section {
@@ -100,7 +101,7 @@
 
         /* Toggle sidebar dugme */
         #toggleBtn {
-            display: none;
+            display: block; /* uvek vidljivo */
             position: fixed;
             top: 15px;
             left: 15px;
@@ -117,19 +118,23 @@
             .sidebar { transform: translateX(-250px); }
             .sidebar.open { transform: translateX(0); }
             #main { margin-left: 0; }
-            #toggleBtn { display: block; }
         }
     </style>
 </head>
 <body>
+    <!-- Sidebar -->
     <div id="sidebar" class="sidebar"></div>
 
+    <!-- Glavni sadržaj -->
     <div id="main">
         <button id="toggleBtn">☰</button>
         <div id="sections"></div>
     </div>
 
+    <!-- Dugme Idi na vrh -->
     <button id="topBtn" onclick="scrollToTop()">Idi na vrh</button>
+
+    <!-- Telegram dugme -->
     <a href="https://t.me/Cileaibot" target="_blank" id="telegramBtn">Postavi pitanje (Telegram)</a>
 
     <script>
@@ -137,9 +142,10 @@
         const sidebar = document.getElementById('sidebar');
         const sectionsContainer = document.getElementById('sections');
 
-        toggleBtn.addEventListener('click', () => { sidebar.classList.toggle('open'); });
+        // Toggle sidebar
+        toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
 
-        // Swipe za mobilni
+        // Touch swipe za mobilni
         let touchStartX = null;
         document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
         document.addEventListener('touchend', e => {
