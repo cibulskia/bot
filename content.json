@@ -7,13 +7,13 @@
   },
   "sekcija2": {
     "title": "O nama",
-    "content": "<h1>O nama</h1><p>Mi smo tim koji razvija sajt.</p>",
+    "content": "<h2>O nama</h2><p>Mi smo tim koji razvija sajt.</p>",
     "bgColor": "#f5f5f5",
     "textColor": "#000000"
   },
   "sekcija3": {
     "title": "Usluge",
-    "content": "<h1>Usluge</h1><p>Pružamo različite usluge za naše korisnike.</p>",
+    "content": "<h2>Usluge</h2><p>Pružamo različite usluge za naše korisnike.</p>",
     "bgColor": "#ffffff",
     "textColor": "#000000"
   },
@@ -25,7 +25,7 @@
   },
   "sekcija5": {
     "title": "Blog",
-    "content": "<h1>Blog</h1><p>Pročitajte naše proba proba proba proba proba proba <br>proba proba proba proba proba <br>proba proba proba proba proba proba proba <br>proba proba proba proba proba <br>proba proba proba proba proba najnovije članke.</p>",
+    "content": "<h1>Blog</h1><p>Pročitajte naše proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba najnovije članke.</p>",
     "bgColor": "#ffffff",
     "textColor": "#000000"
   }
