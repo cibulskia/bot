@@ -7,19 +7,19 @@
   },
   "sekcija2": {
     "title": "O nama",
-    "content": "<h2>O nama</h2><p>Mi smo tim koji razvija sajt.</p>",
+    "content": "<h6>O nama</h6><p>Mi smo tim koji razvija sajt.</p>",
     "bgColor": "#f5f5f5",
     "textColor": "#000000"
   },
   "sekcija3": {
     "title": "Usluge",
-    "content": "<h2>Usluge</h2><p>Pružamo različite usluge za naše korisnike.</p>",
+    "content": "<h6>Usluge</h6><p>Pružamo različite usluge za naše korisnike.</p>",
     "bgColor": "#ffffff",
     "textColor": "#000000"
   },
   "sekcija4": {
     "title": "Kontakt",
-    "content": "<h1>Kontakt</h1><p>Pošaljite nam poruku putem Telegrama.</p>",
+    "content": "<h4>Kontakt</h4><p>Pošaljite nam poruku putem Telegrama.</p>",
     "bgColor": "#f5f5f5",
     "textColor": "#000000"
   },
