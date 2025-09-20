@@ -63,14 +63,6 @@
         }
         #topBtn:hover { background-color:#555; }
 
-        #telegramBtn {
-            position:fixed; bottom:20px; right:30px; z-index:1004;
-            background-color:#888; color:white; padding:12px 20px; border:none;
-            border-radius:5px; font-size:16px; font-weight:bold; cursor:pointer;
-            text-decoration:none; transition:background-color 0.3s;
-        }
-        #telegramBtn:hover { background-color:#555; }
-
         #toggleBtn {
             display:block; position:fixed; top:15px; left:15px; font-size:24px;
             background:none; border:none; color:#333; cursor:pointer; z-index:1005;
@@ -91,7 +83,6 @@
     </div>
 
     <button id="topBtn" onclick="scrollToTop()">Botanica</button>
-    <a href="https://t.me/Cileaibot" target="_blank" id="telegramBtn">Postavi pitanje (Telegram)</a>
 
     <script>
         const toggleBtn = document.getElementById('toggleBtn');
@@ -174,7 +165,6 @@
                     section.style.color = item.textColor || "black";
                     section.innerHTML = item.content || "";
 
-                    // Pozadinska slika
                     if(item.bgImage) {
                         section.style.backgroundImage = `url('${item.bgImage}')`;
                     }
@@ -185,24 +175,19 @@
             .catch(err => console.error(err));
     </script>
 
-    <!-- PopupSmart Chat -->
-    <script type="text/javascript" src="https://popupsmart.com/freechat.js"></script>
-    <script>
-        window.start.init({
-            title: "Hi there ✌️",
-            message: "How may we help you? Just send us a message now to get assistance.",
-            color: "#FA764F",
-            position: "right",
-            placeholder: "Enter your message",
-            withText: "Write with",
-            viaWhatsapp: "Or write us directly via Whatsapp",
-            gty: "Go to your",
-            awu: "and write us",
-            connect: "Connect now",
-            button: "Write us",
-            device: "everywhere",
-            services: [{"name":"telegram","content":null}]
-        });
+    <!-- Tawk.to Chat -->
+    <script type="text/javascript">
+        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+        (function(){
+        var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+        s1.async=true;
+        s1.src='https://embed.tawk.to/68cefa94a303a6192295ea13/1j5k85lal';
+        s1.charset='UTF-8';
+        s1.setAttribute('crossorigin','*');
+        s0.parentNode.insertBefore(s1,s0);
+        })();
     </script>
+
 </body>
 </html>
+
