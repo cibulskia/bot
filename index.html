@@ -17,8 +17,8 @@
             top: 0;
             width: 250px;
             height: 100%;
-            background-color: #F5F5F5;
-            color: white;
+            background-color: #ffffff; /* bela boja kao original */
+            color: black;
             padding-top: 60px;
             transition: transform 0.3s ease;
             z-index: 1002;
@@ -46,11 +46,17 @@
         section {
             min-height: 100vh;
             display: flex;
+            flex-direction: column; /* h1 i p jedan ispod drugog */
             justify-content: center;
             align-items: center;
             font-size: 2em;
             padding: 20px;
             text-align: center;
+        }
+
+        section p {
+            font-size: 1em;
+            margin-top: 10px;
         }
 
         /* Dugme Idi na vrh */
