@@ -13,6 +13,7 @@
             transition: transform 0.3s ease; z-index:1002; overflow-y:auto;
         }
         .sidebar.closed { transform: translateX(-250px); }
+        .sidebar.open { transform: translateX(0); }
 
         .sidebar a {
             display:block; color:black; padding:15px 20px; text-decoration:none;
@@ -51,8 +52,6 @@
         }
 
         @media screen and (max-width:768px) {
-            .sidebar { transform: translateX(-250px); }
-            .sidebar.open { transform: translateX(0); }
             #main { margin-left:0; }
         }
     </style>
@@ -74,10 +73,15 @@
         const sectionsContainer = document.getElementById('sections');
 
         toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('closed');
-            main.classList.toggle('shifted');
+            if(window.innerWidth <= 768){
+                sidebar.classList.toggle('open'); // mobilni
+            } else {
+                sidebar.classList.toggle('closed'); // desktop
+                main.classList.toggle('shifted');
+            }
         });
 
+        // Touch swipe za mobilni
         let touchStartX = null;
         document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
         document.addEventListener('touchend', e => {
@@ -90,10 +94,12 @@
             touchStartX = null;
         });
 
+        // Dugme "Idi na vrh"
         const topBtn = document.getElementById("topBtn");
         window.onscroll = () => topBtn.style.display = (document.documentElement.scrollTop > 200) ? "block" : "none";
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
+        // Dinamičko učitavanje sekcija iz JSON-a
         fetch("content.json")
             .then(res => res.ok ? res.json() : Promise.reject("Greška u učitavanju JSON-a"))
             .then(data => {
