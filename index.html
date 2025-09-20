@@ -8,7 +8,11 @@
     <meta http-equiv="Expires" content="0" />
     <title>Stranica sa sidebarom</title>
     <style>
-        body { margin:0; font-family: Arial, sans-serif; }
+        body { 
+            margin:0; 
+            font-family: Arial, sans-serif; 
+            background-color: #fff;
+        }
         .sidebar {
             position: fixed; left:0; top:0; width:250px; height:100%;
             background-color:#ffffff; color:black; padding-top:60px;
@@ -21,11 +25,10 @@
         .sidebar a:hover { background-color: #E0E0E0; }
 
         #main {
-            margin-left:250px; /* Default stanje za desktop: sidebar otvoren */
+            margin-left:250px; 
             transition: margin-left 0.3s ease; padding-top:50px;
         }
 
-        /* Stanje kada je sidebar zatvoren na desktopu */
         .sidebar.desktop-closed {
             transform: translateX(-250px);
         }
@@ -36,18 +39,21 @@
         section {
             min-height:100vh; display:flex; flex-direction:column;
             justify-content:flex-start; align-items:center; font-size:2em;
-            padding:20px; text-align:center;
+            padding:20px; text-align:center; position:relative;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background 0.3s ease;
         }
         section p { font-size:0.7em; margin-top:10px; }
 
-        /* Dodato za listu */
         section ul {
-            font-size: 0.8em; /* podešava veličinu teksta unutar liste u odnosu na section */
-            text-align: left; /* da stavke ne budu centrirane */
-            max-width: 600px; /* opcionalno, da ne idu preširoko */
+            font-size: 0.8em;
+            text-align: left;
+            max-width: 600px;
         }
         section ul li {
-            margin: 6px 0; /* malo razmaka između stavki */
+            margin: 6px 0;
         }
 
         #topBtn {
@@ -71,12 +77,9 @@
         }
 
         @media screen and (max-width:768px) {
-            .sidebar { transform: translateX(-250px); } /* Inicijalno zatvoren na mobilnom */
-            .sidebar.mobile-open { transform: translateX(0); } /* Otvoren na mobilnom */
-            #main { margin-left:0; } /* Uvek 0 na mobilnom */
-
-            .sidebar.desktop-closed { transform: translateX(-250px); }
-            body.desktop-sidebar-closed #main { margin-left:0; }
+            .sidebar { transform: translateX(-250px); } 
+            .sidebar.mobile-open { transform: translateX(0); } 
+            #main { margin-left:0; }
         }
     </style>
 </head>
@@ -145,12 +148,14 @@
         fetch("content.json?v=" + new Date().getTime())
             .then(res => res.ok ? res.json() : Promise.reject("Greška u učitavanju JSON-a"))
             .then(data => {
-                sidebar.innerHTML = ""; sectionsContainer.innerHTML = "";
+                sidebar.innerHTML = ""; 
+                sectionsContainer.innerHTML = "";
                 let i = 0;
                 for(let key in data) {
                     i++;
                     const item = data[key];
 
+                    // Sidebar link
                     const link = document.createElement("a");
                     link.dataset.target = key;
                     link.textContent = item.title;
@@ -158,17 +163,22 @@
                         e.preventDefault();
                         const sec = document.getElementById(key);
                         if(sec) sec.scrollIntoView({behavior:"smooth"});
-                        if(window.innerWidth <= 768) {
-                            sidebar.classList.remove('mobile-open');
-                        }
+                        if(window.innerWidth <= 768) sidebar.classList.remove('mobile-open');
                     });
                     sidebar.appendChild(link);
 
+                    // Section
                     const section = document.createElement("section");
                     section.id = key;
                     section.style.backgroundColor = item.bgColor || (i%2===0?"#F5F5F5":"#FFFFFF");
                     section.style.color = item.textColor || "black";
                     section.innerHTML = item.content || "";
+
+                    // Pozadinska slika
+                    if(item.bgImage) {
+                        section.style.backgroundImage = `url('${item.bgImage}')`;
+                    }
+
                     sectionsContainer.appendChild(section);
                 }
             })
