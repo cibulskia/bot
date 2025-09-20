@@ -3,37 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stranica sa sidebarom i navigatorom</title>
+    <title>Stranica sa sidebarom</title>
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-        }
-
-        /* Top navigator */
-        nav.topnav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #F5F5F5;
-            color: black;
-            padding: 10px 0;
-            text-align: center;
-            z-index: 1003;
-        }
-
-        nav.topnav a {
-            color: black;
-            margin: 0 15px;
-            text-decoration: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        nav.topnav a:hover {
-            color: #ff9800;
         }
 
         /* Sidebar */
@@ -43,7 +17,7 @@
             top: 0;
             width: 250px;
             height: 100%;
-            background-color: #333;
+            background-color: #F5F5F5;
             color: white;
             padding-top: 60px;
             transition: transform 0.3s ease;
@@ -52,29 +26,31 @@
 
         .sidebar a {
             display: block;
-            color: white;
+            color: black;
             padding: 15px 20px;
             text-decoration: none;
             transition: background 0.3s;
         }
 
         .sidebar a:hover {
-            background-color: #555;
+            background-color: #E0E0E0;
         }
 
         /* Glavni sadržaj */
         #main {
             margin-left: 250px;
             transition: margin-left 0.3s ease;
-            padding-top: 50px; /* za top navigator */
+            padding-top: 50px; /* rezervisano za vrh */
         }
 
         section {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 2em;
+            padding: 20px;
+            text-align: center;
         }
 
         #sekcija1 { background-color: #FFFFFF; }
@@ -129,7 +105,7 @@
         #toggleBtn {
             display: none;
             position: fixed;
-            top: 35px;
+            top: 15px;
             left: 15px;
             font-size: 24px;
             background: none;
@@ -159,14 +135,6 @@
 </head>
 <body>
 
-    <!-- Top navigator -->
-    <nav class="topnav">
-        <a data-target="sekcija1">Sekcija 1</a>
-        <a data-target="sekcija2">Sekcija 2</a>
-        <a data-target="sekcija3">Sekcija 3</a>
-        <a data-target="sekcija4">Sekcija 4</a>
-    </nav>
-
     <!-- Sidebar -->
     <div id="sidebar" class="sidebar">
         <a data-target="sekcija1">Sekcija 1</a>
@@ -179,10 +147,10 @@
     <div id="main">
         <button id="toggleBtn">☰</button>
 
-        <section id="sekcija1">Sekcija 1</section>
-        <section id="sekcija2">Sekcija 2</section>
-        <section id="sekcija3">Sekcija 3</section>
-        <section id="sekcija4">Sekcija 4</section>
+        <section id="sekcija1">Učitavam...</section>
+        <section id="sekcija2">Učitavam...</section>
+        <section id="sekcija3">Učitavam...</section>
+        <section id="sekcija4">Učitavam...</section>
     </div>
 
     <!-- Dugme Idi na vrh -->
@@ -212,7 +180,6 @@
             let touchEndX = e.changedTouches[0].screenX;
             let diffX = touchEndX - touchStartX;
 
-            // Ako je swipe desno i na mobilnom, otvori sidebar
             if (window.innerWidth <= 768) {
                 if (diffX > 50) sidebar.classList.add('open');
                 if (diffX < -50) sidebar.classList.remove('open');
@@ -221,14 +188,13 @@
         });
 
         // Glatko skrolovanje za linkove
-        document.querySelectorAll('.sidebar a[data-target], .topnav a[data-target]').forEach(link => {
+        document.querySelectorAll('.sidebar a[data-target]').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const targetId = this.getAttribute('data-target');
                 const targetEl = document.getElementById(targetId);
                 targetEl.scrollIntoView({ behavior: 'smooth' });
 
-                // Na mobilnom zatvori sidebar nakon klika
                 if (window.innerWidth <= 768) {
                     sidebar.classList.remove('open');
                 }
@@ -248,7 +214,21 @@
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+
+        // Učitavanje sadržaja iz JSON fajla
+        fetch("content.json")
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("sekcija1").innerHTML = data.sekcija1;
+                document.getElementById("sekcija2").innerHTML = data.sekcija2;
+                document.getElementById("sekcija3").innerHTML = data.sekcija3;
+                document.getElementById("sekcija4").innerHTML = data.sekcija4;
+            })
+            .catch(err => {
+                console.error("Greška pri učitavanju JSON-a:", err);
+            });
     </script>
 </body>
 </html>
+
 
