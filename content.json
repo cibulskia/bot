@@ -1,6 +1,30 @@
 {
-  "sekcija1": "Ovo je sadržaj prve sekcije (može biti dugačak tekst).",
-  "sekcija2": "Ovo je tekst za sekciju 2, učitan iz JSON fajla.",
-  "sekcija3": "Treća sekcija sa svojim sadržajem.",
-  "sekcija4": "Poslednja sekcija – sve dinamički učitano!"
+  "sekcija1": {
+    "title": "Početna",
+    "content": "Dobrodošli na naš sajt!",
+    "bgColor": "#1e1e2f",
+    "textColor": "#ffffff",
+    "bgImage": "images/pocetna.jpg"
+  },
+  "sekcija2": {
+    "title": "O nama",
+    "content": "Mi smo tim posvećen kvalitetu.",
+    "bgColor": "#ffffff",
+    "textColor": "#333333",
+    "bgImage": ""
+  },
+  "sekcija3": {
+    "title": "Usluge",
+    "content": "Nudimo razne usluge.",
+    "bgColor": "#f4f4f4",
+    "textColor": "#111111",
+    "bgImage": "images/usluge.png"
+  },
+  "sekcija4": {
+    "title": "Kontakt",
+    "content": "Kontaktirajte nas putem forme.",
+    "bgColor": "#222222",
+    "textColor": "#eeeeee",
+    "bgImage": ""
+  }
 }
