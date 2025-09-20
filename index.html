@@ -40,7 +40,7 @@
         #main {
             margin-left: 250px;
             transition: margin-left 0.3s ease;
-            padding-top: 50px; /* rezervisano za vrh */
+            padding-top: 50px; 
         }
 
         section {
@@ -70,9 +70,7 @@
             transition: background-color 0.3s;
         }
 
-        #topBtn:hover {
-            background-color: #555;
-        }
+        #topBtn:hover { background-color: #555; }
 
         /* Telegram dugme */
         #telegramBtn {
@@ -92,11 +90,9 @@
             transition: background-color 0.3s;
         }
 
-        #telegramBtn:hover {
-            background-color: #555;
-        }
+        #telegramBtn:hover { background-color: #555; }
 
-        /* Dugme za toggle sidebar-a */
+        /* Toggle sidebar dugme */
         #toggleBtn {
             display: none;
             position: fixed;
@@ -112,36 +108,22 @@
 
         /* Mobile */
         @media screen and (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-250px);
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            #main {
-                margin-left: 0;
-            }
-            #toggleBtn {
-                display: block;
-            }
+            .sidebar { transform: translateX(-250px); }
+            .sidebar.open { transform: translateX(0); }
+            #main { margin-left: 0; }
+            #toggleBtn { display: block; }
         }
     </style>
 </head>
 <body>
-
-    <!-- Sidebar -->
     <div id="sidebar" class="sidebar"></div>
 
-    <!-- Glavni sadržaj -->
     <div id="main">
         <button id="toggleBtn">☰</button>
         <div id="sections"></div>
     </div>
 
-    <!-- Dugme Idi na vrh -->
     <button id="topBtn" onclick="scrollToTop()">Idi na vrh</button>
-
-    <!-- Telegram dugme -->
     <a href="https://t.me/Cileaibot" target="_blank" id="telegramBtn">Postavi pitanje (Telegram)</a>
 
     <script>
@@ -149,20 +131,14 @@
         const sidebar = document.getElementById('sidebar');
         const sectionsContainer = document.getElementById('sections');
 
-        // Dugme za toggle sidebar
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-        });
+        toggleBtn.addEventListener('click', () => { sidebar.classList.toggle('open'); });
 
-        // Touch swipe (mobilni)
+        // Swipe za mobilni
         let touchStartX = null;
-        document.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
+        document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
         document.addEventListener('touchend', e => {
             if (!touchStartX) return;
-            let touchEndX = e.changedTouches[0].screenX;
-            let diffX = touchEndX - touchStartX;
+            let diffX = e.changedTouches[0].screenX - touchStartX;
             if (window.innerWidth <= 768) {
                 if (diffX > 50) sidebar.classList.add('open');
                 if (diffX < -50) sidebar.classList.remove('open');
@@ -170,34 +146,31 @@
             touchStartX = null;
         });
 
-        // Dugme Idi na vrh
+        // Scroll top dugme
         const topBtn = document.getElementById("topBtn");
-        window.onscroll = function() {
-            topBtn.style.display = (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) ? "block" : "none";
-        };
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        window.onscroll = () => topBtn.style.display = (document.documentElement.scrollTop > 200) ? "block" : "none";
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        // Dinamičko učitavanje sadržaja iz JSON-a
+        // Dinamičko učitavanje iz JSON-a
         fetch("content.json")
-            .then(res => res.json())
+            .then(res => res.ok ? res.json() : Promise.reject("Greška u učitavanju JSON-a"))
             .then(data => {
                 sidebar.innerHTML = "";
                 sectionsContainer.innerHTML = "";
 
-                let index = 0;
+                let i = 0;
                 for (let key in data) {
-                    index++;
+                    i++;
+                    const item = data[key];
 
                     // Sidebar link
                     const link = document.createElement("a");
                     link.dataset.target = key;
-                    link.textContent = data[key].title;
-                    link.addEventListener("click", function(e) {
+                    link.textContent = item.title;
+                    link.addEventListener("click", e => {
                         e.preventDefault();
-                        const targetEl = document.getElementById(key);
-                        targetEl.scrollIntoView({ behavior: 'smooth' });
+                        const sec = document.getElementById(key);
+                        if(sec) sec.scrollIntoView({behavior:"smooth"});
                         if (window.innerWidth <= 768) sidebar.classList.remove('open');
                     });
                     sidebar.appendChild(link);
@@ -205,15 +178,13 @@
                     // Sekcija
                     const section = document.createElement("section");
                     section.id = key;
-                    section.style.backgroundColor = data[key].bgColor || (index % 2 === 0 ? "#F5F5F5" : "#FFFFFF");
-                    section.style.color = data[key].textColor || "black";
-                    section.innerHTML = data[key].content;
+                    section.style.backgroundColor = item.bgColor || (i % 2 === 0 ? "#F5F5F5" : "#FFFFFF");
+                    section.style.color = item.textColor || "black";
+                    section.innerHTML = item.content || "";
                     sectionsContainer.appendChild(section);
                 }
             })
-            .catch(err => {
-                console.error("Greška pri učitavanju JSON-a:", err);
-            });
+            .catch(err => console.error(err));
     </script>
 </body>
 </html>
