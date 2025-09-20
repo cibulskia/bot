@@ -6,6 +6,7 @@
     <title>Stranica sa sidebarom</title>
     <style>
         body { margin:0; font-family: Arial, sans-serif; }
+
         .sidebar {
             position: fixed; left:0; top:0; width:250px; height:100%;
             background-color:#ffffff; color:black; padding-top:60px;
@@ -16,6 +17,11 @@
             transition: background 0.3s;
         }
         .sidebar a:hover { background-color: #E0E0E0; }
+
+        /* Desktop: sidebar može biti zatvoren */
+        .sidebar.closed {
+            transform: translateX(-250px);
+        }
 
         #main { margin-left:250px; transition: margin-left 0.3s ease; padding-top:50px; }
 
@@ -54,7 +60,7 @@
     </style>
 </head>
 <body>
-    <div id="sidebar" class="sidebar"></div>
+    <div id="sidebar" class="sidebar closed"></div>
     <div id="main">
         <button id="toggleBtn">☰</button>
         <div id="sections"></div>
@@ -68,8 +74,16 @@
         const sidebar = document.getElementById('sidebar');
         const sectionsContainer = document.getElementById('sections');
 
-        toggleBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+        // Toggle sidebar (desktop i mobilni)
+        toggleBtn.addEventListener('click', () => {
+            if(window.innerWidth <= 768) {
+                sidebar.classList.toggle('open'); // mobilni
+            } else {
+                sidebar.classList.toggle('closed'); // desktop
+            }
+        });
 
+        // Swipe za otvaranje/zakljucavanje na mobilnom
         let touchStartX = null;
         document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
         document.addEventListener('touchend', e => {
@@ -82,10 +96,12 @@
             touchStartX = null;
         });
 
+        // Dugme "Idi na vrh"
         const topBtn = document.getElementById("topBtn");
         window.onscroll = () => topBtn.style.display = (document.documentElement.scrollTop > 200) ? "block" : "none";
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
+        // Dinamičke sekcije iz JSON-a
         fetch("content.json")
             .then(res => res.ok ? res.json() : Promise.reject("Greška u učitavanju JSON-a"))
             .then(data => {
