@@ -40,6 +40,16 @@
         }
         section p { font-size:0.7em; margin-top:10px; }
 
+        /* Dodato za listu */
+        section ul {
+            font-size: 0.8em; /* podešava veličinu teksta unutar liste u odnosu na section */
+            text-align: left; /* da stavke ne budu centrirane */
+            max-width: 600px; /* opcionalno, da ne idu preširoko */
+        }
+        section ul li {
+            margin: 6px 0; /* malo razmaka između stavki */
+        }
+
         #topBtn {
             display:none; position:fixed; top:20px; right:30px; z-index:1004;
             font-size:16px; padding:10px 15px; background-color:#888; color:white;
