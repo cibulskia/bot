@@ -10,8 +10,6 @@
             position: fixed; left:0; top:0; width:250px; height:100%;
             background-color:#ffffff; color:black; padding-top:60px;
             transition: transform 0.3s ease; z-index:1002; overflow-y:auto;
-            /* Inicijalno stanje za mobilne i desktop */
-            transform: translateX(0); /* Pretpostavljamo da je otvoren na desktopu */
         }
         .sidebar a {
             display:block; color:black; padding:15px 20px; text-decoration:none;
@@ -20,15 +18,15 @@
         .sidebar a:hover { background-color: #E0E0E0; }
 
         #main {
-            margin-left:250px; /* Inicijalno stanje za desktop */
+            margin-left:250px; /* Default stanje za desktop: sidebar otvoren */
             transition: margin-left 0.3s ease; padding-top:50px;
         }
 
-        /* Skrivanje sidebara i prilagođavanje main elementa kada je sidebar zatvoren */
-        .sidebar.closed {
+        /* Stanje kada je sidebar zatvoren na desktopu */
+        .sidebar.desktop-closed {
             transform: translateX(-250px);
         }
-        body.sidebar-closed #main {
+        body.desktop-sidebar-closed #main {
             margin-left:0;
         }
 
@@ -61,16 +59,12 @@
 
         @media screen and (max-width:768px) {
             .sidebar { transform: translateX(-250px); } /* Inicijalno zatvoren na mobilnom */
-            .sidebar.open { transform: translateX(0); } /* Otvoren na mobilnom */
-            #main { margin-left:0; } /* Uvek 0 na mobilnom, sidebar preklapa */
+            .sidebar.mobile-open { transform: translateX(0); } /* Otvoren na mobilnom */
+            #main { margin-left:0; } /* Uvek 0 na mobilnom */
 
-            /* Uklanjamo pravila za .sidebar.closed na mobilnom jer je .sidebar vec zatvoren */
-            .sidebar.closed {
-                transform: translateX(-250px);
-            }
-            body.sidebar-closed #main {
-                margin-left:0; /* Na mobilnom ovo nema efekta, ali ne smeta */
-            }
+            /* Poništavanje desktop specifičnih pravila na mobilnom */
+            .sidebar.desktop-closed { transform: translateX(-250px); }
+            body.desktop-sidebar-closed #main { margin-left:0; }
         }
     </style>
 </head>
@@ -93,33 +87,36 @@
         // Funkcija za prebacivanje stanja sidebara
         function toggleSidebar() {
             if (window.innerWidth > 768) { // Desktop
-                sidebar.classList.toggle('closed');
-                body.classList.toggle('sidebar-closed');
+                sidebar.classList.toggle('desktop-closed');
+                body.classList.toggle('desktop-sidebar-closed');
             } else { // Mobilni
-                sidebar.classList.toggle('open');
+                sidebar.classList.toggle('mobile-open');
             }
         }
 
         toggleBtn.addEventListener('click', toggleSidebar);
 
-        // Inicijalno stanje sidebara pri učitavanju stranice
-        function setInitialSidebarState() {
+        // Funkcija za postavljanje inicijalnog stanja sidebara i pri promeni veličine
+        function setSidebarState() {
             if (window.innerWidth > 768) {
-                // Na desktopu, sidebar je inicijalno otvoren
-                sidebar.classList.remove('closed');
-                body.classList.remove('sidebar-closed');
+                // Desktop: sidebar je inicijalno otvoren
+                sidebar.classList.remove('desktop-closed');
+                body.classList.remove('desktop-sidebar-closed');
+
+                // Osiguraj da se mobilne klase uklone ako se prelazi na desktop
+                sidebar.classList.remove('mobile-open');
             } else {
-                // Na mobilnom, sidebar je inicijalno zatvoren
-                sidebar.classList.add('closed'); // Koristimo 'closed' za mobilni da se CSS transform primeni
-                sidebar.classList.remove('open'); // Ukloni 'open' za svaki slucaj
-                body.classList.remove('sidebar-closed'); // Na mobilnom ne menjamo marginu main-a
+                // Mobilni: sidebar je inicijalno zatvoren
+                sidebar.classList.remove('mobile-open'); // Osiguraj da nije otvoren
+                sidebar.classList.remove('desktop-closed'); // Ukloni desktop klase
+                body.classList.remove('desktop-sidebar-closed');
             }
         }
 
-        // Postavi inicijalno stanje pri učitavanju
-        window.addEventListener('load', setInitialSidebarState);
-        // I pri promeni veličine prozora
-        window.addEventListener('resize', setInitialSidebarState);
+        // Postavi inicijalno stanje pri učitavanju stranice
+        window.addEventListener('load', setSidebarState);
+        // Prilagodi stanje sidebara pri promeni veličine prozora
+        window.addEventListener('resize', setSidebarState);
 
 
         let touchStartX = null;
@@ -128,13 +125,11 @@
             if(!touchStartX) return;
             let diffX = e.changedTouches[0].screenX - touchStartX;
             if(window.innerWidth <= 768) {
-                if(diffX > 50 && !sidebar.classList.contains('open')) { // Otvaranje sa swipe-om udesno
-                    sidebar.classList.add('open');
-                    sidebar.classList.remove('closed'); // Ukloni 'closed' kada se otvara
+                if(diffX > 50 && !sidebar.classList.contains('mobile-open')) { // Otvaranje sa swipe-om udesno
+                    sidebar.classList.add('mobile-open');
                 }
-                if(diffX < -50 && sidebar.classList.contains('open')) { // Zatvaranje sa swipe-om ulevo
-                    sidebar.classList.remove('open');
-                    sidebar.classList.add('closed'); // Dodaj 'closed' kada se zatvara
+                if(diffX < -50 && sidebar.classList.contains('mobile-open')) { // Zatvaranje sa swipe-om ulevo
+                    sidebar.classList.remove('mobile-open');
                 }
             }
             touchStartX = null;
@@ -162,8 +157,7 @@
                         if(sec) sec.scrollIntoView({behavior:"smooth"});
                         // Zatvori sidebar na mobilnom nakon klika na link
                         if(window.innerWidth <= 768) {
-                            sidebar.classList.remove('open');
-                            sidebar.classList.add('closed'); // Odrzava stanje zatvorenog sidebara
+                            sidebar.classList.remove('mobile-open');
                         }
                     });
                     sidebar.appendChild(link);
