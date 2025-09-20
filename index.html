@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Stranica sa sidebarom</title>
     <style>
         body { margin:0; font-family: Arial, sans-serif; }
@@ -22,7 +25,6 @@
             transition: margin-left 0.3s ease; padding-top:50px;
         }
 
-        /* Stanje kada je sidebar zatvoren na desktopu */
         .sidebar.desktop-closed {
             transform: translateX(-250px);
         }
@@ -62,7 +64,6 @@
             .sidebar.mobile-open { transform: translateX(0); } /* Otvoren na mobilnom */
             #main { margin-left:0; } /* Uvek 0 na mobilnom */
 
-            /* Poništavanje desktop specifičnih pravila na mobilnom */
             .sidebar.desktop-closed { transform: translateX(-250px); }
             body.desktop-sidebar-closed #main { margin-left:0; }
         }
@@ -84,40 +85,31 @@
         const sectionsContainer = document.getElementById('sections');
         const body = document.body;
 
-        // Funkcija za prebacivanje stanja sidebara
         function toggleSidebar() {
-            if (window.innerWidth > 768) { // Desktop
+            if (window.innerWidth > 768) {
                 sidebar.classList.toggle('desktop-closed');
                 body.classList.toggle('desktop-sidebar-closed');
-            } else { // Mobilni
+            } else {
                 sidebar.classList.toggle('mobile-open');
             }
         }
 
         toggleBtn.addEventListener('click', toggleSidebar);
 
-        // Funkcija za postavljanje inicijalnog stanja sidebara i pri promeni veličine
         function setSidebarState() {
             if (window.innerWidth > 768) {
-                // Desktop: sidebar je inicijalno otvoren
                 sidebar.classList.remove('desktop-closed');
                 body.classList.remove('desktop-sidebar-closed');
-
-                // Osiguraj da se mobilne klase uklone ako se prelazi na desktop
                 sidebar.classList.remove('mobile-open');
             } else {
-                // Mobilni: sidebar je inicijalno zatvoren
-                sidebar.classList.remove('mobile-open'); // Osiguraj da nije otvoren
-                sidebar.classList.remove('desktop-closed'); // Ukloni desktop klase
+                sidebar.classList.remove('mobile-open');
+                sidebar.classList.remove('desktop-closed');
                 body.classList.remove('desktop-sidebar-closed');
             }
         }
 
-        // Postavi inicijalno stanje pri učitavanju stranice
         window.addEventListener('load', setSidebarState);
-        // Prilagodi stanje sidebara pri promeni veličine prozora
         window.addEventListener('resize', setSidebarState);
-
 
         let touchStartX = null;
         document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
@@ -125,10 +117,10 @@
             if(!touchStartX) return;
             let diffX = e.changedTouches[0].screenX - touchStartX;
             if(window.innerWidth <= 768) {
-                if(diffX > 50 && !sidebar.classList.contains('mobile-open')) { // Otvaranje sa swipe-om udesno
+                if(diffX > 50 && !sidebar.classList.contains('mobile-open')) {
                     sidebar.classList.add('mobile-open');
                 }
-                if(diffX < -50 && sidebar.classList.contains('mobile-open')) { // Zatvaranje sa swipe-om ulevo
+                if(diffX < -50 && sidebar.classList.contains('mobile-open')) {
                     sidebar.classList.remove('mobile-open');
                 }
             }
@@ -139,7 +131,7 @@
         window.onscroll = () => topBtn.style.display = (document.documentElement.scrollTop > 200) ? "block" : "none";
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        fetch("content.json")
+        fetch("content.json?v=" + new Date().getTime())
             .then(res => res.ok ? res.json() : Promise.reject("Greška u učitavanju JSON-a"))
             .then(data => {
                 sidebar.innerHTML = ""; sectionsContainer.innerHTML = "";
@@ -155,7 +147,6 @@
                         e.preventDefault();
                         const sec = document.getElementById(key);
                         if(sec) sec.scrollIntoView({behavior:"smooth"});
-                        // Zatvori sidebar na mobilnom nakon klika na link
                         if(window.innerWidth <= 768) {
                             sidebar.classList.remove('mobile-open');
                         }
