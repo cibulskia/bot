@@ -1,31 +1,31 @@
 {
   "sekcija1": {
     "title": "Botanica",
-    "content": "<h1>Botanica</h1><p><strong>Mreža znanja iza generisanih odgovora</strong></p><p>Botanica je kolektiv posvećen istraživanju i mapiranju načina na koji se informacije prikupljaju, obrađuju i prenose u digitalnom ekosistemu. Naš blog ne prodaje usluge i ne nudi prečice — ovde beležimo kako funkcioniše sistem u kome centralni hub povezuje specijalizovane servise:</p><ul><li>jezičke modele,</li><li>baze podataka,</li><li>RAG generatore,</li><li> komunikacione alate</li></ul><p>Naša ideja je jednostavna: umesto površnih, generičkih odgovora, gradimo modularan i specijalizovan pristup znanju. Botanica pokazuje kako se budućnost veba udaljava od klasičnih pretraživača i prelazi u svet u kome informacije nisu „na izvolite“, već se provereno i kontekstualno integrišu kroz dijalog sa mašinama.</p><p>Ovaj blog je mapa jednog sistema — arhitekture, principa i procesa koji stoje iza sledeće generacije informacione distribucije.</p><p><em>Dobrodošli u Botanica — mrežu u kojoj znanje raste kao živi organizam, korak po korak, grana po grana.</em></p>",
+    "content": "<h1>Botanica</h1><p><strong>Mreža znanja iza generisanih odgovora</strong></p><p>Botanica je kolektiv posvećen istraživanju i mapiranju načina na koji se informacije prikupljaju, obrađuju i prenose u digitalnom ekosistemu. Naš blog ne prodaje usluge i ne nudi prečice — ovde beležimo kako funkcioniše sistem u kome centralni hub povezuje specijalizovane servise:</p><ul><li>jezičke modele</li><li>baze podataka</li><li>RAG generatore</li><li>komunikacione alate</li></ul><p>Naša ideja je jednostavna: umesto površnih, generičkih odgovora, gradimo modularan i specijalizovan pristup znanju. Botanica pokazuje kako se budućnost veba udaljava od klasičnih pretraživača i prelazi u svet u kome informacije nisu „na izvolite“, već se provereno i kontekstualno integrišu kroz dijalog sa mašinama.</p><p>Ovaj blog je mapa jednog sistema — arhitekture, principa i procesa koji stoje iza sledeće generacije informacione distribucije.</p><p><em>Dobrodošli u Botanica — mrežu u kojoj znanje raste kao živi organizam, korak po korak, grana po grana.</em></p>",
     "bgColor": "#ffffff",
     "textColor": "#000000"
   },
   "sekcija2": {
     "title": "O nama",
-    "content": "<h2>O nama</h2><p>Mi smo tim koji razvija sajt.</p>",
+    "content": "<h2>O nama</h2><p>Botanica je otvoreni kolektiv istraživača, praktičara i entuzijasta koji prate razvoj digitalnog ekosistema. Ne predstavljamo kompaniju niti proizvod, već zajednicu koja deli znanje i gradi mostove između tehnologije i ljudi.</p>",
     "bgColor": "#f5f5f5",
     "textColor": "#000000"
   },
   "sekcija3": {
-    "title": "Usluge",
-    "content": "<h2>Usluge</h2><p>Pružamo različite usluge za naše korisnike.</p>",
+    "title": "Pristup",
+    "content": "<h2>Pristup</h2><p>Naš rad nije usmeren na komercijalne usluge, već na stvaranje mapa, modela i primera kako znanje može da se organizuje na modularan način. Delimo metodologije, eksperimente i uvide koji pomažu razumevanju sistema budućnosti.</p>",
     "bgColor": "#ffffff",
     "textColor": "#000000"
   },
   "sekcija4": {
     "title": "Kontakt",
-    "content": "<h1>Kontakt</h1><p>Pošaljite nam poruku putem Telegrama.</p>",
+    "content": "<h2>Kontakt</h2><p>Ukoliko želite da podelite ideju, predlog ili pitanje, možete nam pisati putem Telegrama.</p>",
     "bgColor": "#f5f5f5",
     "textColor": "#000000"
   },
   "sekcija5": {
     "title": "Blog",
-    "content": "<h1>Blog</h1><p>Pročitajte naše proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba proba najnovije članke.</p>",
+    "content": "<h2>Blog</h2><p>Na blogu pratite zapise o arhitekturi sistema, eksperimentima sa jezičkim modelima i beleške o načinima na koje znanje cirkuliše u digitalnom okruženju.</p>",
     "bgColor": "#ffffff",
     "textColor": "#000000"
   }
