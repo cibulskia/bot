@@ -60,7 +60,7 @@
     </style>
 </head>
 <body>
-    <div id="sidebar" class="sidebar closed"></div>
+    <div id="sidebar" class="sidebar"></div>
     <div id="main">
         <button id="toggleBtn">☰</button>
         <div id="sections"></div>
@@ -74,7 +74,7 @@
         const sidebar = document.getElementById('sidebar');
         const sectionsContainer = document.getElementById('sections');
 
-        // Toggle sidebar (desktop i mobilni)
+        // Dugme za otvaranje/zatvaranje sidebar-a
         toggleBtn.addEventListener('click', () => {
             if(window.innerWidth <= 768) {
                 sidebar.classList.toggle('open'); // mobilni
@@ -83,7 +83,7 @@
             }
         });
 
-        // Swipe za otvaranje/zakljucavanje na mobilnom
+        // Swipe za mobilni
         let touchStartX = null;
         document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
         document.addEventListener('touchend', e => {
