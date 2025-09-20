@@ -1,0 +1,6 @@
+{
+  "sekcija1": "Ovo je sadržaj prve sekcije (može biti dugačak tekst).",
+  "sekcija2": "Ovo je tekst za sekciju 2, učitan iz JSON fajla.",
+  "sekcija3": "Treća sekcija sa svojim sadržajem.",
+  "sekcija4": "Poslednja sekcija – sve dinamički učitano!"
+}
