@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stranica sa sidebarom</title>
+    <title>Stranica sa sidebarom i chatom</title>
     <style>
         body { margin:0; font-family: Arial, sans-serif; }
         .sidebar {
             position: fixed; left:0; top:0; width:250px; height:100%;
             background-color:#ffffff; color:black; padding-top:60px;
             transition: transform 0.3s ease; z-index:1002; overflow-y:auto;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1); /* Dodatni stil */
         }
         .sidebar a {
             display:block; color:black; padding:15px 20px; text-decoration:none;
@@ -23,23 +22,18 @@
             transition: margin-left 0.3s ease; padding-top:50px;
         }
 
-        .sidebar.desktop-closed {
-            transform: translateX(-250px);
-        }
-        body.desktop-sidebar-closed #main {
-            margin-left:0;
-        }
+        .sidebar.desktop-closed { transform: translateX(-250px); }
+        body.desktop-sidebar-closed #main { margin-left:0; }
 
         section {
             min-height:100vh; display:flex; flex-direction:column;
             justify-content:center; align-items:center; font-size:2em;
             padding:20px; text-align:center;
-            box-sizing: border-box; /* Dodato za bolje upravljanje paddingom */
         }
         section p { font-size:1em; margin-top:10px; }
 
         #topBtn {
-            display:none; position:fixed; bottom:20px; right:30px; z-index:1004; /* Promenjeno sa top na bottom */
+            display:none; position:fixed; top:20px; right:30px; z-index:1004;
             font-size:16px; padding:10px 15px; background-color:#888; color:white;
             border:none; border-radius:5px; cursor:pointer; transition:background-color 0.3s;
         }
@@ -49,47 +43,42 @@
             display:block; position:fixed; top:15px; left:15px; font-size:24px;
             background:none; border:none; color:#333; cursor:pointer; z-index:1005;
         }
-        #qaBox {
-            margin:20px; text-align:center; padding-bottom: 50px; /* Dodato za scroll */
-        }
-        #userQuestion {
-            padding:10px; width:60%; max-width: 400px; border: 1px solid #ccc; border-radius: 4px;
-            margin-right: 10px;
-        }
-        #sendBtn {
-            padding:10px 15px; background-color: #007bff; color: white; border: none; border-radius: 4px;
-            cursor: pointer; transition: background-color 0.3s;
-        }
-        #sendBtn:hover { background-color: #0056b3; }
-        #answer {
-            margin-top:15px; font-weight:bold; color: #333;
-        }
 
+        /* Chat box kao normalni deo stranice */
+        #qaBox {
+            margin:20px auto; 
+            padding:15px; 
+            max-width:600px; 
+            text-align:center;
+            border:1px solid #ccc; 
+            border-radius:8px; 
+            background:#f9f9f9;
+        }
+        #qaBox input { padding:10px; width:70%; font-size:1em; }
+        #qaBox button { padding:10px 15px; font-size:1em; margin-left:5px; cursor:pointer; }
+        #answer { margin-top:15px; font-weight:bold; }
 
         @media screen and (max-width:768px) {
             .sidebar { transform: translateX(-250px); }
             .sidebar.mobile-open { transform: translateX(0); }
             #main { margin-left:0; }
-            .sidebar.desktop-closed { transform: translateX(-250px); }
-            body.desktop-sidebar-closed #main { margin-left:0; }
-            #toggleBtn { left: 15px; } /* Osigurava poziciju na mobilnom */
-            .sidebar.mobile-open #toggleBtn { left: 265px; /* Pomeri dugme kad je sidebar otvoren */ }
         }
     </style>
 </head>
 <body>
     <div id="sidebar" class="sidebar"></div>
+    
     <div id="main">
         <button id="toggleBtn">☰</button>
-        <div id="sections"></div>
 
-        <!-- Chat ka serveru -->
+        <!-- Chat box pri vrhu prve stranice, scrolluje sa sekcijama -->
         <div id="qaBox">
-            <h2>Postavite pitanje:</h2>
-            <input type="text" id="userQuestion" placeholder="Unesite vaše pitanje ovde...">
+            <input type="text" id="userQuestion" placeholder="Postavi pitanje...">
             <button id="sendBtn">Pošalji</button>
             <div id="answer"></div>
         </div>
+
+        <div id="sections"></div>
     </div>
 
     <button id="topBtn" onclick="scrollToTop()">Idi na vrh</button>
@@ -106,28 +95,21 @@
                 body.classList.toggle('desktop-sidebar-closed');
             } else {
                 sidebar.classList.toggle('mobile-open');
-                // Opciono, možete promeniti ikonu dugmeta kada je sidebar otvoren/zatvoren
-                toggleBtn.innerHTML = sidebar.classList.contains('mobile-open') ? '✕' : '☰';
             }
         }
         toggleBtn.addEventListener('click', toggleSidebar);
 
         function setSidebarState() {
             if (window.innerWidth > 768) {
-                // Na desktopu, uvek otvorite sidebar pri učitavanju/resizovanju
                 sidebar.classList.remove('desktop-closed');
                 body.classList.remove('desktop-sidebar-closed');
-                sidebar.classList.remove('mobile-open'); // Osiguraj da mobilna klasa nije aktivna
-                toggleBtn.innerHTML = '☰'; // Resetuj ikonu dugmeta
-            } else {
-                // Na mobilnom, zatvorite sidebar pri učitavanju/resizovanju
                 sidebar.classList.remove('mobile-open');
-                sidebar.classList.remove('desktop-closed'); // Osiguraj da desktop klasa nije aktivna
-                body.classList.remove('desktop-sidebar-closed'); // Osiguraj da desktop klasa nije aktivna
-                toggleBtn.innerHTML = '☰'; // Resetuj ikonu dugmeta
+            } else {
+                sidebar.classList.remove('mobile-open');
+                sidebar.classList.remove('desktop-closed');
+                body.classList.remove('desktop-sidebar-closed');
             }
         }
-
         window.addEventListener('load', setSidebarState);
         window.addEventListener('resize', setSidebarState);
 
@@ -137,16 +119,8 @@
             if(!touchStartX) return;
             let diffX = e.changedTouches[0].screenX - touchStartX;
             if(window.innerWidth <= 768) {
-                // Prevlačenje udesno za otvaranje
-                if(diffX > 50 && !sidebar.classList.contains('mobile-open')) {
-                    sidebar.classList.add('mobile-open');
-                    toggleBtn.innerHTML = '✕';
-                }
-                // Prevlačenje ulevo za zatvaranje
-                if(diffX < -50 && sidebar.classList.contains('mobile-open')) {
-                    sidebar.classList.remove('mobile-open');
-                    toggleBtn.innerHTML = '☰';
-                }
+                if(diffX > 50 && !sidebar.classList.contains('mobile-open')) sidebar.classList.add('mobile-open');
+                if(diffX < -50 && sidebar.classList.contains('mobile-open')) sidebar.classList.remove('mobile-open');
             }
             touchStartX = null;
         });
@@ -172,10 +146,7 @@
                         e.preventDefault();
                         const sec = document.getElementById(key);
                         if(sec) sec.scrollIntoView({behavior:"smooth"});
-                        if(window.innerWidth <= 768) {
-                            sidebar.classList.remove('mobile-open');
-                            toggleBtn.innerHTML = '☰'; // Resetuj ikonu
-                        }
+                        if(window.innerWidth <= 768) sidebar.classList.remove('mobile-open');
                     });
                     sidebar.appendChild(link);
 
@@ -183,63 +154,52 @@
                     section.id = key;
                     section.style.backgroundColor = item.bgColor || (i%2===0?"#F5F5F5":"#FFFFFF");
                     section.style.color = item.textColor || "black";
-                    section.innerHTML = `<h2>${item.title}</h2>${item.content || ""}`; // Dodato h2 za naslov sekcije
+                    section.innerHTML = item.content || "";
                     sectionsContainer.appendChild(section);
                 }
             })
-            .catch(err => console.error("Greška pri učitavanju content.json:", err));
+            .catch(err => console.error(err));
 
-        // Chat ka serveru
+        // Generisanje jedinstvenog ID-a za posetioca
+        let visitorId = localStorage.getItem("visitor_id");
+        if (!visitorId) {
+            visitorId = "user_" + Math.random().toString(36).substring(2, 10);
+            localStorage.setItem("visitor_id", visitorId);
+        }
+
+        // Chat ka lokalnom Flask serveru
         const sendBtn = document.getElementById("sendBtn");
         const userQuestion = document.getElementById("userQuestion");
         const answerDiv = document.getElementById("answer");
 
-        // OVDE AŽURIRAJTE SA VAŠIM TRENUTNIM NGROK URL-om!
-        const SERVER_URL = "https://a7281b99194e.ngrok-free.app";
+        const SERVER_URL = "http://127.0.0.1:8000"; // lokalni server
 
-        sendBtn.addEventListener("click", () => {
+        function sendQuestion() {
             const question = userQuestion.value.trim();
-            if(!question) {
-                answerDiv.textContent = "Molimo unesite pitanje.";
-                return;
+            if(!question) return;
+
+            answerDiv.textContent = "Čekaj...";
+
+            fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(visitorId)}&question=${encodeURIComponent(question)}`)
+                .then(res => res.ok ? res.text() : Promise.reject("Greška servera"))
+                .then(data => answerDiv.textContent = data)
+                .catch(err => {
+                    console.error(err);
+                    answerDiv.textContent = "Greška u komunikaciji sa serverom.";
+                });
+
+            userQuestion.value = ""; // obriši polje nakon slanja
+        }
+
+        sendBtn.addEventListener("click", sendQuestion);
+
+        // Pritiskom Enter u input polju šalje se poruka
+        userQuestion.addEventListener("keydown", (e) => {
+            if(e.key === "Enter") {
+                sendQuestion();
             }
-
-            answerDiv.textContent = "Čekam odgovor...";
-            userQuestion.disabled = true; // Onemogući input dok se čeka odgovor
-            sendBtn.disabled = true; // Onemogući dugme
-
-            fetch(`${SERVER_URL}/ask?question=${encodeURIComponent(question)}`, {
-                headers: {
-                    'ngrok-skip-browser-warning': 'true' // Ključni heder za preskakanje upozorenja
-                }
-            })
-            .then(res => {
-                // Provera da li je odgovor zapravo ngrok HTML upozorenje
-                const contentType = res.headers.get("content-type");
-                if (contentType && contentType.includes("text/html") && res.url.includes("ngrok.io") || res.url.includes("ngrok-free.app")) {
-                    console.error("Dobijeno ngrok HTML upozorenje umesto odgovora servera.", res);
-                    answerDiv.textContent = "Greška: Ngrok je blokirao zahtev. Proverite konzolu za detalje. (Možda treba ručno potvrditi ngrok URL jednom u pretraživaču, pa probati ponovo)";
-                    userQuestion.disabled = false;
-                    sendBtn.disabled = false;
-                    return Promise.reject("Ngrok Warning Received"); // Prekini dalje procesiranje
-                }
-                return res.ok ? res.text() : Promise.reject(`Greška servera: ${res.status} ${res.statusText}`);
-            })
-            .then(data => {
-                answerDiv.textContent = data;
-                userQuestion.value = ''; // Obriši pitanje nakon odgovora
-            })
-            .catch(err => {
-                console.error("Greška pri komunikaciji sa serverom:", err);
-                if (err !== "Ngrok Warning Received") {
-                    answerDiv.textContent = `Greška: ${err.message || err}. Proverite da li je server pokrenut i URL ispravan.`;
-                }
-            })
-            .finally(() => {
-                userQuestion.disabled = false; // Omogući input
-                sendBtn.disabled = false; // Omogući dugme
-            });
         });
     </script>
 </body>
 </html>
+
