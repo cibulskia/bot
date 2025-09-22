@@ -2,28 +2,30 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <title>Chat Widget</title>
+    <title>Chat Widget Embed</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         html, body {
             margin: 0;
             padding: 0;
             height: 100%;
-            overflow: hidden;
         }
+        /* iframe uvek fiksiran u donjem desnom uglu */
         iframe {
             position: fixed;
-            bottom: 0;
-            right: 0;
-            width: 100%;
-            height: 100vh; /* ceo vidljivi ekran */
+            bottom: 20px;   /* udaljenost od dna ekrana */
+            right: 20px;    /* udaljenost od desnog ruba ekrana */
+            width: 400px;   /* širina iframe-a */
+            height: 600px;  /* visina iframe-a */
             border: none;
+            z-index: 9999;
         }
     </style>
 </head>
 <body>
 
-    <iframe src="chat_widget.html" title="Chat Widget"></iframe>
+    <!-- Embed chat widget -->
+    <iframe src="https://cibulskia.github.io/bot/chat_widget" title="Chat Widget"></iframe>
 
 </body>
 </html>
