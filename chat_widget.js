@@ -1,16 +1,18 @@
 (function() {
     const SERVER_URL = "https://botanica.ngrok.app"; // Tvoj ngrok URL
 
-    // Kreiraj button i popup
+    // Kreiraj button za otvaranje chata
     const openChatBtn = document.createElement("button");
     openChatBtn.id = "openChatBtn";
     openChatBtn.textContent = "Chat";
     document.body.appendChild(openChatBtn);
 
+    // Kreiraj popup za chat
     const qaPopup = document.createElement("div");
     qaPopup.id = "qaPopup";
     qaPopup.style.display = "none";
     qaPopup.innerHTML = `
+        <button id="closeChatBtn">×</button>
         <div id="chatHistory"></div>
         <textarea id="userQuestion" placeholder="Postavi pitanje..."></textarea>
         <button id="sendBtn">Pošalji</button>
@@ -38,7 +40,9 @@
             padding:10px; width: calc(100% - 20px); font-size:1em;
             margin:10px; display:block; resize:none; min-height:40px; overflow:hidden; box-sizing:border-box;
         }
-        #qaPopup button { padding:10px 15px; font-size:1em; cursor:pointer; margin:10px; align-self:flex-end; }
+        #qaPopup button {
+            padding:10px 15px; font-size:1em; cursor:pointer; margin:10px; align-self:flex-end;
+        }
         #openChatBtn {
             position: fixed; bottom: 20px; right: 20px; z-index:1005;
             padding: 15px 25px; font-size: 1.2em; cursor: pointer;
@@ -46,6 +50,12 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         #openChatBtn:hover { background-color: #007BFF; }
+        #closeChatBtn {
+            position: absolute; top: 10px; left: 10px;
+            font-size: 1.5em; background: transparent; border: none; cursor: pointer;
+            color: #888;
+        }
+        #closeChatBtn:hover { color: #FF0000; }
         @media screen and (max-width:768px) {
             #qaPopup { width:90%; right:5%; bottom:10px; max-width:none; }
             #qaPopup textarea { width: calc(100% - 20px); }
@@ -63,6 +73,7 @@
     const chatHistory = qaPopup.querySelector("#chatHistory");
     const sendBtn = qaPopup.querySelector("#sendBtn");
     const userQuestion = qaPopup.querySelector("#userQuestion");
+    const closeChatBtn = qaPopup.querySelector("#closeChatBtn");
 
     let loadingInterval = null;
     let pollingInterval = null;
@@ -151,6 +162,11 @@
         qaPopup.style.display = qaPopup.style.display === "flex" ? "none" : "flex";
         if (qaPopup.style.display === "flex") startPolling();
         else stopPolling();
+    });
+
+    closeChatBtn.addEventListener("click", () => {
+        qaPopup.style.display = "none";
+        stopPolling();
     });
 
     sendBtn.addEventListener("click", sendQuestion);
