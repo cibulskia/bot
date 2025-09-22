@@ -11,20 +11,19 @@
             height: 100%;
             overflow: hidden;
         }
-        #widgetContainer {
+        iframe {
             position: fixed;
             bottom: 0;
             right: 0;
             width: 100%;
-            height: 100%;
+            height: 100vh; /* ceo vidljivi ekran */
+            border: none;
         }
     </style>
 </head>
 <body>
 
-    <div id="widgetContainer">
-        <script src="chat_widget.js"></script>
-    </div>
+    <iframe src="chat_widget.html" title="Chat Widget"></iframe>
 
 </body>
 </html>
