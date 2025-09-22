@@ -1,0 +1,164 @@
+(function() {
+    const SERVER_URL = "https://botanica.ngrok.app"; // Tvoj ngrok URL
+
+    // Kreiraj button i popup
+    const openChatBtn = document.createElement("button");
+    openChatBtn.id = "openChatBtn";
+    openChatBtn.textContent = "Chat";
+    document.body.appendChild(openChatBtn);
+
+    const qaPopup = document.createElement("div");
+    qaPopup.id = "qaPopup";
+    qaPopup.style.display = "none";
+    qaPopup.innerHTML = `
+        <div id="chatHistory"></div>
+        <textarea id="userQuestion" placeholder="Postavi pitanje..."></textarea>
+        <button id="sendBtn">Pošalji</button>
+    `;
+    document.body.appendChild(qaPopup);
+
+    // Dodaj stilove
+    const style = document.createElement("style");
+    style.textContent = `
+        #qaPopup {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 100%; max-width: 400px;
+            border-radius: 10px; background: #f9f9f9;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 1px solid #ccc; display: flex; flex-direction: column;
+            z-index: 1006; overflow: hidden;
+        }
+        #chatHistory {
+            padding: 10px; max-height: 50vh; overflow-y: auto; font-size: 0.95em;
+        }
+        .chat-message { margin-bottom: 10px; word-wrap: break-word; }
+        .chat-message.user { text-align: right; color: #007BFF; }
+        .chat-message.bot { text-align: left; color: #333333; }
+        #qaPopup textarea {
+            padding:10px; width: calc(100% - 20px); font-size:1em;
+            margin:10px; display:block; resize:none; min-height:40px; overflow:hidden; box-sizing:border-box;
+        }
+        #qaPopup button { padding:10px 15px; font-size:1em; cursor:pointer; margin:10px; align-self:flex-end; }
+        #openChatBtn {
+            position: fixed; bottom: 20px; right: 20px; z-index:1005;
+            padding: 15px 25px; font-size: 1.2em; cursor: pointer;
+            border-radius: 50px; border: none; background-color: #888; color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        #openChatBtn:hover { background-color: #007BFF; }
+        @media screen and (max-width:768px) {
+            #qaPopup { width:90%; right:5%; bottom:10px; max-width:none; }
+            #qaPopup textarea { width: calc(100% - 20px); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Identifikacija posetioca
+    let visitorId = localStorage.getItem("visitor_id");
+    if (!visitorId) {
+        visitorId = "user_" + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem("visitor_id", visitorId);
+    }
+
+    const chatHistory = qaPopup.querySelector("#chatHistory");
+    const sendBtn = qaPopup.querySelector("#sendBtn");
+    const userQuestion = qaPopup.querySelector("#userQuestion");
+
+    let loadingInterval = null;
+    let pollingInterval = null;
+
+    function startLoading() {
+        let dots = 0;
+        loadingInterval = setInterval(() => {
+            dots = (dots + 1) % 4;
+            userQuestion.placeholder = "Obrada" + ".".repeat(dots);
+        }, 500);
+    }
+
+    function stopLoading() {
+        clearInterval(loadingInterval);
+        loadingInterval = null;
+        userQuestion.placeholder = "Postavi pitanje...";
+    }
+
+    function appendMessage(sender, text) {
+        const div = document.createElement("div");
+        div.className = `chat-message ${sender}`;
+        div.textContent = text;
+        chatHistory.appendChild(div);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    userQuestion.addEventListener('input', e => {
+        e.target.style.height = 'auto';
+        e.target.style.height = (e.target.scrollHeight) + 'px';
+    });
+
+    async function sendQuestion() {
+        const question = userQuestion.value.trim();
+        if(!question) return;
+        appendMessage("user", question);
+        userQuestion.value = '';
+        userQuestion.style.height = 'auto';
+        startLoading();
+
+        try {
+            const timestamp = new Date().getTime();
+            const response = await fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(visitorId)}&question=${encodeURIComponent(question)}&_t=${timestamp}`, {
+                headers: { "ngrok-skip-browser-warning": "true" }
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                appendMessage("bot", `Greška: ${data.message || 'Nepoznata greška'}`);
+                stopLoading();
+            }
+        } catch (err) {
+            appendMessage("bot", "Greška u komunikaciji sa serverom.");
+            stopLoading();
+        }
+    }
+
+    async function pollForAnswer() {
+        try {
+            const timestamp = new Date().getTime();
+            const response = await fetch(`${SERVER_URL}/check_answer?id=${encodeURIComponent(visitorId)}&_t=${timestamp}`, {
+                headers: { "ngrok-skip-browser-warning": "true" }
+            });
+            const data = await response.json();
+            if (response.ok && data.status === "success") {
+                stopLoading();
+                appendMessage("bot", data.answer);
+            }
+        } catch (err) {
+            console.error("Polling greška:", err);
+        }
+    }
+
+    function startPolling() {
+        if (!pollingInterval) {
+            pollingInterval = setInterval(pollForAnswer, 2000);
+        }
+    }
+
+    function stopPolling() {
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+        }
+    }
+
+    openChatBtn.addEventListener("click", () => {
+        qaPopup.style.display = qaPopup.style.display === "flex" ? "none" : "flex";
+        if (qaPopup.style.display === "flex") startPolling();
+        else stopPolling();
+    });
+
+    sendBtn.addEventListener("click", sendQuestion);
+    userQuestion.addEventListener("keydown", e => {
+        if(e.key === "Enter" && !e.shiftKey){
+            e.preventDefault();
+            sendQuestion();
+        }
+    });
+
+})();
