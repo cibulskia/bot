@@ -79,6 +79,10 @@
         localStorage.setItem("visitor_id", visitorId);
     }
 
+    // Uzmi site iz URL parametra iframe-a
+    const urlParams = new URLSearchParams(window.location.search);
+    const site = urlParams.get('site') || 'unknown_site';
+
     const chatHistory = qaPopup.querySelector("#chatHistory");
     const sendBtn = qaPopup.querySelector("#sendBtn");
     const closeChatBtn = qaPopup.querySelector("#closeChatBtn");
@@ -124,7 +128,8 @@
 
         try {
             const timestamp = new Date().getTime();
-            const response = await fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(visitorId)}&question=${encodeURIComponent(question)}&_t=${timestamp}`, {
+            const fullId = `${site}|${visitorId}`; // site + visitorId
+            const response = await fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(fullId)}&question=${encodeURIComponent(question)}&_t=${timestamp}`, {
                 headers: { "ngrok-skip-browser-warning": "true" }
             });
             const data = await response.json();
@@ -141,7 +146,8 @@
     async function pollForAnswer() {
         try {
             const timestamp = new Date().getTime();
-            const response = await fetch(`${SERVER_URL}/check_answer?id=${encodeURIComponent(visitorId)}&_t=${timestamp}`, {
+            const fullId = `${site}|${visitorId}`;
+            const response = await fetch(`${SERVER_URL}/check_answer?id=${encodeURIComponent(fullId)}&_t=${timestamp}`, {
                 headers: { "ngrok-skip-browser-warning": "true" }
             });
             const data = await response.json();
