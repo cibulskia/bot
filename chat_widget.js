@@ -10,7 +10,6 @@
     // Kreiraj popup za chat
     const qaPopup = document.createElement("div");
     qaPopup.id = "qaPopup";
-    qaPopup.style.display = "none";
     qaPopup.innerHTML = `
         <div id="chatHistory"></div>
         <textarea id="userQuestion" placeholder="Postavi pitanje..."></textarea>
@@ -21,7 +20,7 @@
     `;
     document.body.appendChild(qaPopup);
 
-    // Dodaj stilove
+    // Dodaj stilove sa tranzicijom
     const style = document.createElement("style");
     style.textContent = `
         #qaPopup {
@@ -31,6 +30,13 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             border: 1px solid #ccc; display: flex; flex-direction: column;
             z-index: 1006; overflow: hidden;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        #qaPopup.active {
+            transform: translateY(0);
+            opacity: 1;
         }
         #chatHistory {
             padding: 10px; max-height: 50vh; overflow-y: auto; font-size: 0.95em;
@@ -161,17 +167,25 @@
         }
     }
 
-    openChatBtn.addEventListener("click", () => {
-        qaPopup.style.display = qaPopup.style.display === "flex" ? "none" : "flex";
-        if (qaPopup.style.display === "flex") startPolling();
-        else stopPolling();
-    });
+    function openChat() {
+        qaPopup.classList.add("active");
+        startPolling();
+    }
 
-    closeChatBtn.addEventListener("click", () => {
-        qaPopup.style.display = "none";
+    function closeChat() {
+        qaPopup.classList.remove("active");
         stopPolling();
+    }
+
+    openChatBtn.addEventListener("click", () => {
+        if (qaPopup.classList.contains("active")) {
+            closeChat();
+        } else {
+            openChat();
+        }
     });
 
+    closeChatBtn.addEventListener("click", closeChat);
     sendBtn.addEventListener("click", sendQuestion);
     userQuestion.addEventListener("keydown", e => {
         if(e.key === "Enter" && !e.shiftKey){
