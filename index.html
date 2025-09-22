@@ -35,43 +35,70 @@
         }
         section p { font-size:1em; margin-top:10px; }
 
-        /* Chat box unutar prve sekcije */
-        #qaBox {
-            margin:20px auto; 
-            padding:15px; 
-            width:100%;
-            max-width:600px;
-            box-sizing:border-box;
-            text-align:center;
-            border:1px solid #ccc; 
-            border-radius:8px; 
-            background:#f9f9f9;
-            display:flex; flex-direction: column;
+        /* Chat popup */
+        #qaPopup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            background: #f9f9f9;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 1px solid #ccc;
+            display: none;
+            flex-direction: column;
+            z-index: 1006;
+            overflow: hidden;
         }
-        #answer {
-            margin-bottom:15px;
-            font-weight:bold;
-            min-height:20px;
-            text-align:left;
+        #chatHistory {
+            padding: 10px;
+            max-height: 50vh;
+            overflow-y: auto;
+            font-size: 0.95em;
+        }
+        .chat-message {
+            margin-bottom: 10px;
             word-wrap: break-word;
         }
-        #qaBox textarea { 
+        .chat-message.user { text-align: right; color: #007BFF; }
+        .chat-message.bot { text-align: left; color: #333333; }
+
+        #qaPopup textarea { 
             padding:10px; 
-            width:100%; 
+            width: calc(100% - 20px); 
             font-size:1em; 
-            margin-bottom:10px; 
+            margin:10px; 
             display:block; 
             resize:none;
             min-height:40px;  
             overflow:hidden;
             box-sizing:border-box;
         }
-        #qaBox button { 
+        #qaPopup button { 
             padding:10px 15px; 
             font-size:1em; 
             cursor:pointer; 
-            align-self: flex-start;
+            margin:10px; 
+            align-self:flex-end;
         }
+
+        /* Open chat button */
+        #openChatBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1005;
+            padding: 15px 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 50px;
+            border: none;
+            background-color: #888;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        #openChatBtn:hover { background-color: #007BFF; }
 
         /* Scroll to top button */
         #topBtn {
@@ -79,7 +106,7 @@
             font-size:16px; padding:10px 15px; background-color:#888; color:white;
             border:none; border-radius:5px; cursor:pointer; transition:background-color 0.3s;
         }
-        #topBtn:hover { background-color:#555; }
+        #topBtn:hover { background-color:#007BFF; }
 
         /* Toggle sidebar */
         #toggleBtn {
@@ -91,8 +118,7 @@
             .sidebar { transform: translateX(-250px); }
             .sidebar.mobile-open { transform: translateX(0); }
             #main { margin-left:0; }
-            #qaBox { margin:20px 10px; max-width:none; } /* puni ekran sa marginama */
-            #qaBox button { align-self: stretch; } /* dugme zauzima celu širinu */
+            #qaPopup { max-height: 70vh; width: 90%; }
         }
     </style>
 </head>
@@ -105,6 +131,13 @@
     </div>
 
     <button id="topBtn" onclick="scrollToTop()">Botanica</button>
+    <button id="openChatBtn">Chat</button>
+
+    <div id="qaPopup">
+        <div id="chatHistory"></div>
+        <textarea id="userQuestion" placeholder="Postavi pitanje..."></textarea>
+        <button id="sendBtn">Pošalji</button>
+    </div>
 
     <script>
         const toggleBtn = document.getElementById('toggleBtn');
@@ -112,7 +145,6 @@
         const sectionsContainer = document.getElementById('sections');
         const body = document.body;
 
-        // Toggle sidebar
         function toggleSidebar() {
             if (window.innerWidth > 768) {
                 sidebar.classList.toggle('desktop-closed');
@@ -137,25 +169,16 @@
         window.addEventListener('load', setSidebarState);
         window.addEventListener('resize', setSidebarState);
 
-        // Touch swipe za mobilni sidebar
-        let touchStartX = null;
-        document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
-        document.addEventListener('touchend', e => {
-            if(!touchStartX) return;
-            let diffX = e.changedTouches[0].screenX - touchStartX;
-            if(window.innerWidth <= 768) {
-                if(diffX > 50 && !sidebar.classList.contains('mobile-open')) sidebar.classList.add('mobile-open');
-                if(diffX < -50 && sidebar.classList.contains('mobile-open')) sidebar.classList.remove('mobile-open');
-            }
-            touchStartX = null;
-        });
-
-        // Scroll to top
         const topBtn = document.getElementById("topBtn");
         window.onscroll = () => topBtn.style.display = (document.documentElement.scrollTop > 200) ? "block" : "none";
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        // Učitavanje sekcija i postavljanje chat-a u prvu sekciju
+        const openChatBtn = document.getElementById("openChatBtn");
+        const qaPopup = document.getElementById("qaPopup");
+        openChatBtn.addEventListener("click", () => {
+            qaPopup.style.display = qaPopup.style.display === "flex" ? "none" : "flex";
+        });
+
         fetch("content.json")
             .then(res => res.ok ? res.json() : Promise.reject("Greška u učitavanju JSON-a"))
             .then(data => {
@@ -166,7 +189,6 @@
                     i++;
                     const item = data[key];
 
-                    // Sidebar link
                     const link = document.createElement("a");
                     link.dataset.target = key;
                     link.textContent = item.title;
@@ -178,88 +200,97 @@
                     });
                     sidebar.appendChild(link);
 
-                    // Sekcija
                     const section = document.createElement("section");
                     section.id = key;
                     section.style.backgroundColor = item.bgColor || (i%2===0?"#F5F5F5":"#FFFFFF");
                     section.style.color = "#333333";
                     section.innerHTML = item.content || "";
-
-                    // Ako je prva sekcija, dodaj chat box unutra
-                    if(i === 1) {
-                        const qaBox = document.createElement("div");
-                        qaBox.id = "qaBox";
-                        qaBox.innerHTML = `
-                            <div id="answer"></div>
-                            <textarea id="userQuestion" placeholder="Postavi pitanje..."></textarea>
-                            <button id="sendBtn">Pošalji</button>
-                        `;
-                        section.appendChild(qaBox);
-
-                        // Chat funkcionalnost
-                        const sendBtn = qaBox.querySelector("#sendBtn");
-                        const userQuestion = qaBox.querySelector("#userQuestion");
-                        const answerDiv = qaBox.querySelector("#answer");
-                        const SERVER_URL = "https://04240be8d6c6.ngrok-free.app"; // zameni sa svojim serverom
-
-                        let visitorId = localStorage.getItem("visitor_id");
-                        if (!visitorId) {
-                            visitorId = "user_" + Math.random().toString(36).substring(2, 10);
-                            localStorage.setItem("visitor_id", visitorId);
-                        }
-
-                        let loadingInterval = null;
-                        function startLoading() {
-                            let dots = 0;
-                            answerDiv.textContent = ".";
-                            loadingInterval = setInterval(() => {
-                                dots = (dots + 1) % 8;
-                                answerDiv.textContent = "." + ".".repeat(dots);
-                            }, 500);
-                        }
-                        function stopLoading() {
-                            clearInterval(loadingInterval);
-                            loadingInterval = null;
-                        }
-
-                        // Auto-grow funkcija za textarea
-                        userQuestion.addEventListener('input', e => {
-                            e.target.style.height = 'auto';
-                            e.target.style.height = (e.target.scrollHeight) + 'px';
-                        });
-
-                        function sendQuestion() {
-                            const question = userQuestion.value.trim();
-                            if(!question) return;
-                            startLoading();
-                            fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(visitorId)}&question=${encodeURIComponent(question)}`)
-                                .then(res => res.ok ? res.text() : Promise.reject("Greška servera"))
-                                .then(data => {
-                                    stopLoading();
-                                    answerDiv.textContent = data;
-                                })
-                                .catch(err => {
-                                    stopLoading();
-                                    console.error(err);
-                                    answerDiv.textContent = "Greška u komunikaciji sa serverom.";
-                                });
-                            userQuestion.value = '';
-                            userQuestion.style.height = 'auto'; // reset visine posle slanja
-                        }
-
-                        sendBtn.addEventListener("click", sendQuestion);
-                        userQuestion.addEventListener("keydown", (e) => {
-                            if(e.key === "Enter" && !e.shiftKey) { 
-                                e.preventDefault(); 
-                                sendQuestion(); 
-                            }
-                        });
-                    }
-
                     sectionsContainer.appendChild(section);
                 }
             })
             .catch(err => console.error(err));
+
+        const sendBtn = document.getElementById("sendBtn");
+        const userQuestion = document.getElementById("userQuestion");
+        const chatHistory = document.getElementById("chatHistory");
+
+        let SERVER_URL = "";
+
+        // Učitavanje URL-a iz config.txt
+        fetch("config.txt")
+            .then(res => res.ok ? res.text() : Promise.reject("Greška u učitavanju config.txt"))
+            .then(url => {
+                SERVER_URL = url.trim();
+            })
+            .catch(err => {
+                console.error(err);
+                SERVER_URL = ""; // fallback ili prikaz greške
+            });
+
+        let visitorId = localStorage.getItem("visitor_id");
+        if (!visitorId) {
+            visitorId = "user_" + Math.random().toString(36).substring(2, 10);
+            localStorage.setItem("visitor_id", visitorId);
+        }
+
+        let loadingInterval = null;
+        function startLoading() {
+            let dots = 0;
+            loadingInterval = setInterval(() => {
+                dots = (dots + 1) % 4;
+                userQuestion.placeholder = "Obrada" + ".".repeat(dots);
+            }, 500);
+        }
+
+        function stopLoading() {
+            clearInterval(loadingInterval);
+            loadingInterval = null;
+            userQuestion.placeholder = "Postavi pitanje...";
+        }
+
+        function appendMessage(sender, text) {
+            const div = document.createElement("div");
+            div.className = `chat-message ${sender}`;
+            div.textContent = text;
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        userQuestion.addEventListener('input', e => {
+            e.target.style.height = 'auto';
+            e.target.style.height = (e.target.scrollHeight) + 'px';
+        });
+
+        function sendQuestion() {
+            const question = userQuestion.value.trim();
+            if(!question || !SERVER_URL) return;
+            appendMessage("user", question);
+            userQuestion.value = '';
+            userQuestion.style.height = 'auto';
+            startLoading();
+
+            fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(visitorId)}&question=${encodeURIComponent(question)}`, {
+                headers: { "ngrok-skip-browser-warning": "true" }
+            })
+            .then(res => res.ok ? res.text() : Promise.reject("Greška servera"))
+            .then(data => {
+                stopLoading();
+                appendMessage("bot", data);
+            })
+            .catch(err => {
+                stopLoading();
+                console.error(err);
+                appendMessage("bot", "Greška u komunikaciji sa serverom.");
+            });
+        }
+
+        sendBtn.addEventListener("click", sendQuestion);
+        userQuestion.addEventListener("keydown", e => {
+            if(e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendQuestion();
+            }
+        });
     </script>
 </body>
 </html>
