@@ -10,21 +10,24 @@
             padding: 0;
             height: 100%;
         }
-        /* iframe uvek fiksiran u donjem desnom uglu */
+
+        /* fiksirani iframe u donjem desnom uglu (float) */
         iframe {
             position: fixed;
             bottom: 20px;   /* udaljenost od dna ekrana */
-            right: 20px;    /* udaljenost od desnog ruba ekrana */
+            right: 20px;    /* udaljenost od desnog ruba */
             width: 400px;   /* širina iframe-a */
             height: 600px;  /* visina iframe-a */
             border: none;
             z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Embed chat widget -->
+    <!-- Floating chat widget -->
     <iframe src="https://cibulskia.github.io/bot/chat_widget" title="Chat Widget"></iframe>
 
 </body>
