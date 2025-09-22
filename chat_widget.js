@@ -128,7 +128,7 @@
 
         try {
             const timestamp = new Date().getTime();
-            const fullId = `${site}|${visitorId}`; // site + visitorId
+            const fullId = `(${site})${visitorId}`; // site u zagrade da bude legalno u Windows fajlovima
             const response = await fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(fullId)}&question=${encodeURIComponent(question)}&_t=${timestamp}`, {
                 headers: { "ngrok-skip-browser-warning": "true" }
             });
@@ -146,7 +146,7 @@
     async function pollForAnswer() {
         try {
             const timestamp = new Date().getTime();
-            const fullId = `${site}|${visitorId}`;
+            const fullId = `(${site})${visitorId}`;
             const response = await fetch(`${SERVER_URL}/check_answer?id=${encodeURIComponent(fullId)}&_t=${timestamp}`, {
                 headers: { "ngrok-skip-browser-warning": "true" }
             });
