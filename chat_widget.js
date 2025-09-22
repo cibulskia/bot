@@ -1,4 +1,3 @@
-<script>
 (function() {
     const SERVER_URL = "https://botanica.ngrok.app"; // Tvoj ngrok URL
 
@@ -74,10 +73,6 @@
         localStorage.setItem("visitor_id", visitorId);
     }
 
-    // >>> OVDE dodajemo sajt u ID <<<
-    const site = window.location.hostname; 
-    const idWithSite = site + "|" + visitorId;
-
     const chatHistory = qaPopup.querySelector("#chatHistory");
     const sendBtn = qaPopup.querySelector("#sendBtn");
     const closeChatBtn = qaPopup.querySelector("#closeChatBtn");
@@ -123,7 +118,7 @@
 
         try {
             const timestamp = new Date().getTime();
-            const response = await fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(idWithSite)}&question=${encodeURIComponent(question)}&_t=${timestamp}`, {
+            const response = await fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(visitorId)}&question=${encodeURIComponent(question)}&_t=${timestamp}`, {
                 headers: { "ngrok-skip-browser-warning": "true" }
             });
             const data = await response.json();
@@ -140,7 +135,7 @@
     async function pollForAnswer() {
         try {
             const timestamp = new Date().getTime();
-            const response = await fetch(`${SERVER_URL}/check_answer?id=${encodeURIComponent(idWithSite)}&_t=${timestamp}`, {
+            const response = await fetch(`${SERVER_URL}/check_answer?id=${encodeURIComponent(visitorId)}&_t=${timestamp}`, {
                 headers: { "ngrok-skip-browser-warning": "true" }
             });
             const data = await response.json();
@@ -186,4 +181,3 @@
     });
 
 })();
-</script>
