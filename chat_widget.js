@@ -12,10 +12,12 @@
     qaPopup.id = "qaPopup";
     qaPopup.style.display = "none";
     qaPopup.innerHTML = `
-        <button id="closeChatBtn">×</button>
         <div id="chatHistory"></div>
         <textarea id="userQuestion" placeholder="Postavi pitanje..."></textarea>
-        <button id="sendBtn">Pošalji</button>
+        <div id="chatControls">
+            <button id="closeChatBtn">Zatvori</button>
+            <button id="sendBtn">Pošalji</button>
+        </div>
     `;
     document.body.appendChild(qaPopup);
 
@@ -40,9 +42,16 @@
             padding:10px; width: calc(100% - 20px); font-size:1em;
             margin:10px; display:block; resize:none; min-height:40px; overflow:hidden; box-sizing:border-box;
         }
-        #qaPopup button {
-            padding:10px 15px; font-size:1em; cursor:pointer; margin:10px; align-self:flex-end;
+        #chatControls {
+            display: flex; justify-content: flex-end; gap: 10px; margin: 0 10px 10px 10px;
         }
+        #chatControls button {
+            padding:10px 15px; font-size:1em; cursor:pointer; border-radius: 5px; border: none;
+        }
+        #sendBtn { background-color: #007BFF; color: white; }
+        #sendBtn:hover { background-color: #0056b3; }
+        #closeChatBtn { background-color: #888; color: white; }
+        #closeChatBtn:hover { background-color: #FF0000; }
         #openChatBtn {
             position: fixed; bottom: 20px; right: 20px; z-index:1005;
             padding: 15px 25px; font-size: 1.2em; cursor: pointer;
@@ -50,12 +59,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         #openChatBtn:hover { background-color: #007BFF; }
-        #closeChatBtn {
-            position: absolute; top: 10px; left: 10px;
-            font-size: 1.5em; background: transparent; border: none; cursor: pointer;
-            color: #888;
-        }
-        #closeChatBtn:hover { color: #FF0000; }
         @media screen and (max-width:768px) {
             #qaPopup { width:90%; right:5%; bottom:10px; max-width:none; }
             #qaPopup textarea { width: calc(100% - 20px); }
@@ -72,8 +75,8 @@
 
     const chatHistory = qaPopup.querySelector("#chatHistory");
     const sendBtn = qaPopup.querySelector("#sendBtn");
-    const userQuestion = qaPopup.querySelector("#userQuestion");
     const closeChatBtn = qaPopup.querySelector("#closeChatBtn");
+    const userQuestion = qaPopup.querySelector("#userQuestion");
 
     let loadingInterval = null;
     let pollingInterval = null;
