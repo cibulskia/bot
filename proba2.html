@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 <html lang="sr">
 <head>
-  <meta charset="UTF-8">
-  <title>Embed Chat Widget</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Chat Widget Embed</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        /* iframe uvek fiksiran u donjem desnom uglu */
+        iframe {
+            position: fixed;
+            bottom: 20px;   /* udaljenost od dna ekrana */
+            right: 20px;    /* udaljenost od desnog ruba ekrana */
+            width: 400px;   /* širina iframe-a */
+            height: 600px;  /* visina iframe-a */
+            border: none;
+            z-index: 9999;
+        }
+    </style>
 </head>
-<body style="font-family: sans-serif; line-height:1.6;">
+<body>
 
-  <h2>Test Chat Widget</h2>
-
-  <p>Ovo je dugačka stranica za testiranje ponašanja widgeta...</p>
-  <div style="height:1500px; background:linear-gradient(white,#eee); margin-top:20px;"></div>
-  <h2 style="text-align:center; margin:50px 0;">KRAJ</h2>
-
-  <!-- Fiksirani chat widget uvek u donjem desnom uglu -->
-<iframe src="https://cibulskia.github.io/bot/proba" 
-        style="width:100%; height:600px; border:none;" 
-        title="Chat Widget"></iframe>
+    <!-- Embed chat widget -->
+    <iframe src="https://cibulskia.github.io/bot/chat_widget" title="Chat Widget"></iframe>
 
 </body>
 </html>
