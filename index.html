@@ -94,11 +94,11 @@
             cursor: pointer;
             border-radius: 50px;
             border: none;
-            background-color: #007BFF;
+            background-color: #888;
             color: white;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        #openChatBtn:hover { background-color: #0056b3; }
+        #openChatBtn:hover { background-color: #007BFF; }
 
         /* Scroll to top button */
         #topBtn {
@@ -106,7 +106,7 @@
             font-size:16px; padding:10px 15px; background-color:#888; color:white;
             border:none; border-radius:5px; cursor:pointer; transition:background-color 0.3s;
         }
-        #topBtn:hover { background-color:#555; }
+        #topBtn:hover { background-color:#007BFF; }
 
         /* Toggle sidebar */
         #toggleBtn {
@@ -177,6 +177,11 @@
         const qaPopup = document.getElementById("qaPopup");
         openChatBtn.addEventListener("click", () => {
             qaPopup.style.display = qaPopup.style.display === "flex" ? "none" : "flex";
+            if (qaPopup.style.display === "flex") {
+                startPolling(); // Počni proveru odgovora kada se chat otvori
+            } else {
+                stopPolling(); // Zaustavi proveru kada se chat zatvori
+            }
         });
 
         fetch("content.json")
@@ -213,7 +218,7 @@
         const sendBtn = document.getElementById("sendBtn");
         const userQuestion = document.getElementById("userQuestion");
         const chatHistory = document.getElementById("chatHistory");
-        const SERVER_URL = "https://botanica.ngrok.app";
+        const SERVER_URL = "https://botanica.ngrok.app"; // Vaš ngrok URL
 
         let visitorId = localStorage.getItem("visitor_id");
         if (!visitorId) {
@@ -222,6 +227,8 @@
         }
 
         let loadingInterval = null;
+        let pollingInterval = null;
+
         function startLoading() {
             let dots = 0;
             loadingInterval = setInterval(() => {
@@ -249,28 +256,86 @@
             e.target.style.height = (e.target.scrollHeight) + 'px';
         });
 
-        function sendQuestion() {
+        async function sendQuestion() {
             const question = userQuestion.value.trim();
             if(!question) return;
             appendMessage("user", question);
             userQuestion.value = '';
             userQuestion.style.height = 'auto';
-            startLoading();
+            startLoading(); // Pokaži da se pitanje obrađuje
 
-            fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(visitorId)}&question=${encodeURIComponent(question)}`, {
-                headers: { "ngrok-skip-browser-warning": "true" }
-            })
-            .then(res => res.ok ? res.text() : Promise.reject("Greška servera"))
-            .then(data => {
-                stopLoading();
-                appendMessage("bot", data);
-            })
-            .catch(err => {
-                stopLoading();
-                console.error(err);
+            try {
+                // Dodavanje timestamp-a za jedinstvenost upita, iako server već generiše unikatne nazive fajlova.
+                // Ovo može pomoći u debugovanju na klijentskoj strani ako se prati redosled slanja.
+                const timestamp = new Date().getTime(); 
+                const response = await fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(visitorId)}&question=${encodeURIComponent(question)}&_t=${timestamp}`, {
+                    headers: { "ngrok-skip-browser-warning": "true" }
+                });
+                const data = await response.json(); // Očekujemo JSON odgovor
+
+                if (response.ok) {
+                    console.log(data.message);
+                    // Server je primio pitanje, sada čekamo odgovor preko pollinga.
+                    // Ne zaustavljamo loading, jer čekamo pravi odgovor.
+                } else {
+                    console.error("Greška servera prilikom slanja pitanja:", data.message);
+                    appendMessage("bot", `Greška prilikom slanja pitanja: ${data.message || 'Nepoznata greška'}`);
+                    stopLoading(); // Zaustavi loading ako slanje pitanja ne uspe
+                }
+            } catch (err) {
+                console.error("Greška u komunikaciji sa serverom prilikom slanja pitanja:", err);
                 appendMessage("bot", "Greška u komunikaciji sa serverom.");
-            });
+                stopLoading(); // Zaustavi loading ako dođe do mrežne greške
+            }
         }
+
+        async function pollForAnswer() {
+            try {
+                // Dodavanje timestamp-a za jedinstvenost upita da se spreči keširanje
+                const timestamp = new Date().getTime(); 
+                const response = await fetch(`${SERVER_URL}/check_answer?id=${encodeURIComponent(visitorId)}&_t=${timestamp}`, {
+                    headers: { "ngrok-skip-browser-warning": "true" }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.status === "success") {
+                    stopLoading(); // Zaustavi loading spinner jer smo dobili odgovor
+                    appendMessage("bot", data.answer);
+                    // Opcionalno: ako želimo da zaustavimo polling nakon dobijanja odgovora,
+                    // ali je bolje da se nastavi ako korisnik ima više pitanja.
+                } else if (data.status === "no_answer") {
+                    // Nema odgovora još, nastavi čekanje
+                } else {
+                    console.error("Greška servera prilikom provere odgovora:", data.message);
+                    // appendMessage("bot", `Greška prilikom provere odgovora: ${data.message}`); // Ne spamovati chat sa ovim
+                }
+            } catch (err) {
+                console.error("Greška u komunikaciji sa serverom prilikom provere odgovora:", err);
+                // appendMessage("bot", "Greška u komunikaciji sa serverom (polling)."); // Ne spamovati chat sa ovim
+            }
+        }
+
+        function startPolling() {
+            if (!pollingInterval) {
+                pollingInterval = setInterval(pollForAnswer, 2000); // Proveravaj svakih 2 sekunde
+                console.log("Počeo polling za odgovore...");
+            }
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                console.log("Zaustavljen polling za odgovore.");
+            }
+        }
+
+        // Inicijalno pokreni polling ako je chat prozor otvoren (u slučaju refresh-a)
+        // Iako se "display" proverava, bolje je osloniti se na otvaranje chat dugmeta.
+        // Neka polling počne tek kada korisnik eksplicitno otvori chat.
+        // if (qaPopup.style.display === "flex") {
+        //     startPolling();
+        // }
 
         sendBtn.addEventListener("click", sendQuestion);
         userQuestion.addEventListener("keydown", e => {
@@ -282,4 +347,3 @@
     </script>
 </body>
 </html>
-``
