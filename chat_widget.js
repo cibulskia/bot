@@ -48,8 +48,8 @@
         #chatControls button {
             padding:10px 15px; font-size:1em; cursor:pointer; border-radius: 5px; border: none;
         }
-        #sendBtn { background-color: #007BFF; color: white; }
-        #sendBtn:hover { background-color: #0056b3; }
+        #sendBtn { background-color: #888; color: white; }
+        #sendBtn:hover { background-color: #007BFF; }
         #closeChatBtn { background-color: #888; color: white; }
         #closeChatBtn:hover { background-color: #FF0000; }
         #openChatBtn {
