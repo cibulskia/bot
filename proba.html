@@ -1,34 +1,57 @@
 <!DOCTYPE html>
 <html lang="sr">
 <head>
-    <meta charset="UTF-8">
-    <title>Chat Widget Embed</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embed Chat Widget</title>
+  <style>
+    /* Osnovni stil za embedovani chat */
+    #chat-container {
+      position: fixed;       /* fiksiran na ekranu */
+      bottom: 20px;          /* malo prostora od dna */
+      right: 20px;           /* malo prostora od desnog ivice */
+      width: 350px;          /* početna širina */
+      max-width: 90vw;       /* maksimalno 90% širine ekrana */
+      height: 500px;         /* početna visina */
+      max-height: 80vh;      /* maksimalno 80% visine ekrana */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 9999;         /* uvek iznad ostalog sadržaja */
+      background: #fff;
+    }
 
-        /* fiksirani iframe u donjem desnom uglu (float) */
-        iframe {
-            position: fixed;
-            bottom: 20px;   /* udaljenost od dna ekrana */
-            right: 20px;    /* udaljenost od desnog ruba */
-            width: 400px;   /* širina iframe-a */
-            height: 600px;  /* visina iframe-a */
-            border: none;
-            z-index: 9999;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            border-radius: 10px;
-        }
-    </style>
+    /* Za mobilne ekrane */
+    @media (max-width: 600px) {
+      #chat-container {
+        width: 90vw;
+        height: 60vh;
+        bottom: 10px;
+        right: 5%;
+      }
+    }
+  </style>
 </head>
 <body>
+  
+  <!-- Embed chat widget -->
+  <div id="chat-container"></div>
 
-    <!-- Floating chat widget -->
-    <iframe src="https://cibulskia.github.io/bot/chat_widget" title="Chat Widget"></iframe>
+  <script src="chat_widget.js"></script>
+  <script>
+    // Pretpostavka: chat_widget.js zna da se inicijalizuje unutar #chat-container
+    if (typeof initChatWidget === "function") {
+      initChatWidget(document.getElementById('chat-container'));
+    }
+
+    // Ako chat_widget.js menja dimenzije sam, možemo osluškivati resize event
+    window.addEventListener('resize', () => {
+      const container = document.getElementById('chat-container');
+      // Prilagođavanje širine/visine po potrebi, ako JS nije responsivan
+      container.style.width = Math.min(window.innerWidth * 0.9, 350) + 'px';
+      container.style.height = Math.min(window.innerHeight * 0.8, 500) + 'px';
+    });
+  </script>
 
 </body>
 </html>
