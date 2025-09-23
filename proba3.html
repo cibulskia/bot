@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SQL Manager</title>
+</head>
+<body>
+    <h2>Kreiranje SQL fajla</h2>
+    <input type="text" id="createName" placeholder="Ime fajla">
+    <button onclick="createSQL()">Kreiraj</button>
+    <p id="createResult"></p>
+
+    <h2>Čitanje SQL fajla</h2>
+    <input type="text" id="readName" placeholder="Ime fajla">
+    <button onclick="readSQL()">Čitaj</button>
+    <pre id="readResult"></pre>
+
+    <script>
+        const SERVER_URL = "https://botanica.ngrok.app"; // tvoj lokalni server
+
+        async function createSQL() {
+            const name = document.getElementById('createName').value;
+            const res = await fetch(`${SERVER_URL}/create_sql`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name})
+            });
+            const data = await res.json();
+            document.getElementById('createResult').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function readSQL() {
+            const name = document.getElementById('readName').value;
+            const res = await fetch(`${SERVER_URL}/read_sql`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name})
+            });
+            const data = await res.json();
+            if(data.success) {
+                document.getElementById('readResult').textContent = data.content;
+            } else {
+                document.getElementById('readResult').textContent = data.error;
+            }
+        }
+    </script>
+</body>
+</html>
