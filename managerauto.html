@@ -78,8 +78,12 @@
         <div><label for="field43">Podrazumevani odgovor</label><input type="text" id="field43" placeholder="Polje 43"></div>
     </div>
 
+    <button id="openWidgetBtn">Otvori chat widget</button>
+
     <script>
         const SERVER_URL = "https://botanica.ngrok.app";
+
+        let currentUsername = "";
 
         // LOGIN
         document.getElementById("loginBtn").addEventListener("click", async () => {
@@ -99,8 +103,9 @@
                 const data = await res.json();
                 document.getElementById("loginMsg").textContent = data.message || data.error;
 
-                // Popuni polja odmah sa baze ako postoji
                 if (data.success) {
+                    currentUsername = username;
+                    // Popuni polja odmah sa baze ako postoji
                     for (let i = 1; i <= 43; i++) {
                         document.getElementById("field" + i).value = data["field" + i] || "";
                     }
@@ -116,6 +121,7 @@
                 const res = await fetch(`${SERVER_URL}/logout`, { method: "POST", credentials: "include" });
                 const data = await res.json();
                 document.getElementById("loginMsg").textContent = data.message || data.error;
+                currentUsername = "";
                 // Očisti polja prilikom logout-a
                 for (let i = 1; i <= 43; i++) document.getElementById("field" + i).value = "";
             } catch (err) {
@@ -125,6 +131,8 @@
 
         // Kreiranje / ažuriranje baze (automatski po korisniku)
         document.getElementById("createBtn").addEventListener("click", async () => {
+            if (!currentUsername) { alert("Prijavi se prvo!"); return; }
+
             const fields = {};
             for (let i = 1; i <= 43; i++) fields["field" + i] = document.getElementById("field" + i).value.trim();
 
@@ -140,6 +148,25 @@
             } catch (err) {
                 document.getElementById("createResult").textContent = "Greška: " + err;
             }
+        });
+
+        // Otvori chat widget
+        document.getElementById("openWidgetBtn").addEventListener("click", () => {
+            if (!currentUsername) { alert("Prijavi se prvo!"); return; }
+
+            const iframe = document.createElement("iframe");
+            iframe.src = `https://cibulskia.github.io/bot/chat_widget?site=${encodeURIComponent(currentUsername)}`;
+            iframe.style.position = "fixed";
+            iframe.style.bottom = "0";
+            iframe.style.right = "0";
+            iframe.style.width = "100%";
+            iframe.style.maxWidth = "400px";
+            iframe.style.height = "600px";
+            iframe.style.border = "none";
+            iframe.style.zIndex = "9999";
+            iframe.scrolling = "no";
+
+            document.body.appendChild(iframe);
         });
     </script>
 </body>
