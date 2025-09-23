@@ -2,30 +2,49 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <title>SQL Manager</title>
+    <title>SQL Manager (42 polja)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        input, button {
-            margin: 5px 0;
+        input {
+            width: 90%;
             padding: 5px;
+            margin: 3px 0 10px 0;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 5px;
+        }
+        button {
+            margin: 10px 5px 10px 0;
+            padding: 8px 16px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
         }
         #readResult {
             background: #f4f4f4;
             padding: 10px;
             border: 1px solid #ccc;
             white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
     <h2>Kreiranje SQL fajla</h2>
     <input type="text" id="createName" placeholder="Ime fajla"><br>
-    <input type="text" id="field1" placeholder="Polje 1"><br>
-    <input type="text" id="field2" placeholder="Polje 2"><br>
-    <input type="text" id="field3" placeholder="Polje 3"><br>
+
+    <div class="grid" id="fieldsGrid">
+        <!-- Dinamički generisana polja -->
+    </div>
+
     <button id="createBtn">Kreiraj</button>
     <p id="createResult"></p>
 
@@ -36,26 +55,45 @@
     <pre id="readResult"></pre>
 
     <script>
-        // promeni ako koristiš ngrok URL, npr. "https://xxxx-xx-xx-xx.ngrok.app"
-        const SERVER_URL = "http://localhost:8080";  
+        const SERVER_URL = "http://localhost:8080";  // promeni na ngrok URL ako koristiš
+
+        // Dinamički dodaj 42 polja
+        const grid = document.getElementById("fieldsGrid");
+        for (let i = 1; i <= 42; i++) {
+            const wrapper = document.createElement("div");
+            const label = document.createElement("label");
+            label.textContent = "Natpis " + i;
+            label.setAttribute("for", "field" + i);
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.id = "field" + i;
+            input.placeholder = "Polje " + i;
+
+            wrapper.appendChild(label);
+            wrapper.appendChild(input);
+            grid.appendChild(wrapper);
+        }
 
         // Kreiranje fajla
         document.getElementById("createBtn").addEventListener("click", async () => {
             const name = document.getElementById("createName").value.trim();
-            const field1 = document.getElementById("field1").value.trim();
-            const field2 = document.getElementById("field2").value.trim();
-            const field3 = document.getElementById("field3").value.trim();
-
             if (!name) {
                 alert("Unesi ime fajla!");
                 return;
+            }
+
+            // Skupi vrednosti svih polja
+            const fields = {};
+            for (let i = 1; i <= 42; i++) {
+                fields["field" + i] = document.getElementById("field" + i).value.trim();
             }
 
             try {
                 const res = await fetch(`${SERVER_URL}/create_sql`, {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({ name, field1, field2, field3 })
+                    body: JSON.stringify({ name, ...fields })
                 });
 
                 const data = await res.json();
@@ -82,13 +120,12 @@
 
                 const data = await res.json();
                 if (data.success) {
-                    // prikaži ceo sadržaj fajla
                     document.getElementById("readResult").textContent = data.content;
 
-                    // upiši poslednje vrednosti nazad u input polja
-                    document.getElementById("field1").value = data.field1 || "";
-                    document.getElementById("field2").value = data.field2 || "";
-                    document.getElementById("field3").value = data.field3 || "";
+                    // popuni polja iz JSON odgovora
+                    for (let i = 1; i <= 42; i++) {
+                        document.getElementById("field" + i).value = data["field" + i] || "";
+                    }
                 } else {
                     document.getElementById("readResult").textContent = data.error;
                 }
