@@ -6,44 +6,60 @@
 </head>
 <body>
     <h2>Kreiranje SQL fajla</h2>
+    <label>Unesi ime fajla koji će biti kreiran:</label><br>
     <input type="text" id="createName" placeholder="Ime fajla">
     <button onclick="createSQL()">Kreiraj</button>
     <p id="createResult"></p>
 
     <h2>Čitanje SQL fajla</h2>
+    <label>Unesi ime fajla koji želiš da pročitaš:</label><br>
     <input type="text" id="readName" placeholder="Ime fajla">
     <button onclick="readSQL()">Čitaj</button>
     <pre id="readResult"></pre>
 
     <hr>
 
-    <h2>Odgovori i pitanja</h2>
+    <h2>Odgovori i pitanja (za SQL fajl)</h2>
     <div id="answersContainer">
         <!-- Odgovor 1 -->
         <div>
+            <label>Odgovor 1 (unesi tekst koji će se pojaviti kao "unos_odgovor_1"):</label><br>
             <input type="text" id="answer_1" placeholder="odgovor_1">
             <button onclick="updateSQLField('answer_1')">Promeni</button>
             <div>
+                <label>Pitanje 1 (unesi tekst koji će se pojaviti kao "unos_pitanje_1"):</label><br>
                 <input type="text" id="q1_1" placeholder="pitanje_1">
-                <button onclick="updateSQLField('q1_1')">Promeni</button>
+                <button onclick="updateSQLField('q1_1')">Promeni</button><br>
+
+                <label>Pitanje 2 (unesi tekst koji će se pojaviti kao "unos_pitanje_2"):</label><br>
                 <input type="text" id="q1_2" placeholder="pitanje_2">
-                <button onclick="updateSQLField('q1_2')">Promeni</button>
+                <button onclick="updateSQLField('q1_2')">Promeni</button><br>
+
+                <label>Pitanje 3 (unesi tekst koji će se pojaviti kao "unos_pitanje_3"):</label><br>
                 <input type="text" id="q1_3" placeholder="pitanje_3">
-                <button onclick="updateSQLField('q1_3')">Promeni</button>
+                <button onclick="updateSQLField('q1_3')">Promeni</button><br>
             </div>
         </div>
 
+        <hr>
+
         <!-- Odgovor 2 -->
         <div>
+            <label>Odgovor 2 (unesi tekst koji će se pojaviti kao "unos_odgovor_2"):</label><br>
             <input type="text" id="answer_2" placeholder="odgovor_2">
             <button onclick="updateSQLField('answer_2')">Promeni</button>
             <div>
+                <label>Pitanje 4 (unesi tekst koji će se pojaviti kao "unos_pitanje_4"):</label><br>
                 <input type="text" id="q2_1" placeholder="pitanje_4">
-                <button onclick="updateSQLField('q2_1')">Promeni</button>
+                <button onclick="updateSQLField('q2_1')">Promeni</button><br>
+
+                <label>Pitanje 5 (unesi tekst koji će se pojaviti kao "unos_pitanje_5"):</label><br>
                 <input type="text" id="q2_2" placeholder="pitanje_5">
-                <button onclick="updateSQLField('q2_2')">Promeni</button>
+                <button onclick="updateSQLField('q2_2')">Promeni</button><br>
+
+                <label>Pitanje 6 (unesi tekst koji će se pojaviti kao "unos_pitanje_6"):</label><br>
                 <input type="text" id="q2_3" placeholder="pitanje_6">
-                <button onclick="updateSQLField('q2_3')">Promeni</button>
+                <button onclick="updateSQLField('q2_3')">Promeni</button><br>
             </div>
         </div>
     </div>
@@ -57,7 +73,6 @@
             const name = document.getElementById('createName').value;
             if (!name) return alert("Unesi ime fajla");
 
-            // Inicijalni JSON placeholderi
             sqlData = {
                 "unos_odgovor_1": "odgovor_1",
                 "unos_pitanje_1": "pitanje_1",
@@ -78,7 +93,7 @@
             if (data.success) {
                 currentFile = name;
                 document.getElementById('createResult').textContent = "Fajl kreiran: " + name;
-                await saveSQL(); // Snimi placeholder strukturu u fajl
+                await saveSQL();
                 loadPlaceholders();
             } else {
                 document.getElementById('createResult').textContent = data.error;
