@@ -1,55 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sr">
 <head>
     <meta charset="UTF-8">
     <title>SQL Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            margin: 5px 0;
+            padding: 5px;
+        }
+        #readResult {
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap;
+        }
+    </style>
 </head>
 <body>
     <h2>Kreiranje SQL fajla</h2>
-    <input type="text" id="createName" placeholder="Ime fajla"><br><br>
-    <input type="text" id="field1" placeholder="Polje 1">
-    <input type="text" id="field2" placeholder="Polje 2">
-    <input type="text" id="field3" placeholder="Polje 3"><br><br>
-    <button onclick="createSQL()">Kreiraj</button>
+    <input type="text" id="createName" placeholder="Ime fajla"><br>
+    <input type="text" id="field1" placeholder="Polje 1"><br>
+    <input type="text" id="field2" placeholder="Polje 2"><br>
+    <input type="text" id="field3" placeholder="Polje 3"><br>
+    <button id="createBtn">Kreiraj</button>
     <p id="createResult"></p>
 
     <h2>Čitanje SQL fajla</h2>
-    <input type="text" id="readName" placeholder="Ime fajla">
-    <button onclick="readSQL()">Čitaj</button>
+    <input type="text" id="readName" placeholder="Ime fajla"><br>
+    <button id="readBtn">Čitaj</button>
+    <h3>Sadržaj fajla:</h3>
     <pre id="readResult"></pre>
 
     <script>
-        const SERVER_URL = "https://botanica.ngrok.app"; // tvoj lokalni server
+        // promeni ako koristiš ngrok URL, npr. "https://xxxx-xx-xx-xx.ngrok.app"
+        const SERVER_URL = "http://localhost:8080";  
 
-        async function createSQL() {
-            const name = document.getElementById('createName').value;
-            const field1 = document.getElementById('field1').value;
-            const field2 = document.getElementById('field2').value;
-            const field3 = document.getElementById('field3').value;
+        // Kreiranje fajla
+        document.getElementById("createBtn").addEventListener("click", async () => {
+            const name = document.getElementById("createName").value.trim();
+            const field1 = document.getElementById("field1").value.trim();
+            const field2 = document.getElementById("field2").value.trim();
+            const field3 = document.getElementById("field3").value.trim();
 
-            const res = await fetch(`${SERVER_URL}/create_sql`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name, field1, field2, field3})
-            });
-            const data = await res.json();
-            document.getElementById('createResult').textContent = JSON.stringify(data, null, 2);
-        }
-
-        async function readSQL() {
-            const name = document.getElementById('readName').value;
-            const res = await fetch(`${SERVER_URL}/read_sql`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name})
-            });
-            const data = await res.json();
-            if(data.success) {
-                document.getElementById('readResult').textContent = data.content;
-            } else {
-                document.getElementById('readResult').textContent = data.error;
+            if (!name) {
+                alert("Unesi ime fajla!");
+                return;
             }
-        }
+
+            try {
+                const res = await fetch(`${SERVER_URL}/create_sql`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ name, field1, field2, field3 })
+                });
+
+                const data = await res.json();
+                document.getElementById("createResult").textContent = data.message || data.error;
+            } catch (err) {
+                document.getElementById("createResult").textContent = "Greška: " + err;
+            }
+        });
+
+        // Čitanje fajla
+        document.getElementById("readBtn").addEventListener("click", async () => {
+            const name = document.getElementById("readName").value.trim();
+            if (!name) {
+                alert("Unesi ime fajla!");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${SERVER_URL}/read_sql`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ name })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    // prikaži ceo sadržaj fajla
+                    document.getElementById("readResult").textContent = data.content;
+
+                    // upiši poslednje vrednosti nazad u input polja
+                    document.getElementById("field1").value = data.field1 || "";
+                    document.getElementById("field2").value = data.field2 || "";
+                    document.getElementById("field3").value = data.field3 || "";
+                } else {
+                    document.getElementById("readResult").textContent = data.error;
+                }
+            } catch (err) {
+                document.getElementById("readResult").textContent = "Greška: " + err;
+            }
+        });
     </script>
 </body>
 </html>
