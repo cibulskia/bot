@@ -2,7 +2,7 @@
 <html lang="sr">
 <head>
     <meta charset="UTF-8">
-    <title>SQL Manager (42 polja)</title>
+    <title>SQL Manager (43 polja)</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         input { width: 90%; padding: 5px; margin: 3px 0 10px 0; }
@@ -66,6 +66,9 @@
         <div><label for="field40">Pitanje 73</label><input type="text" id="field40" placeholder="Polje 40"></div>
         <div><label for="field41">Pitanje 74</label><input type="text" id="field41" placeholder="Polje 41"></div>
         <div><label for="field42">Pitanje 75</label><input type="text" id="field42" placeholder="Polje 42"></div>
+
+        <!-- Novo dodato polje -->
+        <div><label for="field43">Pitanje 76</label><input type="text" id="field43" placeholder="Polje 43"></div>
     </div>
 
     <button id="createBtn">Kreiraj</button>
@@ -86,7 +89,7 @@
             if (!name) { alert("Unesi ime fajla!"); return; }
 
             const fields = {};
-            for (let i = 1; i <= 42; i++) fields["field" + i] = document.getElementById("field" + i).value.trim();
+            for (let i = 1; i <= 43; i++) fields["field" + i] = document.getElementById("field" + i).value.trim();
 
             try {
                 const res = await fetch(`${SERVER_URL}/create_sql`, {
@@ -115,7 +118,7 @@
                 const data = await res.json();
                 if (data.success) {
                     document.getElementById("readResult").textContent = data.content;
-                    for (let i = 1; i <= 42; i++)
+                    for (let i = 1; i <= 43; i++)
                         document.getElementById("field" + i).value = data["field" + i] || "";
                 } else {
                     document.getElementById("readResult").textContent = data.error;
