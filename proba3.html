@@ -6,7 +6,10 @@
 </head>
 <body>
     <h2>Kreiranje SQL fajla</h2>
-    <input type="text" id="createName" placeholder="Ime fajla">
+    <input type="text" id="createName" placeholder="Ime fajla"><br><br>
+    <input type="text" id="field1" placeholder="Polje 1">
+    <input type="text" id="field2" placeholder="Polje 2">
+    <input type="text" id="field3" placeholder="Polje 3"><br><br>
     <button onclick="createSQL()">Kreiraj</button>
     <p id="createResult"></p>
 
@@ -20,10 +23,14 @@
 
         async function createSQL() {
             const name = document.getElementById('createName').value;
+            const field1 = document.getElementById('field1').value;
+            const field2 = document.getElementById('field2').value;
+            const field3 = document.getElementById('field3').value;
+
             const res = await fetch(`${SERVER_URL}/create_sql`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name})
+                body: JSON.stringify({name, field1, field2, field3})
             });
             const data = await res.json();
             document.getElementById('createResult').textContent = JSON.stringify(data, null, 2);
