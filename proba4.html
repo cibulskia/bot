@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <title>SQL Manager (42 polja)</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input { width: 90%; padding: 5px; margin: 3px 0 10px 0; }
+        label { font-weight: bold; display: block; margin-top: 5px; }
+        button { margin: 10px 5px 10px 0; padding: 8px 16px; }
+        .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; }
+        #readResult { background: #f4f4f4; padding: 10px; border: 1px solid #ccc; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h2>Kreiranje SQL fajla</h2>
+    <input type="text" id="createName" placeholder="Ime fajla"><br>
+
+    <div class="grid" id="fieldsGrid">
+        <!-- Ručno uneta statička polja -->
+        <div><label for="field1">Natpis 1</label><input type="text" id="field1" placeholder="Polje 1"></div>
+        <div><label for="field2">Natpis 2</label><input type="text" id="field2" placeholder="Polje 2"></div>
+        <div><label for="field3">Natpis 3</label><input type="text" id="field3" placeholder="Polje 3"></div>
+        <div><label for="field4">Natpis 4</label><input type="text" id="field4" placeholder="Polje 4"></div>
+        <div><label for="field5">Natpis 5</label><input type="text" id="field5" placeholder="Polje 5"></div>
+        <div><label for="field6">Natpis 6</label><input type="text" id="field6" placeholder="Polje 6"></div>
+
+        <div><label for="field7">Natpis 7</label><input type="text" id="field7" placeholder="Polje 7"></div>
+        <div><label for="field8">Natpis 8</label><input type="text" id="field8" placeholder="Polje 8"></div>
+        <div><label for="field9">Natpis 9</label><input type="text" id="field9" placeholder="Polje 9"></div>
+        <div><label for="field10">Natpis 10</label><input type="text" id="field10" placeholder="Polje 10"></div>
+        <div><label for="field11">Natpis 11</label><input type="text" id="field11" placeholder="Polje 11"></div>
+        <div><label for="field12">Natpis 12</label><input type="text" id="field12" placeholder="Polje 12"></div>
+
+        <div><label for="field13">Natpis 13</label><input type="text" id="field13" placeholder="Polje 13"></div>
+        <div><label for="field14">Natpis 14</label><input type="text" id="field14" placeholder="Polje 14"></div>
+        <div><label for="field15">Natpis 15</label><input type="text" id="field15" placeholder="Polje 15"></div>
+        <div><label for="field16">Natpis 16</label><input type="text" id="field16" placeholder="Polje 16"></div>
+        <div><label for="field17">Natpis 17</label><input type="text" id="field17" placeholder="Polje 17"></div>
+        <div><label for="field18">Natpis 18</label><input type="text" id="field18" placeholder="Polje 18"></div>
+
+        <div><label for="field19">Natpis 19</label><input type="text" id="field19" placeholder="Polje 19"></div>
+        <div><label for="field20">Natpis 20</label><input type="text" id="field20" placeholder="Polje 20"></div>
+        <div><label for="field21">Natpis 21</label><input type="text" id="field21" placeholder="Polje 21"></div>
+        <div><label for="field22">Natpis 22</label><input type="text" id="field22" placeholder="Polje 22"></div>
+        <div><label for="field23">Natpis 23</label><input type="text" id="field23" placeholder="Polje 23"></div>
+        <div><label for="field24">Natpis 24</label><input type="text" id="field24" placeholder="Polje 24"></div>
+
+        <div><label for="field25">Natpis 25</label><input type="text" id="field25" placeholder="Polje 25"></div>
+        <div><label for="field26">Natpis 26</label><input type="text" id="field26" placeholder="Polje 26"></div>
+        <div><label for="field27">Natpis 27</label><input type="text" id="field27" placeholder="Polje 27"></div>
+        <div><label for="field28">Natpis 28</label><input type="text" id="field28" placeholder="Polje 28"></div>
+        <div><label for="field29">Natpis 29</label><input type="text" id="field29" placeholder="Polje 29"></div>
+        <div><label for="field30">Natpis 30</label><input type="text" id="field30" placeholder="Polje 30"></div>
+
+        <div><label for="field31">Natpis 31</label><input type="text" id="field31" placeholder="Polje 31"></div>
+        <div><label for="field32">Natpis 32</label><input type="text" id="field32" placeholder="Polje 32"></div>
+        <div><label for="field33">Natpis 33</label><input type="text" id="field33" placeholder="Polje 33"></div>
+        <div><label for="field34">Natpis 34</label><input type="text" id="field34" placeholder="Polje 34"></div>
+        <div><label for="field35">Natpis 35</label><input type="text" id="field35" placeholder="Polje 35"></div>
+        <div><label for="field36">Natpis 36</label><input type="text" id="field36" placeholder="Polje 36"></div>
+
+        <div><label for="field37">Natpis 37</label><input type="text" id="field37" placeholder="Polje 37"></div>
+        <div><label for="field38">Natpis 38</label><input type="text" id="field38" placeholder="Polje 38"></div>
+        <div><label for="field39">Natpis 39</label><input type="text" id="field39" placeholder="Polje 39"></div>
+        <div><label for="field40">Natpis 40</label><input type="text" id="field40" placeholder="Polje 40"></div>
+        <div><label for="field41">Natpis 41</label><input type="text" id="field41" placeholder="Polje 41"></div>
+        <div><label for="field42">Natpis 42</label><input type="text" id="field42" placeholder="Polje 42"></div>
+    </div>
+
+    <button id="createBtn">Kreiraj</button>
+    <p id="createResult"></p>
+
+    <h2>Čitanje SQL fajla</h2>
+    <input type="text" id="readName" placeholder="Ime fajla"><br>
+    <button id="readBtn">Čitaj</button>
+    <h3>Sadržaj fajla:</h3>
+    <pre id="readResult"></pre>
+
+    <script>
+        const SERVER_URL = "https://botanica.ngrok.app";
+
+        // Kreiranje fajla
+        document.getElementById("createBtn").addEventListener("click", async () => {
+            const name = document.getElementById("createName").value.trim();
+            if (!name) { alert("Unesi ime fajla!"); return; }
+
+            const fields = {};
+            for (let i = 1; i <= 42; i++) fields["field" + i] = document.getElementById("field" + i).value.trim();
+
+            try {
+                const res = await fetch(`${SERVER_URL}/create_sql`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ name, ...fields })
+                });
+                const data = await res.json();
+                document.getElementById("create
