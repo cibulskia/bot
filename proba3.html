@@ -15,33 +15,138 @@
     <button onclick="readSQL()">Čitaj</button>
     <pre id="readResult"></pre>
 
+    <hr>
+
+    <h2>Odgovori i pitanja</h2>
+    <div id="answersContainer">
+        <!-- Odgovor 1 -->
+        <div>
+            <input type="text" id="answer_1" placeholder="odgovor_1">
+            <button onclick="updateSQLField('answer_1')">Promeni</button>
+            <div>
+                <input type="text" id="q1_1" placeholder="pitanje_1">
+                <button onclick="updateSQLField('q1_1')">Promeni</button>
+                <input type="text" id="q1_2" placeholder="pitanje_2">
+                <button onclick="updateSQLField('q1_2')">Promeni</button>
+                <input type="text" id="q1_3" placeholder="pitanje_3">
+                <button onclick="updateSQLField('q1_3')">Promeni</button>
+            </div>
+        </div>
+
+        <!-- Odgovor 2 -->
+        <div>
+            <input type="text" id="answer_2" placeholder="odgovor_2">
+            <button onclick="updateSQLField('answer_2')">Promeni</button>
+            <div>
+                <input type="text" id="q2_1" placeholder="pitanje_4">
+                <button onclick="updateSQLField('q2_1')">Promeni</button>
+                <input type="text" id="q2_2" placeholder="pitanje_5">
+                <button onclick="updateSQLField('q2_2')">Promeni</button>
+                <input type="text" id="q2_3" placeholder="pitanje_6">
+                <button onclick="updateSQLField('q2_3')">Promeni</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const SERVER_URL = "https://botanica.ngrok.app"; // tvoj lokalni server
+        const SERVER_URL = "https://botanica.ngrok.app"; // tvoj ngrok URL
+        let currentFile = null;
+        let sqlData = {}; // Učitana ili kreirana struktura
 
         async function createSQL() {
             const name = document.getElementById('createName').value;
+            if (!name) return alert("Unesi ime fajla");
+
+            // Inicijalni JSON placeholderi
+            sqlData = {
+                "unos_odgovor_1": "odgovor_1",
+                "unos_pitanje_1": "pitanje_1",
+                "unos_pitanje_2": "pitanje_2",
+                "unos_pitanje_3": "pitanje_3",
+                "unos_odgovor_2": "odgovor_2",
+                "unos_pitanje_4": "pitanje_4",
+                "unos_pitanje_5": "pitanje_5",
+                "unos_pitanje_6": "pitanje_6"
+            };
+
             const res = await fetch(`${SERVER_URL}/create_sql`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({name})
             });
             const data = await res.json();
-            document.getElementById('createResult').textContent = JSON.stringify(data, null, 2);
+            if (data.success) {
+                currentFile = name;
+                document.getElementById('createResult').textContent = "Fajl kreiran: " + name;
+                await saveSQL(); // Snimi placeholder strukturu u fajl
+                loadPlaceholders();
+            } else {
+                document.getElementById('createResult').textContent = data.error;
+            }
         }
 
         async function readSQL() {
             const name = document.getElementById('readName').value;
+            if (!name) return alert("Unesi ime fajla");
+
             const res = await fetch(`${SERVER_URL}/read_sql`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({name})
             });
             const data = await res.json();
-            if(data.success) {
+            if (data.success) {
+                currentFile = name;
                 document.getElementById('readResult').textContent = data.content;
+                try {
+                    sqlData = JSON.parse(data.content);
+                } catch(e) {
+                    sqlData = {};
+                }
+                loadPlaceholders();
             } else {
                 document.getElementById('readResult').textContent = data.error;
             }
+        }
+
+        function loadPlaceholders() {
+            if (!sqlData) return;
+            document.getElementById('answer_1').value = sqlData.unos_odgovor_1 || "";
+            document.getElementById('q1_1').value = sqlData.unos_pitanje_1 || "";
+            document.getElementById('q1_2').value = sqlData.unos_pitanje_2 || "";
+            document.getElementById('q1_3').value = sqlData.unos_pitanje_3 || "";
+
+            document.getElementById('answer_2').value = sqlData.unos_odgovor_2 || "";
+            document.getElementById('q2_1').value = sqlData.unos_pitanje_4 || "";
+            document.getElementById('q2_2').value = sqlData.unos_pitanje_5 || "";
+            document.getElementById('q2_3').value = sqlData.unos_pitanje_6 || "";
+        }
+
+        async function updateSQLField(fieldId) {
+            if (!currentFile) return alert("Prvo kreiraj ili učitaj fajl");
+            const value = document.getElementById(fieldId).value;
+
+            switch(fieldId) {
+                case "answer_1": sqlData.unos_odgovor_1 = value; break;
+                case "q1_1": sqlData.unos_pitanje_1 = value; break;
+                case "q1_2": sqlData.unos_pitanje_2 = value; break;
+                case "q1_3": sqlData.unos_pitanje_3 = value; break;
+                case "answer_2": sqlData.unos_odgovor_2 = value; break;
+                case "q2_1": sqlData.unos_pitanje_4 = value; break;
+                case "q2_2": sqlData.unos_pitanje_5 = value; break;
+                case "q2_3": sqlData.unos_pitanje_6 = value; break;
+            }
+            await saveSQL();
+            alert("Ažurirano!");
+        }
+
+        async function saveSQL() {
+            if (!currentFile) return;
+            await fetch(`${SERVER_URL}/create_sql`, { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name: currentFile, content: JSON.stringify(sqlData, null, 2)})
+            });
         }
     </script>
 </body>
