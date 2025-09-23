@@ -9,12 +9,11 @@
         label { font-weight: bold; display: block; margin-top: 5px; }
         button { margin: 10px 5px 10px 0; padding: 8px 16px; }
         .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; }
-        #readResult, #widgetCode { 
+        #createResult, #widgetCode { 
             background: #f4f4f4; padding: 10px; border: 1px solid #ccc; 
             white-space: pre-wrap; max-height: 300px; overflow-y: auto; 
         }
         .login-box { border: 1px solid #aaa; padding: 15px; margin-bottom: 20px; background: #fafafa; }
-        #widgetContainer { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -82,10 +81,6 @@
         <div><label for="field43">Podrazumevani odgovor</label><input type="text" id="field43"></div>
     </div>
 
-    <h2>Čitaj bazu</h2>
-    <button id="readBtn">Čitaj</button>
-    <pre id="readResult"></pre>
-
     <h2>Widget</h2>
     <button id="generateWidgetBtn">Generiši widget HTML</button>
     <pre id="widgetCode"></pre>
@@ -148,24 +143,6 @@
                 document.getElementById("createResult").textContent = data.message || data.error;
             } catch (err) {
                 document.getElementById("createResult").textContent = "Greška: " + err;
-            }
-        });
-
-        // Čitanje baze
-        document.getElementById("readBtn").addEventListener("click", async () => {
-            try {
-                const res = await fetch(`${SERVER_URL}/read_sql`, { method: "POST", credentials: "include" });
-                const data = await res.json();
-                if (data.success) {
-                    for (let i = 1; i <= 43; i++) {
-                        document.getElementById("field" + i).value = data["field" + i] || "";
-                    }
-                    document.getElementById("readResult").textContent = data.content || "";
-                } else {
-                    document.getElementById("readResult").textContent = data.error;
-                }
-            } catch (err) {
-                document.getElementById("readResult").textContent = "Greška: " + err;
             }
         });
 
