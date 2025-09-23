@@ -1,177 +1,129 @@
 <!DOCTYPE html>
 <html lang="sr">
 <head>
-    <meta charset="UTF-8">
-    <title>SQL Manager (43 polja + login)</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        input { width: 90%; padding: 5px; margin: 3px 0 10px 0; }
-        label { font-weight: bold; display: block; margin-top: 5px; }
-        button { margin: 10px 5px 10px 0; padding: 8px 16px; }
-        .grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; }
-        #readResult { background: #f4f4f4; padding: 10px; border: 1px solid #ccc; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
-        .login-box { border: 1px solid #aaa; padding: 15px; margin-bottom: 20px; background: #fafafa; }
-    </style>
+<meta charset="UTF-8">
+<title>SQL Manager (43 polja + login)</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+input { width: 90%; padding: 5px; margin: 3px 0 10px 0; }
+label { font-weight: bold; display: block; margin-top: 5px; }
+button { margin: 10px 5px 10px 0; padding: 8px 16px; }
+.grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; }
+#readResult { background: #f4f4f4; padding: 10px; border: 1px solid #ccc; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+.login-box { border: 1px solid #aaa; padding: 15px; margin-bottom: 20px; background: #fafafa; }
+</style>
 </head>
 <body>
-    <h2>Prijava</h2>
-    <div class="login-box">
-        <label for="username">Korisničko ime</label>
-        <input type="text" id="username" placeholder="Unesi korisničko ime">
+<h2>Prijava</h2>
+<div class="login-box">
+<label for="username">Korisničko ime</label>
+<input type="text" id="username" placeholder="Unesi korisničko ime">
+<label for="password">Lozinka</label>
+<input type="password" id="password" placeholder="Unesi lozinku">
+<button id="loginBtn">Login</button>
+<button id="logoutBtn">Logout</button>
+<p id="loginMsg"></p>
+</div>
 
-        <label for="password">Lozinka</label>
-        <input type="password" id="password" placeholder="Unesi lozinku">
+<h2>Kreiraj bazu</h2>
+<button id="createBtn">Kreiraj</button><br>
+<input type="text" id="createName" placeholder="Ime fajla"><br>
 
-        <button id="loginBtn">Login</button>
-        <button id="logoutBtn">Logout</button>
-        <p id="loginMsg"></p>
-    </div>
+<div class="grid" id="fieldsGrid">
+<!-- polja 1-43 -->
+<script>
+for (let i=1;i<=43;i++){
+  const div=document.createElement("div");
+  const label=document.createElement("label");
+  label.textContent=`Polje ${i}`;
+  label.setAttribute("for","field"+i);
+  const input=document.createElement("input");
+  input.type="text";
+  input.id="field"+i;
+  input.placeholder="Polje "+i;
+  div.appendChild(label);
+  div.appendChild(input);
+  document.getElementById("fieldsGrid").appendChild(div);
+}
+</script>
+</div>
 
-    <h2>Kreiraj bazu</h2>
-    <button id="createBtn">Kreiraj</button>
-    <br>
-    <input type="text" id="createName" placeholder="Ime fajla"><br>
+<p id="createResult"></p>
 
-    <div class="grid" id="fieldsGrid">
-        <!-- ista polja kao što si imao, od 1 do 43 -->
-        <div><label for="field1">Odgovor 1</label><input type="text" id="field1" placeholder="Polje 1"></div>
-        <div><label for="field2">Pitanje 11</label><input type="text" id="field2" placeholder="Polje 2"></div>
-        <div><label for="field3">Pitanje 12</label><input type="text" id="field3" placeholder="Polje 3"></div>
-        <div><label for="field4">Pitanje 13</label><input type="text" id="field4" placeholder="Polje 4"></div>
-        <div><label for="field5">Pitanje 14</label><input type="text" id="field5" placeholder="Polje 5"></div>
-        <div><label for="field6">Pitanje 15</label><input type="text" id="field6" placeholder="Polje 6"></div>
-        <div><label for="field7">Odgovor 2</label><input type="text" id="field7" placeholder="Polje 7"></div>
-        <div><label for="field8">Pitanje 21</label><input type="text" id="field8" placeholder="Polje 8"></div>
-        <div><label for="field9">Pitanje 22</label><input type="text" id="field9" placeholder="Polje 9"></div>
-        <div><label for="field10">Pitanje 23</label><input type="text" id="field10" placeholder="Polje 10"></div>
-        <div><label for="field11">Pitanje 24</label><input type="text" id="field11" placeholder="Polje 11"></div>
-        <div><label for="field12">Pitanje 25</label><input type="text" id="field12" placeholder="Polje 12"></div>
-        <div><label for="field13">Odgovor 3</label><input type="text" id="field13" placeholder="Polje 13"></div>
-        <div><label for="field14">Pitanje 31</label><input type="text" id="field14" placeholder="Polje 14"></div>
-        <div><label for="field15">Pitanje 32</label><input type="text" id="field15" placeholder="Polje 15"></div>
-        <div><label for="field16">Pitanje 33</label><input type="text" id="field16" placeholder="Polje 16"></div>
-        <div><label for="field17">Pitanje 34</label><input type="text" id="field17" placeholder="Polje 17"></div>
-        <div><label for="field18">Pitanje 35</label><input type="text" id="field18" placeholder="Polje 18"></div>
-        <div><label for="field19">Odgovor 4</label><input type="text" id="field19" placeholder="Polje 19"></div>
-        <div><label for="field20">Pitanje 41</label><input type="text" id="field20" placeholder="Polje 20"></div>
-        <div><label for="field21">Pitanje 42</label><input type="text" id="field21" placeholder="Polje 21"></div>
-        <div><label for="field22">Pitanje 43</label><input type="text" id="field22" placeholder="Polje 22"></div>
-        <div><label for="field23">Pitanje 44</label><input type="text" id="field23" placeholder="Polje 23"></div>
-        <div><label for="field24">Pitanje 45</label><input type="text" id="field24" placeholder="Polje 24"></div>
-        <div><label for="field25">Odgovor 5</label><input type="text" id="field25" placeholder="Polje 25"></div>
-        <div><label for="field26">Pitanje 51</label><input type="text" id="field26" placeholder="Polje 26"></div>
-        <div><label for="field27">Pitanje 52</label><input type="text" id="field27" placeholder="Polje 27"></div>
-        <div><label for="field28">Pitanje 53</label><input type="text" id="field28" placeholder="Polje 28"></div>
-        <div><label for="field29">Pitanje 54</label><input type="text" id="field29" placeholder="Polje 29"></div>
-        <div><label for="field30">Pitanje 55</label><input type="text" id="field30" placeholder="Polje 30"></div>
-        <div><label for="field31">Odgovor 6</label><input type="text" id="field31" placeholder="Polje 31"></div>
-        <div><label for="field32">Pitanje 61</label><input type="text" id="field32" placeholder="Polje 32"></div>
-        <div><label for="field33">Pitanje 62</label><input type="text" id="field33" placeholder="Polje 33"></div>
-        <div><label for="field34">Pitanje 63</label><input type="text" id="field34" placeholder="Polje 34"></div>
-        <div><label for="field35">Pitanje 64</label><input type="text" id="field35" placeholder="Polje 35"></div>
-        <div><label for="field36">Pitanje 65</label><input type="text" id="field36" placeholder="Polje 36"></div>
-        <div><label for="field37">Odgovor 7</label><input type="text" id="field37" placeholder="Polje 37"></div>
-        <div><label for="field38">Pitanje 71</label><input type="text" id="field38" placeholder="Polje 38"></div>
-        <div><label for="field39">Pitanje 72</label><input type="text" id="field39" placeholder="Polje 39"></div>
-        <div><label for="field40">Pitanje 73</label><input type="text" id="field40" placeholder="Polje 40"></div>
-        <div><label for="field41">Pitanje 74</label><input type="text" id="field41" placeholder="Polje 41"></div>
-        <div><label for="field42">Pitanje 75</label><input type="text" id="field42" placeholder="Polje 42"></div>
-        <div><label for="field43">Podrazumevani odgovor</label><input type="text" id="field43" placeholder="Polje 43"></div>
-    </div>
+<h2>Čitaj bazu</h2>
+<input type="text" id="readName" placeholder="Ime fajla"><br>
+<button id="readBtn">Čitaj</button>
+<h3>Sadržaj fajla:</h3>
+<pre id="readResult"></pre>
 
-    <p id="createResult"></p>
+<script>
+const SERVER_URL = "https://botanica.ngrok.app";
 
-    <h2>Čitaj bazu</h2>
-    <input type="text" id="readName" placeholder="Ime fajla"><br>
-    <button id="readBtn">Čitaj</button>
-    <h3>Sadržaj fajla:</h3>
-    <pre id="readResult"></pre>
+// LOGIN
+document.getElementById("loginBtn").addEventListener("click", async ()=>{
+  const username=document.getElementById("username").value.trim();
+  const password=document.getElementById("password").value.trim();
+  if(!username||!password){document.getElementById("loginMsg").textContent="Unesi korisničko ime i lozinku!";return;}
+  try{
+    const res=await fetch(`${SERVER_URL}/login`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({username,password}),
+      credentials:"include"
+    });
+    const data=await res.json();
+    document.getElementById("loginMsg").textContent=data.message||data.error;
+  }catch(err){document.getElementById("loginMsg").textContent="Greška: "+err;}
+});
 
-    <script>
-        const SERVER_URL = "https://botanica.ngrok.app";
+// LOGOUT
+document.getElementById("logoutBtn").addEventListener("click", async ()=>{
+  try{
+    const res=await fetch(`${SERVER_URL}/logout`,{method:"POST",credentials:"include"});
+    const data=await res.json();
+    document.getElementById("loginMsg").textContent=data.message||data.error;
+  }catch(err){document.getElementById("loginMsg").textContent="Greška: "+err;}
+});
 
-        // LOGIN
-        document.getElementById("loginBtn").addEventListener("click", async () => {
-            const username = document.getElementById("username").value.trim();
-            const password = document.getElementById("password").value.trim();
-            if (!username || !password) {
-                document.getElementById("loginMsg").textContent = "Unesi korisničko ime i lozinku!";
-                return;
-            }
-            try {
-                const res = await fetch(`${SERVER_URL}/login`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password }),
-                    credentials: "include"
-                });
-                const data = await res.json();
-                document.getElementById("loginMsg").textContent = data.message || data.error;
-            } catch (err) {
-                document.getElementById("loginMsg").textContent = "Greška: " + err;
-            }
-        });
+// CREATE
+document.getElementById("createBtn").addEventListener("click", async ()=>{
+  const name=document.getElementById("createName").value.trim();
+  if(!name){alert("Unesi ime fajla!");return;}
+  const fields={};
+  for(let i=1;i<=43;i++)fields["field"+i]=document.getElementById("field"+i).value.trim();
+  try{
+    const res=await fetch(`${SERVER_URL}/create_sql`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({name,...fields}),
+      credentials:"include"
+    });
+    const data=await res.json();
+    document.getElementById("createResult").textContent=data.message||data.error;
+  }catch(err){document.getElementById("createResult").textContent="Greška: "+err;}
+});
 
-        // LOGOUT
-        document.getElementById("logoutBtn").addEventListener("click", async () => {
-            try {
-                const res = await fetch(`${SERVER_URL}/logout`, {
-                    method: "POST",
-                    credentials: "include"
-                });
-                const data = await res.json();
-                document.getElementById("loginMsg").textContent = data.message || data.error;
-            } catch (err) {
-                document.getElementById("loginMsg").textContent = "Greška: " + err;
-            }
-        });
-
-        // Kreiranje fajla
-        document.getElementById("createBtn").addEventListener("click", async () => {
-            const name = document.getElementById("createName").value.trim();
-            if (!name) { alert("Unesi ime fajla!"); return; }
-
-            const fields = {};
-            for (let i = 1; i <= 43; i++) fields["field" + i] = document.getElementById("field" + i).value.trim();
-
-            try {
-                const res = await fetch(`${SERVER_URL}/create_sql`, {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({ name, ...fields }),
-                    credentials: "include"
-                });
-                const data = await res.json();
-                document.getElementById("createResult").textContent = data.message || data.error;
-            } catch (err) {
-                document.getElementById("createResult").textContent = "Greška: " + err;
-            }
-        });
-
-        // Čitanje fajla
-        document.getElementById("readBtn").addEventListener("click", async () => {
-            const name = document.getElementById("readName").value.trim();
-            if (!name) { alert("Unesi ime fajla!"); return; }
-
-            try {
-                const res = await fetch(`${SERVER_URL}/read_sql`, {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({ name }),
-                    credentials: "include"
-                });
-                const data = await res.json();
-                if (data.success) {
-                    document.getElementById("readResult").textContent = data.content;
-                    for (let i = 1; i <= 43; i++)
-                        document.getElementById("field" + i).value = data["field" + i] || "";
-                } else {
-                    document.getElementById("readResult").textContent = data.error;
-                }
-            } catch (err) {
-                document.getElementById("readResult").textContent = "Greška: " + err;
-            }
-        });
-    </script>
+// READ
+document.getElementById("readBtn").addEventListener("click", async ()=>{
+  const name=document.getElementById("readName").value.trim();
+  if(!name){alert("Unesi ime fajla!");return;}
+  try{
+    const res=await fetch(`${SERVER_URL}/read_sql`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({name}),
+      credentials:"include"
+    });
+    const data=await res.json();
+    if(data.success){
+      document.getElementById("readResult").textContent=data.content;
+      for(let i=1;i<=43;i++)
+        document.getElementById("field"+i).value=data["field"+i]||"";
+    }else{
+      document.getElementById("readResult").textContent=data.error;
+    }
+  }catch(err){document.getElementById("readResult").textContent="Greška: "+err;}
+});
+</script>
 </body>
 </html>
