@@ -15,100 +15,32 @@
     <button onclick="readSQL()">Čitaj</button>
     <pre id="readResult"></pre>
 
-    <hr>
-
-    <h2>Dodatna polja iz SQL fajla</h2>
-    <div>
-        <label>Polje 1:</label><br>
-        <input type="text" id="extra1" placeholder="extra1">
-        <button onclick="updateSQLField('extra1')">Promeni</button><br><br>
-
-        <label>Polje 2:</label><br>
-        <input type="text" id="extra2" placeholder="extra2">
-        <button onclick="updateSQLField('extra2')">Promeni</button><br><br>
-
-        <label>Polje 3:</label><br>
-        <input type="text" id="extra3" placeholder="extra3">
-        <button onclick="updateSQLField('extra3')">Promeni</button><br><br>
-    </div>
-
     <script>
-        const SERVER_URL = "http://localhost:5000"; // lokalni server
-        let currentFile = null;
-        let sqlData = {}; // učitani ili kreirani sadržaj SQL fajla
+        const SERVER_URL = "http://localhost:5000"; // tvoj lokalni server
 
         async function createSQL() {
             const name = document.getElementById('createName').value;
-            if (!name) return alert("Unesi ime fajla");
-
-            // Inicijalni JSON sa praznim poljima
-            sqlData = {
-                "extra1": "",
-                "extra2": "",
-                "extra3": ""
-            };
-
             const res = await fetch(`${SERVER_URL}/create_sql`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name, content: JSON.stringify(sqlData, null, 2)})
+                body: JSON.stringify({name})
             });
             const data = await res.json();
-            if(data.success){
-                currentFile = name;
-                alert("Fajl kreiran: " + name);
-                loadPlaceholders();
-            } else {
-                alert("Greška: " + data.error);
-            }
+            document.getElementById('createResult').textContent = JSON.stringify(data, null, 2);
         }
 
         async function readSQL() {
             const name = document.getElementById('readName').value;
-            if (!name) return alert("Unesi ime fajla");
-
             const res = await fetch(`${SERVER_URL}/read_sql`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({name})
             });
             const data = await res.json();
-            if(data.success){
-                currentFile = name;
-                try {
-                    sqlData = JSON.parse(data.content);
-                } catch(e){
-                    sqlData = {"extra1":"", "extra2":"", "extra3":""};
-                }
-                loadPlaceholders();
+            if(data.success) {
+                document.getElementById('readResult').textContent = data.content;
             } else {
-                alert("Greška: " + data.error);
-            }
-        }
-
-        function loadPlaceholders(){
-            document.getElementById('extra1').value = sqlData.extra1 || "";
-            document.getElementById('extra2').value = sqlData.extra2 || "";
-            document.getElementById('extra3').value = sqlData.extra3 || "";
-        }
-
-        async function updateSQLField(fieldId){
-            if(!currentFile) return alert("Prvo kreiraj ili učitaj fajl");
-
-            const value = document.getElementById(fieldId).value;
-            sqlData[fieldId] = value;
-
-            // Pošalji izmenjeni JSON nazad na server da se upiše u fajl
-            const res = await fetch(`${SERVER_URL}/create_sql`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name: currentFile, content: JSON.stringify(sqlData, null, 2)})
-            });
-            const data = await res.json();
-            if(data.success){
-                alert("Polje ažurirano!");
-            } else {
-                alert("Greška pri upisu: " + data.error);
+                document.getElementById('readResult').textContent = data.error;
             }
         }
     </script>
