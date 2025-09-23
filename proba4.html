@@ -95,4 +95,35 @@
                     body: JSON.stringify({ name, ...fields })
                 });
                 const data = await res.json();
-                document.getElementById("create
+                document.getElementById("createResult").textContent = data.message || data.error;
+            } catch (err) {
+                document.getElementById("createResult").textContent = "Greška: " + err;
+            }
+        });
+
+        // Čitanje fajla
+        document.getElementById("readBtn").addEventListener("click", async () => {
+            const name = document.getElementById("readName").value.trim();
+            if (!name) { alert("Unesi ime fajla!"); return; }
+
+            try {
+                const res = await fetch(`${SERVER_URL}/read_sql`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ name })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById("readResult").textContent = data.content;
+                    for (let i = 1; i <= 42; i++)
+                        document.getElementById("field" + i).value = data["field" + i] || "";
+                } else {
+                    document.getElementById("readResult").textContent = data.error;
+                }
+            } catch (err) {
+                document.getElementById("readResult").textContent = "Greška: " + err;
+            }
+        });
+    </script>
+</body>
+</html>
