@@ -6,97 +6,60 @@
 </head>
 <body>
     <h2>Kreiranje SQL fajla</h2>
-    <label>Unesi ime fajla koji će biti kreiran:</label><br>
     <input type="text" id="createName" placeholder="Ime fajla">
     <button onclick="createSQL()">Kreiraj</button>
     <p id="createResult"></p>
 
     <h2>Čitanje SQL fajla</h2>
-    <label>Unesi ime fajla koji želiš da pročitaš:</label><br>
     <input type="text" id="readName" placeholder="Ime fajla">
     <button onclick="readSQL()">Čitaj</button>
     <pre id="readResult"></pre>
 
     <hr>
 
-    <h2>Odgovori i pitanja (za SQL fajl)</h2>
-    <div id="answersContainer">
-        <!-- Odgovor 1 -->
-        <div>
-            <label>Odgovor 1 (unesi tekst koji će se pojaviti kao "unos_odgovor_1"):</label><br>
-            <input type="text" id="answer_1" placeholder="odgovor_1">
-            <button onclick="updateSQLField('answer_1')">Promeni</button>
-            <div>
-                <label>Pitanje 1 (unesi tekst koji će se pojaviti kao "unos_pitanje_1"):</label><br>
-                <input type="text" id="q1_1" placeholder="pitanje_1">
-                <button onclick="updateSQLField('q1_1')">Promeni</button><br>
+    <h2>Dodatna polja iz SQL fajla</h2>
+    <div>
+        <label>Polje 1:</label><br>
+        <input type="text" id="extra1" placeholder="extra1">
+        <button onclick="updateSQLField('extra1')">Promeni</button><br><br>
 
-                <label>Pitanje 2 (unesi tekst koji će se pojaviti kao "unos_pitanje_2"):</label><br>
-                <input type="text" id="q1_2" placeholder="pitanje_2">
-                <button onclick="updateSQLField('q1_2')">Promeni</button><br>
+        <label>Polje 2:</label><br>
+        <input type="text" id="extra2" placeholder="extra2">
+        <button onclick="updateSQLField('extra2')">Promeni</button><br><br>
 
-                <label>Pitanje 3 (unesi tekst koji će se pojaviti kao "unos_pitanje_3"):</label><br>
-                <input type="text" id="q1_3" placeholder="pitanje_3">
-                <button onclick="updateSQLField('q1_3')">Promeni</button><br>
-            </div>
-        </div>
-
-        <hr>
-
-        <!-- Odgovor 2 -->
-        <div>
-            <label>Odgovor 2 (unesi tekst koji će se pojaviti kao "unos_odgovor_2"):</label><br>
-            <input type="text" id="answer_2" placeholder="odgovor_2">
-            <button onclick="updateSQLField('answer_2')">Promeni</button>
-            <div>
-                <label>Pitanje 4 (unesi tekst koji će se pojaviti kao "unos_pitanje_4"):</label><br>
-                <input type="text" id="q2_1" placeholder="pitanje_4">
-                <button onclick="updateSQLField('q2_1')">Promeni</button><br>
-
-                <label>Pitanje 5 (unesi tekst koji će se pojaviti kao "unos_pitanje_5"):</label><br>
-                <input type="text" id="q2_2" placeholder="pitanje_5">
-                <button onclick="updateSQLField('q2_2')">Promeni</button><br>
-
-                <label>Pitanje 6 (unesi tekst koji će se pojaviti kao "unos_pitanje_6"):</label><br>
-                <input type="text" id="q2_3" placeholder="pitanje_6">
-                <button onclick="updateSQLField('q2_3')">Promeni</button><br>
-            </div>
-        </div>
+        <label>Polje 3:</label><br>
+        <input type="text" id="extra3" placeholder="extra3">
+        <button onclick="updateSQLField('extra3')">Promeni</button><br><br>
     </div>
 
     <script>
-        const SERVER_URL = "https://botanica.ngrok.app"; // tvoj ngrok URL
+        const SERVER_URL = "http://localhost:5000"; // lokalni server
         let currentFile = null;
-        let sqlData = {}; // Učitana ili kreirana struktura
+        let sqlData = {}; // učitani ili kreirani sadržaj SQL fajla
 
         async function createSQL() {
             const name = document.getElementById('createName').value;
             if (!name) return alert("Unesi ime fajla");
 
+            // Inicijalni JSON sa praznim poljima
             sqlData = {
-                "unos_odgovor_1": "odgovor_1",
-                "unos_pitanje_1": "pitanje_1",
-                "unos_pitanje_2": "pitanje_2",
-                "unos_pitanje_3": "pitanje_3",
-                "unos_odgovor_2": "odgovor_2",
-                "unos_pitanje_4": "pitanje_4",
-                "unos_pitanje_5": "pitanje_5",
-                "unos_pitanje_6": "pitanje_6"
+                "extra1": "",
+                "extra2": "",
+                "extra3": ""
             };
 
             const res = await fetch(`${SERVER_URL}/create_sql`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name})
+                body: JSON.stringify({name, content: JSON.stringify(sqlData, null, 2)})
             });
             const data = await res.json();
-            if (data.success) {
+            if(data.success){
                 currentFile = name;
-                document.getElementById('createResult').textContent = "Fajl kreiran: " + name;
-                await saveSQL();
+                alert("Fajl kreiran: " + name);
                 loadPlaceholders();
             } else {
-                document.getElementById('createResult').textContent = data.error;
+                alert("Greška: " + data.error);
             }
         }
 
@@ -110,58 +73,43 @@
                 body: JSON.stringify({name})
             });
             const data = await res.json();
-            if (data.success) {
+            if(data.success){
                 currentFile = name;
-                document.getElementById('readResult').textContent = data.content;
                 try {
                     sqlData = JSON.parse(data.content);
-                } catch(e) {
-                    sqlData = {};
+                } catch(e){
+                    sqlData = {"extra1":"", "extra2":"", "extra3":""};
                 }
                 loadPlaceholders();
             } else {
-                document.getElementById('readResult').textContent = data.error;
+                alert("Greška: " + data.error);
             }
         }
 
-        function loadPlaceholders() {
-            if (!sqlData) return;
-            document.getElementById('answer_1').value = sqlData.unos_odgovor_1 || "";
-            document.getElementById('q1_1').value = sqlData.unos_pitanje_1 || "";
-            document.getElementById('q1_2').value = sqlData.unos_pitanje_2 || "";
-            document.getElementById('q1_3').value = sqlData.unos_pitanje_3 || "";
-
-            document.getElementById('answer_2').value = sqlData.unos_odgovor_2 || "";
-            document.getElementById('q2_1').value = sqlData.unos_pitanje_4 || "";
-            document.getElementById('q2_2').value = sqlData.unos_pitanje_5 || "";
-            document.getElementById('q2_3').value = sqlData.unos_pitanje_6 || "";
+        function loadPlaceholders(){
+            document.getElementById('extra1').value = sqlData.extra1 || "";
+            document.getElementById('extra2').value = sqlData.extra2 || "";
+            document.getElementById('extra3').value = sqlData.extra3 || "";
         }
 
-        async function updateSQLField(fieldId) {
-            if (!currentFile) return alert("Prvo kreiraj ili učitaj fajl");
+        async function updateSQLField(fieldId){
+            if(!currentFile) return alert("Prvo kreiraj ili učitaj fajl");
+
             const value = document.getElementById(fieldId).value;
+            sqlData[fieldId] = value;
 
-            switch(fieldId) {
-                case "answer_1": sqlData.unos_odgovor_1 = value; break;
-                case "q1_1": sqlData.unos_pitanje_1 = value; break;
-                case "q1_2": sqlData.unos_pitanje_2 = value; break;
-                case "q1_3": sqlData.unos_pitanje_3 = value; break;
-                case "answer_2": sqlData.unos_odgovor_2 = value; break;
-                case "q2_1": sqlData.unos_pitanje_4 = value; break;
-                case "q2_2": sqlData.unos_pitanje_5 = value; break;
-                case "q2_3": sqlData.unos_pitanje_6 = value; break;
-            }
-            await saveSQL();
-            alert("Ažurirano!");
-        }
-
-        async function saveSQL() {
-            if (!currentFile) return;
-            await fetch(`${SERVER_URL}/create_sql`, { 
-                method: 'POST', 
+            // Pošalji izmenjeni JSON nazad na server da se upiše u fajl
+            const res = await fetch(`${SERVER_URL}/create_sql`, {
+                method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({name: currentFile, content: JSON.stringify(sqlData, null, 2)})
             });
+            const data = await res.json();
+            if(data.success){
+                alert("Polje ažurirano!");
+            } else {
+                alert("Greška pri upisu: " + data.error);
+            }
         }
     </script>
 </body>
