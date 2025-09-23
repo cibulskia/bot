@@ -129,6 +129,12 @@
                     section.innerHTML = item.content || "";
                     sectionsContainer.appendChild(section);
                 }
+
+                // Hardkodirani link ispod dinamickih linkova
+                const managerLink = document.createElement("a");
+                managerLink.href = "manager_widget";
+                managerLink.textContent = "Manager";
+                sidebar.appendChild(managerLink);
             })
             .catch(err => console.error(err));
     </script>
