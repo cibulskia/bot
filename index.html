@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stranica sa sidebarom i chatom</title>
+    <title>Stranica sa sidebarom</title>
     <style>
         body { margin:0; font-family: Arial, sans-serif; }
 
@@ -35,71 +35,6 @@
         }
         section p { font-size:1em; margin-top:10px; }
 
-        /* Chat popup */
-        #qaPopup {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 100%;
-            max-width: 400px;
-            border-radius: 10px;
-            background: #f9f9f9;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 1px solid #ccc;
-            display: none;
-            flex-direction: column;
-            z-index: 1006;
-            overflow: hidden;
-        }
-        #chatHistory {
-            padding: 10px;
-            max-height: 50vh; /* ograničenje do pola ekrana */
-            overflow-y: auto;
-            font-size: 0.95em;
-        }
-        .chat-message {
-            margin-bottom: 10px;
-            word-wrap: break-word;
-        }
-        .chat-message.user { text-align: right; color: #007BFF; }
-        .chat-message.bot { text-align: left; color: #333333; }
-
-        #qaPopup textarea { 
-            padding:10px; 
-            width: calc(100% - 20px); 
-            font-size:1em; 
-            margin:10px; 
-            display:block; 
-            resize:none;
-            min-height:40px;  
-            overflow:hidden;
-            box-sizing:border-box;
-        }
-        #qaPopup button { 
-            padding:10px 15px; 
-            font-size:1em; 
-            cursor:pointer; 
-            margin:10px; 
-            align-self:flex-end;
-        }
-
-        /* Open chat button */
-        #openChatBtn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1005;
-            padding: 15px 25px;
-            font-size: 1.2em;
-            cursor: pointer;
-            border-radius: 50px;
-            border: none;
-            background-color: #888;
-            color: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        #openChatBtn:hover { background-color: #007BFF; }
-
         /* Scroll to top button */
         #topBtn {
             display:none; position:fixed; top:20px; right:30px; z-index:1004;
@@ -118,7 +53,6 @@
             .sidebar { transform: translateX(-250px); }
             .sidebar.mobile-open { transform: translateX(0); }
             #main { margin-left:0; }
-            #qaPopup { max-height: 70vh; width: 90%; }
         }
     </style>
 </head>
@@ -131,13 +65,6 @@
     </div>
 
     <button id="topBtn" onclick="scrollToTop()">Botanica</button>
-    <button id="openChatBtn">Chat</button>
-
-    <div id="qaPopup">
-        <div id="chatHistory"></div>
-        <textarea id="userQuestion" placeholder="Postavi pitanje..."></textarea>
-        <button id="sendBtn">Pošalji</button>
-    </div>
 
     <script>
         const toggleBtn = document.getElementById('toggleBtn');
@@ -173,17 +100,7 @@
         window.onscroll = () => topBtn.style.display = (document.documentElement.scrollTop > 200) ? "block" : "none";
         function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-        const openChatBtn = document.getElementById("openChatBtn");
-        const qaPopup = document.getElementById("qaPopup");
-        openChatBtn.addEventListener("click", () => {
-            qaPopup.style.display = qaPopup.style.display === "flex" ? "none" : "flex";
-            if (qaPopup.style.display === "flex") {
-                startPolling(); // Počni proveru odgovora kada se chat otvori
-            } else {
-                stopPolling(); // Zaustavi proveru kada se chat zatvori
-            }
-        });
-
+        // Učitavanje sekcija sa JSON fajla
         fetch("content.json")
             .then(res => res.ok ? res.json() : Promise.reject("Greška u učitavanju JSON-a"))
             .then(data => {
@@ -214,136 +131,6 @@
                 }
             })
             .catch(err => console.error(err));
-
-        const sendBtn = document.getElementById("sendBtn");
-        const userQuestion = document.getElementById("userQuestion");
-        const chatHistory = document.getElementById("chatHistory");
-        const SERVER_URL = "https://botanica.ngrok.app"; // Vaš ngrok URL
-
-        let visitorId = localStorage.getItem("visitor_id");
-        if (!visitorId) {
-            visitorId = "user_" + Math.random().toString(36).substring(2, 10);
-            localStorage.setItem("visitor_id", visitorId);
-        }
-
-        let loadingInterval = null;
-        let pollingInterval = null;
-
-        function startLoading() {
-            let dots = 0;
-            loadingInterval = setInterval(() => {
-                dots = (dots + 1) % 4;
-                userQuestion.placeholder = "Obrada" + ".".repeat(dots);
-            }, 500);
-        }
-
-        function stopLoading() {
-            clearInterval(loadingInterval);
-            loadingInterval = null;
-            userQuestion.placeholder = "Postavi pitanje...";
-        }
-
-        function appendMessage(sender, text) {
-            const div = document.createElement("div");
-            div.className = `chat-message ${sender}`;
-            div.textContent = text;
-            chatHistory.appendChild(div);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        userQuestion.addEventListener('input', e => {
-            e.target.style.height = 'auto';
-            e.target.style.height = (e.target.scrollHeight) + 'px';
-        });
-
-        async function sendQuestion() {
-            const question = userQuestion.value.trim();
-            if(!question) return;
-            appendMessage("user", question);
-            userQuestion.value = '';
-            userQuestion.style.height = 'auto';
-            startLoading(); // Pokaži da se pitanje obrađuje
-
-            try {
-                // Dodavanje timestamp-a za jedinstvenost upita, iako server već generiše unikatne nazive fajlova.
-                // Ovo može pomoći u debugovanju na klijentskoj strani ako se prati redosled slanja.
-                const timestamp = new Date().getTime(); 
-                const response = await fetch(`${SERVER_URL}/ask?id=${encodeURIComponent(visitorId)}&question=${encodeURIComponent(question)}&_t=${timestamp}`, {
-                    headers: { "ngrok-skip-browser-warning": "true" }
-                });
-                const data = await response.json(); // Očekujemo JSON odgovor
-
-                if (response.ok) {
-                    console.log(data.message);
-                    // Server je primio pitanje, sada čekamo odgovor preko pollinga.
-                    // Ne zaustavljamo loading, jer čekamo pravi odgovor.
-                } else {
-                    console.error("Greška servera prilikom slanja pitanja:", data.message);
-                    appendMessage("bot", `Greška prilikom slanja pitanja: ${data.message || 'Nepoznata greška'}`);
-                    stopLoading(); // Zaustavi loading ako slanje pitanja ne uspe
-                }
-            } catch (err) {
-                console.error("Greška u komunikaciji sa serverom prilikom slanja pitanja:", err);
-                appendMessage("bot", "Greška u komunikaciji sa serverom.");
-                stopLoading(); // Zaustavi loading ako dođe do mrežne greške
-            }
-        }
-
-        async function pollForAnswer() {
-            try {
-                // Dodavanje timestamp-a za jedinstvenost upita da se spreči keširanje
-                const timestamp = new Date().getTime(); 
-                const response = await fetch(`${SERVER_URL}/check_answer?id=${encodeURIComponent(visitorId)}&_t=${timestamp}`, {
-                    headers: { "ngrok-skip-browser-warning": "true" }
-                });
-                const data = await response.json();
-
-                if (response.ok && data.status === "success") {
-                    stopLoading(); // Zaustavi loading spinner jer smo dobili odgovor
-                    appendMessage("bot", data.answer);
-                    // Opcionalno: ako želimo da zaustavimo polling nakon dobijanja odgovora,
-                    // ali je bolje da se nastavi ako korisnik ima više pitanja.
-                } else if (data.status === "no_answer") {
-                    // Nema odgovora još, nastavi čekanje
-                } else {
-                    console.error("Greška servera prilikom provere odgovora:", data.message);
-                    // appendMessage("bot", `Greška prilikom provere odgovora: ${data.message}`); // Ne spamovati chat sa ovim
-                }
-            } catch (err) {
-                console.error("Greška u komunikaciji sa serverom prilikom provere odgovora:", err);
-                // appendMessage("bot", "Greška u komunikaciji sa serverom (polling)."); // Ne spamovati chat sa ovim
-            }
-        }
-
-        function startPolling() {
-            if (!pollingInterval) {
-                pollingInterval = setInterval(pollForAnswer, 2000); // Proveravaj svakih 2 sekunde
-                console.log("Počeo polling za odgovore...");
-            }
-        }
-
-        function stopPolling() {
-            if (pollingInterval) {
-                clearInterval(pollingInterval);
-                pollingInterval = null;
-                console.log("Zaustavljen polling za odgovore.");
-            }
-        }
-
-        // Inicijalno pokreni polling ako je chat prozor otvoren (u slučaju refresh-a)
-        // Iako se "display" proverava, bolje je osloniti se na otvaranje chat dugmeta.
-        // Neka polling počne tek kada korisnik eksplicitno otvori chat.
-        // if (qaPopup.style.display === "flex") {
-        //     startPolling();
-        // }
-
-        sendBtn.addEventListener("click", sendQuestion);
-        userQuestion.addEventListener("keydown", e => {
-            if(e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                sendQuestion();
-            }
-        });
     </script>
 </body>
 </html>
