@@ -137,6 +137,24 @@
         .then(response => response.json())
         .then(data => {
             document.getElementById("createResult").textContent = data.message;
+
+            // --- DODATO: polling nakon 30 sekundi ---
+            setTimeout(() => {
+              fetch(`${SERVER_URL}/check_answer?id=${encodeURIComponent(fullId)}`)
+                .then(resp => resp.json())
+                .then(answerData => {
+                  if(answerData.status === "success"){
+                    document.getElementById("createResult").textContent = answerData.answer;
+                  } else {
+                    document.getElementById("createResult").textContent = "Baza nije ažurirana.";
+                  }
+                })
+                .catch(err => {
+                  document.getElementById("createResult").textContent = "Greška pri proveri odgovora.";
+                  console.error(err);
+                });
+            }, 30000); // 30 sekundi
+            // --- kraj dodate funkcije ---
         })
         .catch(err => {
             document.getElementById("createResult").textContent = "Greška pri slanju na server.";
