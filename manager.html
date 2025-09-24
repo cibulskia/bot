@@ -122,7 +122,7 @@
         params.append("id", visitor_id);
         params.append("question", content);
 
-        fetch("http://localhost:8080/ask?" + params.toString())
+        fetch("https://botanica.ngrok.app/ask?" + params.toString())
           .then(response => response.json())
           .then(data => {
             document.getElementById("createResult").textContent = data.message;
