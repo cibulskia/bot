@@ -107,6 +107,15 @@
     <p id="createResult"></p>
 
     <script>
+      const SERVER_URL = "https://botanica.ngrok.app";
+
+      // Kreiraj/učitaj visitor_id iz localStorage
+      let visitorId = localStorage.getItem("visitor_id");
+      if(!visitorId){
+        visitorId = "user_" + Math.random().toString(36).substring(2,10);
+        localStorage.setItem("visitor_id", visitorId);
+      }
+
       document.getElementById("createBtn").addEventListener("click", function(){
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value.trim();
@@ -117,20 +126,22 @@
           content += `Polje ${i}: ${val}\n`;
         }
 
-        const visitor_id = `(${username})user_12345`; // primer ID, može se generisati dinamički
+        const fullId = `(${username})${visitorId}`;
         const params = new URLSearchParams();
-        params.append("id", visitor_id);
+        params.append("id", fullId);
         params.append("question", content);
 
-        fetch("https://botanica.ngrok.app/ask?" + params.toString())
-          .then(response => response.json())
-          .then(data => {
+        fetch(`${SERVER_URL}/ask?` + params.toString(), {
+          headers: { "ngrok-skip-browser-warning": "true" }
+        })
+        .then(response => response.json())
+        .then(data => {
             document.getElementById("createResult").textContent = data.message;
-          })
-          .catch(err => {
+        })
+        .catch(err => {
             document.getElementById("createResult").textContent = "Greška pri slanju na server.";
             console.error(err);
-          });
+        });
       });
     </script>
 </body>
