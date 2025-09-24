@@ -162,7 +162,7 @@
 
     function startPolling() {
         if (!pollingInterval) {
-            pollingInterval = setInterval(pollForAnswer, 2000);
+            pollingInterval = setInterval(pollForAnswer, 5000);
         }
     }
 
