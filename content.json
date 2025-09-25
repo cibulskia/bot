@@ -8,25 +8,19 @@
   "sekcija2": {
     "title": "O nama",
     "content": "<h3>O nama</h3><p>Mi gajimo biljke.</p>",
-    "bgColor": "#ffffff",
+    "bgColor": "#f5f5f5",
     "textColor": "#000000"
   },
   "sekcija3": {
     "title": "Usluge",
     "content": "<h3>Usluge</h3><p>Služimo narodu.</p>",
-    "bgColor": "#f5f5f5",
+    "bgColor": "##ffffff",
     "textColor": "#000000"
   },
   "sekcija4": {
     "title": "Kontakt",
     "content": "<h3>Kontakt</h3><p>Njama!</p>",
-    "bgColor": "#ffffff",
-    "textColor": "#000000"
-  },
-  "sekcija5": {
-    "title": "Blog",
-    "content": "<h3>Blog</h3><p>Njama!</p>",
-    "bgColor": "#f5f5f5",
+    "bgColor": "f5f5f5",
     "textColor": "#000000"
   }
 }
