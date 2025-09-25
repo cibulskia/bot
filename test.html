@@ -9,16 +9,25 @@
     <p id="response"></p>
 
     <script>
+        // PAŽNJA: U stvarnoj produkciji, ovaj token ne bi trebalo da bude
+        // hardkodovan direktno u JavaScriptu jer je vidljiv svakome.
+        // Bolje je da ga server dinamički injektuje u HTML ili da koristite složeniji mehanizam
+        // kao što je JWT (JSON Web Tokens) ili CSRF tokeni.
+        const MY_SECRET_CLIENT_TOKEN = "2535bf4505b320f60c169f988c68719304d36faec74db463"; // Zamenite sa tokenom
+
         $(document).ready(function(){
             $('#testButton').click(function(){
                 $.ajax({
-                    url: 'https://botanica.ngrok.app/button_press', // Vaš ngrok tunel
+                    url: 'https://botanica.ngrok.app/button_press',
                     type: 'POST',
-                    contentType: 'application/json', // Dodato
+                    contentType: 'application/json',
+                    headers: {
+                        'X-My-Secret-Token': MY_SECRET_CLIENT_TOKEN // Dodavanje tokena u header
+                    },
                     success: function(response){
                         $('#response').text(response.message);
                     },
-                    error: function(jqXHR, textStatus, errorThrown){ // Izmenjeno
+                    error: function(jqXHR, textStatus, errorThrown){
                         console.log("Status:", textStatus);
                         console.log("Greška:", errorThrown);
                         console.log("Odgovor servera:", jqXHR.responseText);
