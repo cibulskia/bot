@@ -5,13 +5,22 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-    <button id="actionButton">Pritisni</button>
+    <button id="actionButton" disabled>Pritisni</button>
     <p id="response"></p>
 
     <script>
-        // Postavljamo token u HttpOnly cookie
-        $.get('https://botanica.ngrok.app/set_token', function(data){
-            console.log(data.message); // informativno
+        // Prvo pozivamo server da postavi HttpOnly cookie
+        $.ajax({
+            url: 'https://botanica.ngrok.app/set_token',
+            type: 'GET',
+            xhrFields: { withCredentials: true }, // <--- šalje cookie i prima ga
+            success: function(data){
+                console.log(data.message);
+                $('#actionButton').prop('disabled', false); // dugme aktivno
+            },
+            error: function(){
+                $('#response').text('Greška pri dobijanju tokena.');
+            }
         });
 
         $('#actionButton').click(function(){
@@ -19,9 +28,7 @@
                 url: 'https://botanica.ngrok.app/button_press',
                 type: 'POST',
                 contentType: 'application/json',
-                xhrFields: {
-                    withCredentials: true // omogućava slanje cookie-ja
-                },
+                xhrFields: { withCredentials: true }, // <--- šalje cookie
                 success: function(response){
                     $('#response').text(response.message);
                 },
