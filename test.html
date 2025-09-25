@@ -14,12 +14,15 @@
                 $.ajax({
                     url: 'https://botanica.ngrok.app/button_press', // Vaš ngrok tunel
                     type: 'POST',
+                    contentType: 'application/json', // Dodato
                     success: function(response){
                         $('#response').text(response.message);
                     },
-                    error: function(error){
-                        console.log(error);
-                        $('#response').text('Došlo je do greške.');
+                    error: function(jqXHR, textStatus, errorThrown){ // Izmenjeno
+                        console.log("Status:", textStatus);
+                        console.log("Greška:", errorThrown);
+                        console.log("Odgovor servera:", jqXHR.responseText);
+                        $('#response').text('Došlo je do greške. Proverite konzolu za detalje.');
                     }
                 });
             });
