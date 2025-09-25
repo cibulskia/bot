@@ -9,28 +9,34 @@
     <p id="response"></p>
 
     <script>
-        // Token koji generiše server – treba zameniti stvarnim tokenom
-        const SECRET_CLIENT_TOKEN = "OVDE_IDE_TOKEN_KOJI_JE_GENERISAN_NA_SERVERU";
+        let SECRET_CLIENT_TOKEN = "";
 
-        $(document).ready(function(){
-            $('#actionButton').click(function(){
-                $.ajax({
-                    url: 'https://botanica.ngrok.app/button_press',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    headers: {
-                        'X-My-Secret-Token': SECRET_CLIENT_TOKEN
-                    },
-                    success: function(response){
-                        $('#response').text(response.message);
-                    },
-                    error: function(jqXHR){
-                        $('#response').text('Došlo je do greške: ' + jqXHR.responseText);
-                    }
-                });
+        // Prvo uzimamo token sa servera
+        $.get('https://botanica.ngrok.app/get_token', function(data){
+            SECRET_CLIENT_TOKEN = data.token;
+        });
+
+        $('#actionButton').click(function(){
+            if(!SECRET_CLIENT_TOKEN){
+                $('#response').text('Token još nije primljen od servera. Pokušajte kasnije.');
+                return;
+            }
+
+            $.ajax({
+                url: 'https://botanica.ngrok.app/button_press',
+                type: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'X-My-Secret-Token': SECRET_CLIENT_TOKEN
+                },
+                success: function(response){
+                    $('#response').text(response.message);
+                },
+                error: function(jqXHR){
+                    $('#response').text('Došlo je do greške: ' + jqXHR.responseText);
+                }
             });
         });
     </script>
 </body>
 </html>
-
