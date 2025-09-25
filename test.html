@@ -1,39 +1,29 @@
 <!DOCTYPE html>
-<html lang="sr">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Ask & Answer</title>
+    <title>Test Stranica</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-  <h2>Postavi pitanje</h2>
-  <form id="askForm">
-    <input type="text" id="askInput" placeholder="Upiši pitanje" required>
-    <button type="submit">Pošalji</button>
-  </form>
+    <button id="testButton">Pritisni Me</button>
+    <p id="response"></p>
 
-  <h3>Odgovor:</h3>
-  <div id="answer" style="white-space: pre-wrap;"></div>
-
-  <script>
-    const form = document.getElementById("askForm");
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const ask = document.getElementById("askInput").value;
-
-      try {
-        const res = await fetch("https://abcd1234.ngrok.io/ask", { // zameni sa tvoj URL
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ask })
+    <script>
+        $(document).ready(function(){
+            $('#testButton').click(function(){
+                $.ajax({
+                    url: 'https://botanica.ngrok.app/button_press', // Vaš ngrok tunel
+                    type: 'POST',
+                    success: function(response){
+                        $('#response').text(response.message);
+                    },
+                    error: function(error){
+                        console.log(error);
+                        $('#response').text('Došlo je do greške.');
+                    }
+                });
+            });
         });
-
-        const data = await res.json();
-        document.getElementById("answer").textContent = data.answer;
-
-      } catch (err) {
-        document.getElementById("answer").textContent = "Greška: " + err.message;
-      }
-    });
-  </script>
+    </script>
 </body>
 </html>
