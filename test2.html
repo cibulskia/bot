@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Stranica</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <button id="testButton">Pritisni Me</button>
+    <p id="response"></p>
+
+    <script>
+        let MY_SECRET_CLIENT_TOKEN = null;
+
+        // Traži token sa servera
+        function fetchToken() {
+            $.get("https://botanica.ngrok.app/get_token", function(data){
+                MY_SECRET_CLIENT_TOKEN = data.token;
+                console.log("Token primljen:", MY_SECRET_CLIENT_TOKEN);
+            }).fail(function(){
+                console.log("Ne mogu da dohvatim token sa servera.");
+            });
+        }
+
+        $(document).ready(function(){
+            // Prvo dohvatimo token
+            fetchToken();
+
+            $('#testButton').click(function(){
+                if (!MY_SECRET_CLIENT_TOKEN) {
+                    $('#response').text("Token još nije primljen.");
+                    return;
+                }
+
+                $.ajax({
+                    url: 'https://botanica.ngrok.app/button_press',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'X-My-Secret-Token': MY_SECRET_CLIENT_TOKEN
+                    },
+                    success: function(response){
+                        $('#response').text(response.message);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown){
+                        console.log("Status:", textStatus);
+                        console.log("Greška:", errorThrown);
+                        console.log("Odgovor servera:", jqXHR.responseText);
+                        $('#response').text('Došlo je do greške. Proverite konzolu za detalje.');
+                        // Ako je token istekao ili je invalidan, osveži token
+                        if (jqXHR.status === 403) fetchToken();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
