@@ -11,7 +11,6 @@
     <script>
         let MY_SECRET_CLIENT_TOKEN = null;
 
-        // Dohvati token sa servera
         function fetchToken(callback) {
             $.ajax({
                 url: "https://botanica.ngrok.app/get_token",
@@ -29,7 +28,7 @@
         }
 
         $(document).ready(function(){
-            // Prvo dohvatimo token
+            // Dohvati token odmah
             fetchToken();
 
             $('#testButton').click(function(){
@@ -52,8 +51,8 @@
                     error: function(jqXHR){
                         console.log("Greška:", jqXHR.status, jqXHR.responseText);
                         $('#response').text("Došlo je do greške. Proveri konzolu.");
-                        // Ako je token istekao, osveži token i pokušaj ponovo
                         if (jqXHR.status === 403) {
+                            // Token je istekao ili nevalidan, osveži i pokušaj ponovo
                             fetchToken(function(){
                                 console.log("Novi token primljen, pokušaj ponovo.");
                             });
