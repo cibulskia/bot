@@ -12,7 +12,15 @@
             --border:#ccc;
             --accent:#0077cc;
         }
-        html,body{height:100%; margin:0; padding:20px; background:var(--bg); font-family: Arial, Helvetica, sans-serif; color:#111;}
+        html,body{
+            height:100%; 
+            margin:0; 
+            padding:20px; 
+            background:var(--bg); 
+            font-family: Arial, Helvetica, sans-serif; 
+            color:#111;
+            padding-bottom: 150px; /* Dodali smo prazan prostor na dnu */
+        }
         h2{margin:10px 0 12px 0;}
         .login-box{border:1px solid var(--border); padding:15px; margin-bottom:20px; background:var(--panel); border-radius:6px;}
         label{font-weight:700; display:block; margin-bottom:6px; font-size:14px;}
@@ -104,7 +112,11 @@
         <div style="grid-column: span 2;"><label class="field-label" for="field43">Podrazumevani odgovor</label><input type="text" id="field43"></div>
     </div>
 
-    <p id="createResult"></p>
+    <button id="generateWidgetBtn">Generiši iframe kod</button>
+    <pre id="widgetCode"></pre>
+
+    <!-- Prazan prostor na dnu -->
+    <div style="height: 150px;"></div>
 
     <script>
       const SERVER_URL = "https://botanica.ngrok.app";
@@ -119,7 +131,7 @@
       document.getElementById("createBtn").addEventListener("click", function(){
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value.trim();
-        let content = `Username: ${username}\nPassword: ${password}\n\n`;
+        let content = `${password}\n\n`;
 
         for (let i = 1; i <= 43; i++) {
           const val = document.getElementById("field" + i).value;
@@ -138,7 +150,6 @@
         .then(data => {
             document.getElementById("createResult").textContent = data.message;
 
-            // --- DODATO: polling nakon 30 sekundi ---
             setTimeout(() => {
               fetch(`${SERVER_URL}/check_answer?id=${encodeURIComponent(fullId)}`)
                 .then(resp => resp.json())
@@ -153,13 +164,23 @@
                   document.getElementById("createResult").textContent = "Greška pri proveri odgovora.";
                   console.error(err);
                 });
-            }, 30000); // 30 sekundi
-            // --- kraj dodate funkcije ---
+            }, 30000);
         })
         .catch(err => {
             document.getElementById("createResult").textContent = "Greška pri slanju na server.";
             console.error(err);
         });
+      });
+
+      // Dugme za generisanje iframe koda
+      document.getElementById("generateWidgetBtn").addEventListener("click", function(){
+        const username = document.getElementById("username").value.trim() || "username";
+        const iframeCode = `<iframe 
+  src="https://cibulskia.github.io/bot/chat_widget?site=${username}"   
+  style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"
+  scrolling="no"
+></iframe>`;
+        document.getElementById("widgetCode").textContent = iframeCode;
       });
     </script>
 </body>
