@@ -1,39 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Test Stranica</title>
+    <title>Stranica</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        #contentFrame {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <button id="testButton">Pritisni Me</button>
+    <button id="actionButton" disabled>Pritisni</button>
     <p id="response"></p>
 
-    <script>
-        // PAŽNJA: U stvarnoj produkciji, ovaj token ne bi trebalo da bude
-        // hardkodovan direktno u JavaScriptu jer je vidljiv svakome.
-        // Bolje je da ga server dinamički injektuje u HTML ili da koristite složeniji mehanizam
-        // kao što je JWT (JSON Web Tokens) ili CSRF tokeni.
-        const MY_SECRET_CLIENT_TOKEN = "2535bf4505b320f60c169f988c68719304d36faec74db463"; // Zamenite sa tokenom
+    <!-- Prostor za sadržaj -->
+    <div id="contentArea"></div>
 
-        $(document).ready(function(){
-            $('#testButton').click(function(){
-                $.ajax({
-                    url: 'https://botanica.ngrok.app/button_press',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    headers: {
-                        'X-My-Secret-Token': MY_SECRET_CLIENT_TOKEN // Dodavanje tokena u header
-                    },
-                    success: function(response){
-                        $('#response').text(response.message);
-                    },
-                    error: function(jqXHR, textStatus, errorThrown){
-                        console.log("Status:", textStatus);
-                        console.log("Greška:", errorThrown);
-                        console.log("Odgovor servera:", jqXHR.responseText);
-                        $('#response').text('Došlo je do greške. Proverite konzolu za detalje.');
+    <script>
+        // Prvo pozivamo server da postavi HttpOnly cookie
+        $.ajax({
+            url: 'https://botanica.ngrok.app/set_token',
+            type: 'GET',
+            xhrFields: { withCredentials: true }, // šalje cookie i prima ga
+            success: function(data){
+                console.log(data.message);
+                $('#actionButton').prop('disabled', false); // dugme aktivno
+            },
+            error: function(){
+                $('#response').text('Greška pri dobijanju tokena.');
+            }
+        });
+
+        $('#actionButton').click(function(){
+            $.ajax({
+                url: 'https://botanica.ngrok.app/button_press',
+                type: 'POST',
+                contentType: 'application/json',
+                xhrFields: { withCredentials: true }, // šalje cookie
+                success: function(response){
+                    $('#response').text("Server odgovorio: " + response.message);
+
+                    // Ako server šalje link umesto teksta
+                    if (response.link) {
+                        // Prikazujemo iframe sa sadržajem
+                        $('#contentArea').html(
+                            '<iframe id="contentFrame" src="' + response.link + '" allowfullscreen></iframe>'
+                        );
                     }
-                });
+                },
+                error: function(jqXHR){
+                    $('#response').text('Došlo je do greške: ' + jqXHR.responseText);
+                }
             });
         });
     </script>
