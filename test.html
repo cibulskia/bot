@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ask & Answer</title>
+</head>
+<body>
+  <h2>Postavi pitanje</h2>
+
+  <form id="askForm">
+    <input type="text" id="askInput" placeholder="Upiši pitanje" required>
+    <button type="submit">Pošalji</button>
+  </form>
+
+  <h3>Odgovor:</h3>
+  <div id="answer" style="white-space: pre-wrap;"></div>
+
+  <script>
+    const form = document.getElementById("askForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const ask = document.getElementById("askInput").value;
+
+      try {
+        const res = await fetch("https://abcd1234.ngrok.io/ask", {  // zameni sa svojim ngrok URL
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ ask })
+        });
+
+        if (!res.ok) throw new Error("Server je odbio zahtev");
+
+        const data = await res.json();
+        document.getElementById("answer").textContent = data.answer;
+
+      } catch (err) {
+        document.getElementById("answer").textContent = "Greška: " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
