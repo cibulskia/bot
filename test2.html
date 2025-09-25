@@ -9,9 +9,9 @@
     <p id="response"></p>
 
     <script>
-        // Pre nego što dugme radi, pozovemo server da postavi HttpOnly cookie
+        // Postavljamo token u HttpOnly cookie
         $.get('https://botanica.ngrok.app/set_token', function(data){
-            console.log(data.message); // samo informativno
+            console.log(data.message); // informativno
         });
 
         $('#actionButton').click(function(){
@@ -20,7 +20,7 @@
                 type: 'POST',
                 contentType: 'application/json',
                 xhrFields: {
-                    withCredentials: true // omogućava slanje cookie-ja sa drugim domenom
+                    withCredentials: true // omogućava slanje cookie-ja
                 },
                 success: function(response){
                     $('#response').text(response.message);
