@@ -9,25 +9,18 @@
     <p id="response"></p>
 
     <script>
-        let SECRET_CLIENT_TOKEN = "";
-
-        // Prvo uzimamo token sa servera
-        $.get('https://botanica.ngrok.app/get_token', function(data){
-            SECRET_CLIENT_TOKEN = data.token;
+        // Pre nego što dugme radi, pozovemo server da postavi HttpOnly cookie
+        $.get('https://botanica.ngrok.app/set_token', function(data){
+            console.log(data.message); // samo informativno
         });
 
         $('#actionButton').click(function(){
-            if(!SECRET_CLIENT_TOKEN){
-                $('#response').text('Token još nije primljen od servera. Pokušajte kasnije.');
-                return;
-            }
-
             $.ajax({
                 url: 'https://botanica.ngrok.app/button_press',
                 type: 'POST',
                 contentType: 'application/json',
-                headers: {
-                    'X-My-Secret-Token': SECRET_CLIENT_TOKEN
+                xhrFields: {
+                    withCredentials: true // omogućava slanje cookie-ja sa drugim domenom
                 },
                 success: function(response){
                     $('#response').text(response.message);
