@@ -6,7 +6,6 @@
 </head>
 <body>
   <h2>Postavi pitanje</h2>
-
   <form id="askForm">
     <input type="text" id="askInput" placeholder="Upiši pitanje" required>
     <button type="submit">Pošalji</button>
@@ -22,15 +21,11 @@
       const ask = document.getElementById("askInput").value;
 
       try {
-        const res = await fetch("https://botanica.ngrok.app/ask", { // zameni sa tvoj ngrok URL
+        const res = await fetch("https://abcd1234.ngrok.io/ask", { // zameni sa tvoj URL
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ask })
         });
-
-        if (!res.ok) throw new Error("Server je odbio zahtev");
 
         const data = await res.json();
         document.getElementById("answer").textContent = data.answer;
