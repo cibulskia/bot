@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Test Stranica sa Sesijom</title>
+    <title>Test Stranica</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
@@ -9,54 +9,26 @@
     <p id="response"></p>
 
     <script>
-        let MY_SECRET_CLIENT_TOKEN = null;
-
-        function fetchToken(callback) {
-            $.ajax({
-                url: "https://botanica.ngrok.app/get_token",
-                type: "GET",
-                xhrFields: { withCredentials: true }, // šalje kolačiće
-                success: function(data){
-                    MY_SECRET_CLIENT_TOKEN = data.token;
-                    console.log("Token primljen:", MY_SECRET_CLIENT_TOKEN);
-                    if (callback) callback();
-                },
-                error: function(){
-                    console.log("Ne mogu da dohvatim token sa servera.");
-                }
-            });
-        }
+        // Token će server injektovati u HTML
+        const MY_SECRET_CLIENT_TOKEN = "{{ token }}";
 
         $(document).ready(function(){
-            // Dohvati token odmah
-            fetchToken();
-
             $('#testButton').click(function(){
-                if (!MY_SECRET_CLIENT_TOKEN) {
-                    $('#response').text("Token još nije primljen. Pokušaj ponovo.");
-                    return;
-                }
-
                 $.ajax({
-                    url: 'https://botanica.ngrok.app/button_press',
+                    url: '/button_press',
                     type: 'POST',
                     contentType: 'application/json',
                     headers: {
                         'X-My-Secret-Token': MY_SECRET_CLIENT_TOKEN
                     },
-                    xhrFields: { withCredentials: true }, // šalje kolačiće
                     success: function(response){
                         $('#response').text(response.message);
                     },
-                    error: function(jqXHR){
-                        console.log("Greška:", jqXHR.status, jqXHR.responseText);
-                        $('#response').text("Došlo je do greške. Proveri konzolu.");
-                        if (jqXHR.status === 403) {
-                            // Token je istekao ili nevalidan, osveži i pokušaj ponovo
-                            fetchToken(function(){
-                                console.log("Novi token primljen, pokušaj ponovo.");
-                            });
-                        }
+                    error: function(jqXHR, textStatus, errorThrown){
+                        console.log("Status:", textStatus);
+                        console.log("Greška:", errorThrown);
+                        console.log("Odgovor servera:", jqXHR.responseText);
+                        $('#response').text('Došlo je do greške. Proverite konzolu za detalje.');
                     }
                 });
             });
