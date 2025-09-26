@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stranica</title>
+    <title>Globalni Frontend</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
@@ -10,9 +10,11 @@
     <div id="content"></div>
 
     <script>
-        // Poziv servera da postavi HttpOnly cookie
+        const SERVER_URL = "https://botanica.ngrok.app";
+
+        // Prvo pozivamo server da postavi HttpOnly cookie
         $.ajax({
-            url: '/set_token',
+            url: SERVER_URL + '/set_token',
             type: 'GET',
             xhrFields: { withCredentials: true },
             success: function(data){
@@ -26,13 +28,13 @@
 
         $('#actionButton').click(function(){
             $.ajax({
-                url: '/button_press',
+                url: SERVER_URL + '/button_press',
                 type: 'POST',
                 contentType: 'application/json',
                 xhrFields: { withCredentials: true },
                 success: function(response){
                     $('#response').text(response.message);
-                    // Dodaj iframe sa linkom u #content
+                    // Prikaz iframe sadržaja
                     $('#content').html('<iframe width="560" height="315" src="' + response.link + '" frameborder="0" allowfullscreen></iframe>');
                 },
                 error: function(jqXHR){
