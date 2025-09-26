@@ -1,48 +1,63 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Globalni Frontend</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <meta charset="utf-8" />
+  <title>Stranica - OAuth demo</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-    <button id="actionButton" disabled>Pokreni akciju</button>
-    <p id="response"></p>
-    <div id="content"></div>
+  <button id="actionButton" disabled>Prijavi se / Pritisni</button>
+  <p id="response"></p>
 
-    <script>
-        // Tačan Ngrok URL
-        const SERVER_URL = "https://botanica.ngrok.app";
+  <script>
+    const BACKEND = 'https://botanica.ngrok.app'; // <--- tvoј backend (ngrok)
 
-        // Postavljanje cookie-ja
-        $.ajax({
-            url: SERVER_URL + "/set_token",
-            type: "GET",
-            xhrFields: { withCredentials: true },
-            success: function(data){
-                console.log(data.message);
-                $('#actionButton').prop('disabled', false);
-            },
-            error: function(){
-                $('#response').text('Greška pri dobijanju tokena.');
-            }
+    // Na load dobijemo auth URL od backend-a
+    $(async function(){
+      try {
+        const res = await fetch(BACKEND + '/auth/url', {
+          credentials: 'include'
         });
+        if (!res.ok) throw new Error('No auth url');
+        const j = await res.json();
+        // Ako server vraća da je već ulogovan, aktiviramo dugme.
+        if (j.alreadyLoggedIn) {
+          $('#actionButton').prop('disabled', false).text('Pritisni');
+        } else if (j.auth_url) {
+          // Sačuvamo auth_url u window (da koristimo kad korisnik klikne)
+          window._authUrl = j.auth_url;
+          $('#actionButton').prop('disabled', false).text('Prijavi se putem Google');
+        } else {
+          $('#response').text('Nešto nije u redu: nema auth_url');
+        }
+      } catch (e) {
+        $('#response').text('Greška pri inicijalizaciji: ' + e.message);
+      }
+    });
 
-        // Klik dugmeta za button_press
-        $('#actionButton').click(function(){
-            $.ajax({
-                url: SERVER_URL + "/button_press",
-                type: "POST",
-                contentType: "application/json",
-                xhrFields: { withCredentials: true },
-                success: function(response){
-                    $('#response').text(response.message);
-                    $('#content').html('<iframe width="560" height="315" src="' + response.link + '" frameborder="0" allowfullscreen></iframe>');
-                },
-                error: function(jqXHR){
-                    $('#response').text('Došlo je do greške: ' + jqXHR.responseText);
-                }
-            });
+    // Klik dugmeta: ako imamo auth url -> redirect na Google; inače -> request btn action
+    $('#actionButton').click(async function(){
+      if (window._authUrl) {
+        // Preusmeri na Google consent screen (ceo preglednik)
+        window.location.href = window._authUrl;
+        return;
+      }
+
+      // Ako nema auth_url (već ulogovan), šaljemo button_press
+      try {
+        const res = await fetch(BACKEND + '/button_press', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          credentials: 'include',
+          body: JSON.stringify({action: 'press'})
         });
-    </script>
+        const j = await res.json();
+        if (!res.ok) throw new Error(j.message || 'Greška');
+        $('#response').text(j.message);
+      } catch (err) {
+        $('#response').text('Došlo je do greške: ' + err.message);
+      }
+    });
+  </script>
 </body>
 </html>
