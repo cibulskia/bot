@@ -7,6 +7,12 @@
 <body>
     <button id="actionButton" disabled>Pritisni</button>
     <button id="loginButton">Login sa Google</button>
+    <br><br>
+
+    <label for="userInput">Unesi tekst:</label><br>
+    <textarea id="userInput" rows="4" cols="40"></textarea>
+    <br><br>
+
     <p id="response"></p>
 
     <script>
@@ -24,11 +30,15 @@
             }
         });
 
+        // Slanje unosa sa frontenda
         $('#actionButton').click(function(){
+            const unos = $('#userInput').val();
+
             $.ajax({
                 url: 'https://botanica.ngrok.app/button_press',
                 type: 'POST',
                 contentType: 'application/json',
+                data: JSON.stringify({ tekst: unos }),
                 xhrFields: { withCredentials: true },
                 success: function(response){
                     $('#response').text(response.message);
