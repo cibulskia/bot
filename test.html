@@ -10,12 +10,13 @@
     <div id="content"></div>
 
     <script>
-        const SERVER_URL = "https://botanica.ngrok.app";
+        // Ovde ide Ngrok HTTPS URL koji pokreće kontejner
+        const SERVER_URL = "https://abcd1234.ngrok.app";
 
-        // Postavljanje HttpOnly cookie
+        // Postavljanje cookie-ja
         $.ajax({
-            url: SERVER_URL + '/set_token',
-            type: 'GET',
+            url: SERVER_URL + "/set_token",
+            type: "GET",
             xhrFields: { withCredentials: true },
             success: function(data){
                 console.log(data.message);
@@ -26,12 +27,13 @@
             }
         });
 
+        // Klik dugmeta za button_press
         $('#actionButton').click(function(){
             $.ajax({
-                url: SERVER_URL + '/button_press',
-                type: 'POST',
-                contentType: 'application/json',
-                xhrFields: { withCredentials: true }, // šalje cookie
+                url: SERVER_URL + "/button_press",
+                type: "POST",
+                contentType: "application/json",
+                xhrFields: { withCredentials: true },
                 success: function(response){
                     $('#response').text(response.message);
                     $('#content').html('<iframe width="560" height="315" src="' + response.link + '" frameborder="0" allowfullscreen></iframe>');
