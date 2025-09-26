@@ -1,63 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>Stranica - OAuth demo</title>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Stranica</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-  <button id="actionButton" disabled>Prijavi se / Pritisni</button>
-  <p id="response"></p>
+    <button id="actionButton" disabled>Pritisni</button>
+    <button id="loginButton">Login sa Google</button>
+    <p id="response"></p>
 
-  <script>
-    const BACKEND = 'https://botanica.ngrok.app'; // <--- tvoј backend (ngrok)
-
-    // Na load dobijemo auth URL od backend-a
-    $(async function(){
-      try {
-        const res = await fetch(BACKEND + '/auth/url', {
-          credentials: 'include'
+    <script>
+        // Dugme za token
+        $.ajax({
+            url: 'https://botanica.ngrok.app/set_token',
+            type: 'GET',
+            xhrFields: { withCredentials: true },
+            success: function(data){
+                console.log(data.message);
+                $('#actionButton').prop('disabled', false);
+            },
+            error: function(){
+                $('#response').text('Greška pri dobijanju tokena.');
+            }
         });
-        if (!res.ok) throw new Error('No auth url');
-        const j = await res.json();
-        // Ako server vraća da je već ulogovan, aktiviramo dugme.
-        if (j.alreadyLoggedIn) {
-          $('#actionButton').prop('disabled', false).text('Pritisni');
-        } else if (j.auth_url) {
-          // Sačuvamo auth_url u window (da koristimo kad korisnik klikne)
-          window._authUrl = j.auth_url;
-          $('#actionButton').prop('disabled', false).text('Prijavi se putem Google');
-        } else {
-          $('#response').text('Nešto nije u redu: nema auth_url');
-        }
-      } catch (e) {
-        $('#response').text('Greška pri inicijalizaciji: ' + e.message);
-      }
-    });
 
-    // Klik dugmeta: ako imamo auth url -> redirect na Google; inače -> request btn action
-    $('#actionButton').click(async function(){
-      if (window._authUrl) {
-        // Preusmeri na Google consent screen (ceo preglednik)
-        window.location.href = window._authUrl;
-        return;
-      }
-
-      // Ako nema auth_url (već ulogovan), šaljemo button_press
-      try {
-        const res = await fetch(BACKEND + '/button_press', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          credentials: 'include',
-          body: JSON.stringify({action: 'press'})
+        $('#actionButton').click(function(){
+            $.ajax({
+                url: 'https://botanica.ngrok.app/button_press',
+                type: 'POST',
+                contentType: 'application/json',
+                xhrFields: { withCredentials: true },
+                success: function(response){
+                    $('#response').text(response.message);
+                },
+                error: function(jqXHR){
+                    $('#response').text('Došlo je do greške: ' + jqXHR.responseText);
+                }
+            });
         });
-        const j = await res.json();
-        if (!res.ok) throw new Error(j.message || 'Greška');
-        $('#response').text(j.message);
-      } catch (err) {
-        $('#response').text('Došlo je do greške: ' + err.message);
-      }
-    });
-  </script>
+
+        // Dugme za Google login
+        $('#loginButton').click(function(){
+            $.get('https://botanica.ngrok.app/auth/url', function(data){
+                window.location.href = data.url;  // prebacuje na Google login
+            });
+        });
+    </script>
 </body>
 </html>
