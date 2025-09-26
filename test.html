@@ -3,31 +3,21 @@
 <head>
     <title>Stranica</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <style>
-        #contentFrame {
-            width: 100%;
-            height: 500px;
-            border: 1px solid #ccc;
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
-    <button id="actionButton" disabled>Pritisni</button>
+    <button id="actionButton" disabled>Pokreni akciju</button>
     <p id="response"></p>
-
-    <!-- Prostor za sadržaj -->
-    <div id="contentArea"></div>
+    <div id="content"></div>
 
     <script>
-        // Prvo pozivamo server da postavi HttpOnly cookie
+        // Poziv servera da postavi HttpOnly cookie
         $.ajax({
-            url: 'https://botanica.ngrok.app/set_token',
+            url: '/set_token',
             type: 'GET',
-            xhrFields: { withCredentials: true }, // šalje cookie i prima ga
+            xhrFields: { withCredentials: true },
             success: function(data){
                 console.log(data.message);
-                $('#actionButton').prop('disabled', false); // dugme aktivno
+                $('#actionButton').prop('disabled', false);
             },
             error: function(){
                 $('#response').text('Greška pri dobijanju tokena.');
@@ -36,20 +26,14 @@
 
         $('#actionButton').click(function(){
             $.ajax({
-                url: 'https://botanica.ngrok.app/button_press',
+                url: '/button_press',
                 type: 'POST',
                 contentType: 'application/json',
-                xhrFields: { withCredentials: true }, // šalje cookie
+                xhrFields: { withCredentials: true },
                 success: function(response){
-                    $('#response').text("Server odgovorio: " + response.message);
-
-                    // Ako server šalje link umesto teksta
-                    if (response.link) {
-                        // Prikazujemo iframe sa sadržajem
-                        $('#contentArea').html(
-                            '<iframe id="contentFrame" src="' + response.link + '" allowfullscreen></iframe>'
-                        );
-                    }
+                    $('#response').text(response.message);
+                    // Dodaj iframe sa linkom u #content
+                    $('#content').html('<iframe width="560" height="315" src="' + response.link + '" frameborder="0" allowfullscreen></iframe>');
                 },
                 error: function(jqXHR){
                     $('#response').text('Došlo je do greške: ' + jqXHR.responseText);
