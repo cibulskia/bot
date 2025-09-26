@@ -13,18 +13,15 @@
         const SERVER_URL = "https://botanica.ngrok.app";
 
         // Poziv za postavljanje HttpOnly cookie
-        $.ajax({
-            url: SERVER_URL + '/set_token',
-            type: 'GET',
-            xhrFields: { withCredentials: true },
-            success: function(data){
-                console.log(data.message);
-                $('#actionButton').prop('disabled', false);
-            },
-            error: function(){
-                $('#response').text('Greška pri dobijanju tokena.');
-            }
-        });
+$.ajax({
+    url: SERVER_URL + '/button_press',
+    type: 'POST',
+    contentType: 'application/json',
+    xhrFields: { withCredentials: true }, // ovo šalje HttpOnly cookie
+    success: function(response){ ... },
+    error: function(jqXHR){ ... }
+});
+
 
         $('#actionButton').click(function(){
             $.ajax({
