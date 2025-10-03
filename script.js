@@ -1,195 +1,452 @@
-<!DOCTYPE html>
-<html lang="sr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Botanica Dashboard</title>
-    <!-- Google prijava skripta -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- Font Awesome za ikone -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Google Fonts - Montserrat -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Naš CSS fajl -->
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div id="app-container">
-        <!-- Sekcija za prijavu putem Google-a -->
-        <div id="login-section" class="auth-card">
-            <img src="https://via.placeholder.com/150/0000FF/FFFFFF?text=Botanica+Logo" alt="Botanica Logo" class="app-logo">
-            <h2>Dobrodošli u Botanica Dashboard</h2>
-            <p>Molimo prijavite se putem Google naloga za pristup.</p>
-            <div id="g_id_onload"
-                 data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
-                 data-callback="handleCredentialResponse">
-            </div>
-            <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signin_with" data-shape="rectangular" data-logo_alignment="left"></div>
-        </div>
+let currentUserId = null;
+let currentUserEmail = null;
 
-        <!-- Glavna sekcija aplikacije, prikazuje se tek nakon uspešne prijave -->
-        <div id="main-section" class="dashboard-layout" style="display:none;">
-            <aside class="sidebar">
-                <div class="sidebar-header">
-                    <img src="https://via.placeholder.com/50/0000FF/FFFFFF?text=B" alt="Botanica Icon" class="sidebar-logo">
-                    <h3>Botanica Admin</h3>
-                </div>
-                <nav class="sidebar-nav">
-                    <ul>
-                        <li class="nav-item active" onclick="showSection('user-settings-tab')">
-                            <i class="fas fa-cog"></i> Korisnička podešavanja
-                        </li>
-                        <li class="nav-item" onclick="showSection('categories-tab')">
-                            <i class="fas fa-list-alt"></i> Upravljanje kategorijama
-                        </li>
-                        <li class="nav-item" onclick="showSection('logs-tab')">
-                            <i class="fas fa-file-alt"></i> Logovi
-                        </li>
-                    </ul>
-                </nav>
-                <div class="sidebar-footer">
-                    <p>Prijavljen: <span id="user-email"></span></p>
-                    <button class="btn btn-logout" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Odjavi se</button>
-                </div>
-            </aside>
+// Funkcija koja se poziva nakon Google prijave
+window.handleCredentialResponse = async (response) => {
+    try {
+        const res = await fetch('https://botanica.ngrok.app/oauth_callback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ credential: response.credential })
+        });
+        const data = await res.json();
 
-            <main class="content-area">
-                <header class="navbar">
-                    <h1>Dashboard</h1>
-                    <div class="navbar-actions">
-                        <button class="btn btn-icon"><i class="fas fa-bell"></i></button>
-                        <button class="btn btn-icon"><i class="fas fa-user-circle"></i></button>
-                    </div>
-                </header>
+        if (data.status === 'success') {
+            currentUserId = data.user_id;
+            currentUserEmail = data.user_email;
 
-                <div id="user-settings-tab" class="tab-content active">
-                    <div class="card">
-                        <h3><i class="fas fa-cog"></i> Korisnička podešavanja</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="discord-token">Discord Token</label>
-                                <input type="text" id="discord-token" placeholder="Unesite Discord Token">
-                            </div>
-                            <div class="form-group checkbox-group">
-                                <input type="checkbox" id="is-checkbox">
-                                <label for="is-checkbox">Aktivno polje</label>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="general-response">Generalni odgovor</label>
-                                <textarea id="general-response" placeholder="Unesite generalni odgovor..."></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="user-rule">Pravilo</label>
-                                <select id="user-rule">
-                                    <option value="">-- Izaberi pravilo --</option>
-                                    <option value="A">Pravilo A</option>
-                                    <option value="B">Pravilo B</option>
-                                    <option value="C">Pravilo C</option>
-                                    <option value="D">Pravilo D</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="user-client-email">Email klijenta (opciono)</label>
-                                <input type="email" id="user-client-email" placeholder="client@example.com">
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn btn-primary" onclick="saveUserSettings()"><i class="fas fa-save"></i> Sačuvaj podešavanja</button>
-                            <button class="btn btn-secondary" onclick="fetchUserSettings()"><i class="fas fa-sync-alt"></i> Dohvati podešavanja</button>
-                        </div>
-                        <div class="data-display mt-3">
-                            <h4>Trenutna podešavanja</h4>
-                            <div class="table-responsive">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Discord Token</th>
-                                            <th>Aktivno</th>
-                                            <th>Generalni Odgovor</th>
-                                            <th>Pravilo</th>
-                                            <th>Email Klijenta</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="user-settings-table-body">
-                                        <!-- Podaci će se ovde dinamički učitavati -->
-                                        <tr><td colspan="5" class="text-center">Nema podataka za prikaz.</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            document.getElementById('user-email').textContent = currentUserEmail;
+            document.getElementById('main-section').style.display = 'flex';
+            document.getElementById('login-section').style.display = 'none';
 
-                <div id="categories-tab" class="tab-content">
-                    <div class="card">
-                        <h3><i class="fas fa-list-alt"></i> Upravljanje kategorijama</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="seq-num">Redni broj (1-99)</label>
-                                <input type="number" id="seq-num" placeholder="npr. 15" min="1" max="99">
-                            </div>
-                            <div class="form-group">
-                                <label for="priority">Prioritet (0-9)</label>
-                                <input type="number" id="priority" placeholder="npr. 5" min="0" max="9">
-                            </div>
-                            <div class="form-group">
-                                <label for="rule">Pravilo</label>
-                                <select id="rule">
-                                    <option value="A">Pravilo A</option>
-                                    <option value="B">Pravilo B</option>
-                                    <option value="C">Pravilo C</option>
-                                </select>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="response">Odgovor</label>
-                                <textarea id="response" placeholder="Unesite odgovor za kategoriju..."></textarea>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="tags">Tagovi (razdvojeni zarezom)</label>
-                                <input type="text" id="tags" placeholder='npr. cveće, bašta, proleće'>
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn btn-primary" onclick="saveCategory()"><i class="fas fa-save"></i> Sačuvaj kategoriju</button>
-                            <button class="btn btn-secondary" onclick="fetchCategories()"><i class="fas fa-sync-alt"></i> Dohvati kategorije</button>
-                            <button class="btn btn-info" onclick="populateCategoryFields()"><i class="fas fa-magic"></i> Popuni po rednom broju</button>
-                        </div>
-                        <div class="data-display mt-3">
-                            <h4>Postojeće kategorije</h4>
-                            <div class="table-responsive">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Redni broj</th>
-                                            <th>Prioritet</th>
-                                            <th>Pravilo</th>
-                                            <th>Odgovor</th>
-                                            <th>Tagovi</th>
-                                            <th>Akcije</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="categories-table-body">
-                                        <!-- Podaci će se ovde dinamički učitavati -->
-                                        <tr><td colspan="6" class="text-center">Nema podataka za prikaz.</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            await fetchUserSettings();
+            await fetchCategories();
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        console.error('Greška pri obradi prijave:', error);
+        alert('Došlo je do greške prilikom prijave. Molimo pokušajte ponovo.');
+    }
+};
 
-                <div id="logs-tab" class="tab-content">
-                    <div class="card">
-                        <h3><i class="fas fa-file-alt"></i> Logovi sistema</h3>
-                        <p>Ovde bi se prikazivali logovi sistema.</p>
-                        <pre id="logs-output" class="code-block">Nema logova za prikaz.</pre>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
+// Funkcija za odjavu
+function signOut() {
+    // Provera da li je gapi.auth2.getAuthInstance() definisan
+    if (typeof gapi !== 'undefined' && gapi.auth2 && gapi.auth2.getAuthInstance()) {
+        const auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(() => {
+            console.log('User signed out from Google.');
+            currentUserId = null;
+            currentUserEmail = null;
+            document.getElementById('user-email').textContent = '';
+            document.getElementById('main-section').style.display = 'none';
+            document.getElementById('login-section').style.display = 'flex';
+            resetCategoryForm(); // Očisti formu i tabele
+            displayCategories([]);
+            displayUserSettings({});
+        }).catch(error => {
+            console.error('Greška pri Google odjavi:', error);
+            alert('Došlo je do greške prilikom odjave. Molimo pokušajte ponovo.');
+        });
+    } else {
+        // Fallback ako gapi.auth2 nije inicijalizovan (trebalo bi da bude nakon DOMContentLoaded + gapi.load)
+        console.warn('gapi.auth2 nije inicijalizovan za odjavu, vršim manuelnu odjavu.');
+        currentUserId = null;
+        currentUserEmail = null;
+        document.getElementById('user-email').textContent = '';
+        document.getElementById('main-section').style.display = 'none';
+        document.getElementById('login-section').style.display = 'flex';
+        resetCategoryForm();
+        displayCategories([]);
+        displayUserSettings({});
+    }
+}
 
-    <!-- Naš JavaScript fajl (mora biti nakon DOM elemenata koje manipuliše) -->
-    <script src="script.js"></script>
-</body>
-</html>
+// Funkcija za čuvanje kategorije (POST za kreiranje/ažuriranje)
+async function saveCategory() {
+    if (!currentUserId) {
+        alert('Morate biti prijavljeni da biste sačuvali kategoriju.');
+        return;
+    }
+
+    const seqNumInput = document.getElementById('seq-num').value;
+    const priorityInput = document.getElementById('priority').value;
+
+    const parsedSeqNum = parseInt(seqNumInput, 10);
+    const parsedPriority = parseInt(priorityInput, 10);
+
+    if (isNaN(parsedSeqNum) || parsedSeqNum < 1 || parsedSeqNum > 99) {
+        alert('Redni broj mora biti broj između 1 i 99.');
+        return;
+    }
+    if (isNaN(parsedPriority) || parsedPriority < 0 || parsedPriority > 9) {
+        alert('Prioritet mora biti broj između 0 i 9.');
+        return;
+    }
+
+    const categoryData = {
+        google_user_id: currentUserId,
+        client_email: currentUserEmail,
+        sequence_number: parsedSeqNum,
+        priority: parsedPriority,
+        rule: document.getElementById('rule').value,
+        response: document.getElementById('response').value,
+        tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t)
+    };
+
+    try {
+        const res = await fetch('https://botanica.ngrok.app/categories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(categoryData)
+        });
+        const data = await res.json();
+        alert(data.message);
+        if (data.status === 'success') {
+            await fetchCategories();
+            resetCategoryForm();
+        }
+    } catch (error) {
+        console.error('Greška pri čuvanju kategorije:', error);
+        alert('Došlo je do greške prilikom čuvanja kategorije.');
+    }
+}
+
+// Funkcija za dohvatanje kategorija
+async function fetchCategories() {
+    if (!currentUserId) {
+        console.warn('Nema korisnika, ne mogu dohvatiti kategorije.');
+        displayCategories([]);
+        return [];
+    }
+    try {
+        const res = await fetch('https://botanica.ngrok.app/get_categories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ google_user_id: currentUserId })
+        });
+        const data = await res.json();
+        if (data.status === 'success' && data.categories) {
+            const categories = data.categories.map(cat => ({
+                ...cat,
+                sequence_number: parseInt(cat.sequence_number, 10)
+            }));
+            displayCategories(categories);
+            return categories;
+        } else {
+            displayCategories([]);
+            return [];
+        }
+    } catch (error) {
+        console.error('Greška pri dohvatanju kategorija:', error);
+        displayCategories([]);
+        alert('Došlo je do greške prilikom dohvatanja kategorija.');
+        return [];
+    }
+}
+
+// Funkcija za popunjavanje forme kategorije (za "Popuni po rednom broju" i "Izmeni")
+async function populateCategoryFields() {
+    const seqNumInput = document.getElementById('seq-num').value;
+    if (!seqNumInput) {
+        alert('Molimo unesite redni broj (Sequence Number) za popunjavanje.');
+        return;
+    }
+    const targetSeqNum = parseInt(seqNumInput, 10);
+
+    if (isNaN(targetSeqNum) || targetSeqNum < 1 || targetSeqNum > 99) {
+        alert('Redni broj mora biti broj između 1 i 99.');
+        return;
+    }
+
+    try {
+        const categories = await fetchCategories(); // fetchCategories sada vraća niz kategorija kao brojeve za seq_num
+        const category = categories.find(cat => cat.sequence_number === targetSeqNum);
+
+        if (category) {
+            document.getElementById('priority').value = category.priority;
+            document.getElementById('rule').value = category.rule;
+            document.getElementById('response').value = category.response;
+            document.getElementById('tags').value = Array.isArray(category.tags) ? category.tags.join(', ') : category.tags || ''; // tags je verovatno array
+            alert(`Podaci kategorije sa rednim brojem ${targetSeqNum} uspešno popunjeni za izmenu!`);
+        } else {
+            alert(`Kategorija sa rednim brojem ${targetSeqNum} nije pronađena.`);
+            resetCategoryForm(); // Očisti formu ako kategorija nije pronađena
+        }
+    } catch (error) {
+        console.error('Greška pri dohvatanju pojedinačne kategorije:', error);
+        alert('Došlo je do greške prilikom dohvatanja kategorije.');
+    }
+}
+
+// Funkcija za brisanje kategorije
+async function deleteCategoryRequest(seqNum) {
+    if (!currentUserId) {
+        alert('Morate biti prijavljeni da biste obrisali kategoriju.');
+        return;
+    }
+    if (confirm(`Da li ste sigurni da želite da obrišete kategoriju sa rednim brojem ${seqNum}?`)) {
+        try {
+            const res = await fetch('https://botanica.ngrok.app/categories', {
+                method: 'DELETE', // Korišćenje DELETE metode
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    google_user_id: currentUserId,
+                    sequence_number: parseInt(seqNum, 10)
+                })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if (data.status === 'success') {
+                await fetchCategories(); // Osveži listu kategorija nakon brisanja
+            }
+        } catch (error) {
+            console.error('Greška pri brisanju kategorije:', error);
+            alert('Došlo je do greške prilikom brisanja kategorije.');
+        }
+    }
+}
+
+// Funkcija za čuvanje korisničkih podešavanja
+async function saveUserSettings() {
+    if (!currentUserId) {
+        alert('Morate biti prijavljeni da biste sačuvali podešavanja.');
+        return;
+    }
+
+    const settingsData = {
+        google_user_id: currentUserId,
+        discord_token: document.getElementById('discord-token').value || null,
+        is_checkbox_checked: document.getElementById('is-checkbox').checked,
+        general_response: document.getElementById('general-response').value || null,
+        user_rule: document.getElementById('user-rule').value || null,
+        client_email: document.getElementById('user-client-email').value || null
+    };
+
+    try {
+        const res = await fetch('https://botanica.ngrok.app/user_settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(settingsData)
+        });
+        const data = await res.json();
+        alert(data.message);
+        if (data.status === 'success') {
+            await fetchUserSettings();
+        }
+    } catch (error) {
+        console.error('Greška pri čuvanju podešavanja:', error);
+        alert('Došlo je do greške prilikom čuvanja podešavanja.');
+    }
+}
+
+// Funkcija za dohvatanje korisničkih podešavanja
+async function fetchUserSettings() {
+    if (!currentUserId) {
+        console.warn('Nema korisnika, ne mogu dohvatiti podešavanja.');
+        displayUserSettings({});
+        return;
+    }
+    try {
+        const res = await fetch('https://botanica.ngrok.app/get_user_settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ google_user_id: currentUserId })
+        });
+        const data = await res.json();
+
+        if (data.status === 'success' && data.user_settings) {
+            const settings = data.user_settings;
+            // Prikazujemo prazan string ako discord_token_set nije true, da se ne bi prikazivala 'N/A' u polju za unos.
+            // Važno: Backend sada vraća 'discord_token_set' (boolean) umesto stvarnog tokena za sigurnost.
+            // Frontend ne treba da prikazuje stvarni token u polju za unos.
+            document.getElementById('discord-token').value = settings.discord_token_set ? '******' : ''; // Prikazuje zvezdice ako je token postavljen
+            document.getElementById('is-checkbox').checked = settings.is_checkbox_checked || false;
+            document.getElementById('general-response').value = settings.general_response || '';
+            document.getElementById('user-rule').value = settings.user_rule || '';
+            document.getElementById('user-client-email').value = settings.client_email || '';
+
+            displayUserSettings(settings);
+        } else {
+            document.getElementById('discord-token').value = '';
+            document.getElementById('is-checkbox').checked = false;
+            document.getElementById('general-response').value = '';
+            document.getElementById('user-rule').value = '';
+            document.getElementById('user-client-email').value = '';
+            displayUserSettings({});
+        }
+    } catch (error) {
+        console.error('Greška pri dohvatanju korisničkih podešavanja:', error);
+        alert('Došlo je do greške prilikom dohvatanja korisničkih podešavanja.');
+        displayUserSettings({});
+    }
+}
+
+// Pomoćna funkcija za resetovanje forme kategorije
+function resetCategoryForm() {
+    document.getElementById('seq-num').value = '';
+    document.getElementById('priority').value = '';
+    document.getElementById('rule').value = 'A'; // Postavi na default
+    document.getElementById('response').value = '';
+    document.getElementById('tags').value = '';
+}
+
+// Funkcije za manipulaciju UI-jem (SADA SU CENTRALIZOVANE U scriptd.js)
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Inicijalno sakrivanje svih tabova osim prvog
+    document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+    document.getElementById('user-settings-tab').style.display = 'block';
+    // Dodaj "active" klasu na prvi nav-item
+    document.querySelector('.sidebar-nav .nav-item').classList.add('active');
+});
+
+function showSection(sectionId) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+    document.getElementById(sectionId).style.display = 'block';
+
+    document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => item.classList.remove('active'));
+    document.querySelector(`.nav-item[onclick="showSection('${sectionId}')"]`).classList.add('active');
+}
+
+// Funkcija za prikaz korisničkih podešavanja u tabeli
+function displayUserSettings(data) {
+    const tbody = document.getElementById('user-settings-table-body');
+    tbody.innerHTML = ''; // Očisti prethodne podatke
+
+    if (data && Object.keys(data).length > 0) {
+        const row = tbody.insertRow();
+        // Prikazuje "Postavljen" ili "Nije postavljen" umesto stvarnog tokena
+        row.insertCell().textContent = data.discord_token_set ? 'Postavljen' : 'Nije postavljen';
+        row.insertCell().textContent = data.is_checkbox_checked ? 'Da' : 'Ne';
+        row.insertCell().textContent = data.general_response || 'N/A';
+        row.insertCell().textContent = data.user_rule || 'N/A';
+        row.insertCell().textContent = data.client_email || 'N/A';
+    } else {
+        const row = tbody.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 5;
+        cell.className = 'text-center';
+        cell.textContent = 'Nema podataka za prikaz.';
+    }
+}
+
+// Funkcija za prikaz kategorija u tabeli
+function displayCategories(data) {
+    const tbody = document.getElementById('categories-table-body');
+    tbody.innerHTML = ''; // Očisti prethodne podatke
+
+    if (data && data.length > 0) {
+        data.forEach(category => {
+            const row = tbody.insertRow();
+            row.insertCell().textContent = category.sequence_number; // Ispravljen naziv
+            row.insertCell().textContent = category.priority;
+            row.insertCell().textContent = category.rule;
+            row.insertCell().textContent = category.response;
+            row.insertCell().textContent = Array.isArray(category.tags) ? category.tags.join(', ') : category.tags || ''; // Provera da li je niz
+
+            const actionsCell = row.insertCell();
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-action btn-edit';
+            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+            editBtn.title = 'Izmeni';
+            // Poziva funkciju editCategory sa celim objektom kategorije
+            editBtn.onclick = () => editCategory(category);
+            actionsCell.appendChild(editBtn);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-action btn-delete';
+            deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            deleteBtn.title = 'Obriši';
+            // Poziva deleteCategoryRequest sa sequence_number
+            deleteBtn.onclick = () => deleteCategoryRequest(category.sequence_number);
+            actionsCell.appendChild(deleteBtn);
+        });
+    } else {
+        const row = tbody.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 6;
+        cell.className = 'text-center';
+        cell.textContent = 'Nema podataka za prikaz.';
+    }
+}
+
+// Funkcija za popunjavanje forme za izmenu
+function editCategory(category) {
+    document.getElementById('seq-num').value = category.sequence_number;
+    document.getElementById('priority').value = category.priority;
+    document.getElementById('rule').value = category.rule;
+    document.getElementById('response').value = category.response;
+    document.getElementById('tags').value = Array.isArray(category.tags) ? category.tags.join(', ') : category.tags || '';
+    alert(`Učitani podaci za izmenu kategorije sa rednim brojem: ${category.sequence_number}`);
+}
+
+
+// Google API client load i inicijalizacija
+function initClient() {
+    // Provera da li su gapi.client i gapi.auth2 dostupni
+    if (typeof gapi !== 'undefined' && gapi.client && gapi.auth2) {
+        gapi.client.init({
+            clientId: '252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com',
+            scope: 'email profile openid' // Dodao openid
+        }).then(() => {
+            console.log('Google API client initialized.');
+            // Slušaj promene statusa prijave
+            const authInstance = gapi.auth2.getAuthInstance();
+            if (authInstance) {
+                authInstance.isSignedIn.listen(updateSignInStatus);
+                // Inicijalno proveri status
+                updateSignInStatus(authInstance.isSignedIn.get());
+            } else {
+                console.error('gapi.auth2.getAuthInstance() returned null.');
+            }
+        }).catch(error => {
+            console.error('Greška pri inicijalizaciji Google API klijenta:', error);
+        });
+    } else {
+        console.warn('GAPI client or auth2 not fully loaded, skipping initClient.');
+    }
+}
+
+function updateSignInStatus(isSignedIn) {
+    if (isSignedIn) {
+        const profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
+        currentUserId = profile.getId(); // Google User ID
+        currentUserEmail = profile.getEmail();
+
+        document.getElementById('user-email').textContent = currentUserEmail;
+        document.getElementById('main-section').style.display = 'flex';
+        document.getElementById('login-section').style.display = 'none';
+
+        fetchUserSettings();
+        fetchCategories();
+    } else {
+        currentUserId = null;
+        currentUserEmail = null;
+        document.getElementById('user-email').textContent = '';
+        document.getElementById('main-section').style.display = 'none';
+        document.getElementById('login-section').style.display = 'flex';
+        resetCategoryForm();
+        displayCategories([]);
+        displayUserSettings({});
+    }
+}
+
+// Učitavanje Google API klijenta tek kada je DOM spreman
+document.addEventListener('DOMContentLoaded', () => {
+    // Prvo pokušaj sa direktnim učitavanjem
+    if (typeof gapi !== 'undefined') {
+        gapi.load('client:auth2', initClient);
+    } else {
+        console.warn('GAPI library not loaded at DOMContentLoaded, attempting fallback on window.onload.');
+        // Fallback za slučaj da GAPI kasni sa učitavanjem
+        window.onload = () => {
+            if (typeof gapi !== 'undefined') {
+                gapi.load('client:auth2', initClient);
+            } else {
+                console.error('GAPI library still not loaded after window.onload. Google login might not work.');
+            }
+        };
+    }
+});
