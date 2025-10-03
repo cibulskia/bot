@@ -32,8 +32,9 @@ window.handleCredentialResponse = async (response) => {
 
 // Funkcija za odjavu
 function signOut() {
-    const auth2 = gapi.auth2.getAuthInstance();
-    if (auth2) {
+    // Provera da li je gapi.auth2.getAuthInstance() definisan
+    if (typeof gapi !== 'undefined' && gapi.auth2 && gapi.auth2.getAuthInstance()) {
+        const auth2 = gapi.auth2.getAuthInstance();
         auth2.signOut().then(() => {
             console.log('User signed out from Google.');
             currentUserId = null;
@@ -49,8 +50,8 @@ function signOut() {
             alert('Došlo je do greške prilikom odjave. Molimo pokušajte ponovo.');
         });
     } else {
-        // Fallback ako gapi.auth2 nije inicijalizovan (trebalo bi da bude)
-        console.warn('gapi.auth2 nije inicijalizovan za odjavu.');
+        // Fallback ako gapi.auth2 nije inicijalizovan (trebalo bi da bude nakon DOMContentLoaded + gapi.load)
+        console.warn('gapi.auth2 nije inicijalizovan za odjavu, vršim manuelnu odjavu.');
         currentUserId = null;
         currentUserEmail = null;
         document.getElementById('user-email').textContent = '';
@@ -167,7 +168,7 @@ async function populateCategoryFields() {
             document.getElementById('priority').value = category.priority;
             document.getElementById('rule').value = category.rule;
             document.getElementById('response').value = category.response;
-            document.getElementById('tags').value = category.tags.join(', '); // tags je verovatno array
+            document.getElementById('tags').value = Array.isArray(category.tags) ? category.tags.join(', ') : category.tags || ''; // tags je verovatno array
             alert(`Podaci kategorije sa rednim brojem ${targetSeqNum} uspešno popunjeni za izmenu!`);
         } else {
             alert(`Kategorija sa rednim brojem ${targetSeqNum} nije pronađena.`);
@@ -188,7 +189,7 @@ async function deleteCategoryRequest(seqNum) {
     if (confirm(`Da li ste sigurni da želite da obrišete kategoriju sa rednim brojem ${seqNum}?`)) {
         try {
             const res = await fetch('https://botanica.ngrok.app/categories', {
-                method: 'DELETE',
+                method: 'DELETE', // Korišćenje DELETE metode
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     google_user_id: currentUserId,
@@ -198,7 +199,7 @@ async function deleteCategoryRequest(seqNum) {
             const data = await res.json();
             alert(data.message);
             if (data.status === 'success') {
-                await fetchCategories();
+                await fetchCategories(); // Osveži listu kategorija nakon brisanja
             }
         } catch (error) {
             console.error('Greška pri brisanju kategorije:', error);
@@ -257,7 +258,10 @@ async function fetchUserSettings() {
 
         if (data.status === 'success' && data.user_settings) {
             const settings = data.user_settings;
-            document.getElementById('discord-token').value = settings.discord_token || '';
+            // Prikazujemo prazan string ako discord_token_set nije true, da se ne bi prikazivala 'N/A' u polju za unos.
+            // Važno: Backend sada vraća 'discord_token_set' (boolean) umesto stvarnog tokena za sigurnost.
+            // Frontend ne treba da prikazuje stvarni token u polju za unos.
+            document.getElementById('discord-token').value = settings.discord_token_set ? '******' : ''; // Prikazuje zvezdice ako je token postavljen
             document.getElementById('is-checkbox').checked = settings.is_checkbox_checked || false;
             document.getElementById('general-response').value = settings.general_response || '';
             document.getElementById('user-rule').value = settings.user_rule || '';
@@ -313,7 +317,8 @@ function displayUserSettings(data) {
 
     if (data && Object.keys(data).length > 0) {
         const row = tbody.insertRow();
-        row.insertCell().textContent = data.discord_token || 'N/A';
+        // Prikazuje "Postavljen" ili "Nije postavljen" umesto stvarnog tokena
+        row.insertCell().textContent = data.discord_token_set ? 'Postavljen' : 'Nije postavljen';
         row.insertCell().textContent = data.is_checkbox_checked ? 'Da' : 'Ne';
         row.insertCell().textContent = data.general_response || 'N/A';
         row.insertCell().textContent = data.user_rule || 'N/A';
@@ -430,15 +435,17 @@ function updateSignInStatus(isSignedIn) {
 
 // Učitavanje Google API klijenta tek kada je DOM spreman
 document.addEventListener('DOMContentLoaded', () => {
+    // Prvo pokušaj sa direktnim učitavanjem
     if (typeof gapi !== 'undefined') {
         gapi.load('client:auth2', initClient);
     } else {
-        console.warn('GAPI library not loaded at DOMContentLoaded, retrying on window.onload.');
-        window.onload = () => { // Fallback za slučaj da GAPI kasni
+        console.warn('GAPI library not loaded at DOMContentLoaded, attempting fallback on window.onload.');
+        // Fallback za slučaj da GAPI kasni sa učitavanjem
+        window.onload = () => {
             if (typeof gapi !== 'undefined') {
                 gapi.load('client:auth2', initClient);
             } else {
-                console.error('GAPI library still not loaded.');
+                console.error('GAPI library still not loaded after window.onload. Google login might not work.');
             }
         };
     }
