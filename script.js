@@ -35,17 +35,15 @@ window.handleCredentialResponse = async (response) => {
 
 // Funkcija za odjavu
 function signOut() {
-    // Provera da li je gapi.auth2.getAuthInstance() definisan
     if (typeof gapi !== 'undefined' && gapi.auth2 && gapi.auth2.getAuthInstance()) {
         const auth2 = gapi.auth2.getAuthInstance();
         auth2.signOut().then(() => {
-            console.log('User signed out from Google.');
             currentUserId = null;
             currentUserEmail = null;
             document.getElementById('user-email').textContent = '';
             document.getElementById('main-section').style.display = 'none';
             document.getElementById('login-section').style.display = 'flex';
-            resetCategoryForm(); // Očisti formu i tabele
+            resetCategoryForm();
             displayCategories([]);
             displayUserSettings({});
         }).catch(error => {
@@ -53,8 +51,6 @@ function signOut() {
             alert('Došlo je do greške prilikom odjave. Molimo pokušajte ponovo.');
         });
     } else {
-        // Fallback ako gapi.auth2 nije inicijalizovan (trebalo bi da bude nakon DOMContentLoaded + gapi.load)
-        console.warn('gapi.auth2 nije inicijalizovan za odjavu, vršim manuelnu odjavu.');
         currentUserId = null;
         currentUserEmail = null;
         document.getElementById('user-email').textContent = '';
@@ -119,7 +115,6 @@ async function saveCategory() {
 // Funkcija za dohvatanje kategorija
 async function fetchCategories() {
     if (!currentUserId) {
-        console.warn('Nema korisnika, ne mogu dohvatiti kategorije.');
         displayCategories([]);
         return [];
     }
@@ -149,7 +144,7 @@ async function fetchCategories() {
     }
 }
 
-// Funkcija za popunjavanje forme kategorije (za "Popuni po rednom broju" i "Izmeni")
+// Funkcija za popunjavanje forme kategorije
 async function populateCategoryFields() {
     const seqNumInput = document.getElementById('seq-num').value;
     if (!seqNumInput) {
@@ -164,7 +159,7 @@ async function populateCategoryFields() {
     }
 
     try {
-        const categories = await fetchCategories(); // fetchCategories sada vraća niz kategorija kao brojeve za seq_num
+        const categories = await fetchCategories();
         const category = categories.find(cat => cat.sequence_number === targetSeqNum);
 
         if (category) {
@@ -175,7 +170,7 @@ async function populateCategoryFields() {
             alert(`Podaci kategorije sa rednim brojem ${targetSeqNum} uspešno popunjeni za izmenu!`);
         } else {
             alert(`Kategorija sa rednim brojem ${targetSeqNum} nije pronađena.`);
-            resetCategoryForm(); // Očisti formu ako kategorija nije pronađena
+            resetCategoryForm();
         }
     } catch (error) {
         console.error('Greška pri dohvatanju pojedinačne kategorije:', error);
@@ -192,7 +187,7 @@ async function deleteCategoryRequest(seqNum) {
     if (confirm(`Da li ste sigurni da želite da obrišete kategoriju sa rednim brojem ${seqNum}?`)) {
         try {
             const res = await fetch(`${API_BASE_URL}/categories`, {
-                method: 'DELETE', // Korišćenje DELETE metode
+                method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     google_user_id: currentUserId,
@@ -202,7 +197,7 @@ async function deleteCategoryRequest(seqNum) {
             const data = await res.json();
             alert(data.message);
             if (data.status === 'success') {
-                await fetchCategories(); // Osveži listu kategorija nakon brisanja
+                await fetchCategories();
             }
         } catch (error) {
             console.error('Greška pri brisanju kategorije:', error);
@@ -218,9 +213,11 @@ async function saveUserSettings() {
         return;
     }
 
+    const discordInputValue = document.getElementById('discord-token').value;
     const settingsData = {
         google_user_id: currentUserId,
-        discord_token: document.getElementById('discord-token').value || null,
+        // Samo šalji token ako nije ****** ili prazan string
+        ...(discordInputValue && discordInputValue !== '******' ? { discord_token: discordInputValue } : {}),
         is_checkbox_checked: document.getElementById('is-checkbox').checked,
         general_response: document.getElementById('general-response').value || null,
         user_rule: document.getElementById('user-rule').value || null,
@@ -247,7 +244,6 @@ async function saveUserSettings() {
 // Funkcija za dohvatanje korisničkih podešavanja
 async function fetchUserSettings() {
     if (!currentUserId) {
-        console.warn('Nema korisnika, ne mogu dohvatiti podešavanja.');
         displayUserSettings({});
         return;
     }
@@ -287,49 +283,34 @@ async function fetchUserSettings() {
 function resetCategoryForm() {
     document.getElementById('seq-num').value = '';
     document.getElementById('priority').value = '';
-    document.getElementById('rule').value = 'A'; // Postavi na default
+    document.getElementById('rule').value = 'A';
     document.getElementById('response').value = '';
     document.getElementById('tags').value = '';
 }
 
 // Funkcije za manipulaciju UI-jem
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicijalno sakrivanje svih tabova osim prvog
-    // Ovi elementi ne postoje u pruženom HTML-u, ali ih ostavljam jer su bili u originalnom JS-u
-    // i pretpostavljam da će biti dodati ili da je ovo deo šireg projekta.
     document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
     const userSettingsTab = document.getElementById('user-settings-tab');
-    if (userSettingsTab) { // Provera postojanja elementa
-        userSettingsTab.style.display = 'block';
-    }
+    if (userSettingsTab) userSettingsTab.style.display = 'block';
     const firstNavItem = document.querySelector('.sidebar-nav .nav-item');
-    if (firstNavItem) { // Provera postojanja elementa
-        firstNavItem.classList.add('active');
-    }
+    if (firstNavItem) firstNavItem.classList.add('active');
 });
 
 function showSection(sectionId) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
     const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.style.display = 'block';
-    }
+    if (targetSection) targetSection.style.display = 'block';
 
     document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => item.classList.remove('active'));
     const activeNavItem = document.querySelector(`.nav-item[onclick="showSection('${sectionId}')"]`);
-    if (activeNavItem) {
-        activeNavItem.classList.add('active');
-    }
+    if (activeNavItem) activeNavItem.classList.add('active');
 }
 
-// Funkcija za prikaz korisničkih podešavanja u tabeli
 function displayUserSettings(data) {
     const tbody = document.getElementById('user-settings-table-body');
-    if (!tbody) {
-        console.warn('Element #user-settings-table-body nije pronađen.');
-        return;
-    }
-    tbody.innerHTML = ''; // Očisti prethodne podatke
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
     if (data && Object.keys(data).length > 0) {
         const row = tbody.insertRow();
@@ -347,14 +328,10 @@ function displayUserSettings(data) {
     }
 }
 
-// Funkcija za prikaz kategorija u tabeli
 function displayCategories(data) {
     const tbody = document.getElementById('categories-table-body');
-    if (!tbody) {
-        console.warn('Element #categories-table-body nije pronađen.');
-        return;
-    }
-    tbody.innerHTML = ''; // Očisti prethodne podatke
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
     if (data && data.length > 0) {
         data.forEach(category => {
@@ -377,7 +354,6 @@ function displayCategories(data) {
             deleteBtn.className = 'btn btn-action btn-delete';
             deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
             deleteBtn.title = 'Obriši';
-            // KLJUČNA PROMENA: Pozivanje deleteCategoryRequest sa sequence_number
             deleteBtn.onclick = () => deleteCategoryRequest(category.sequence_number);
             actionsCell.appendChild(deleteBtn);
         });
@@ -390,7 +366,6 @@ function displayCategories(data) {
     }
 }
 
-// Funkcija za popunjavanje forme za izmenu
 function editCategory(category) {
     document.getElementById('seq-num').value = category.sequence_number;
     document.getElementById('priority').value = category.priority;
@@ -400,28 +375,19 @@ function editCategory(category) {
     alert(`Učitani podaci za izmenu kategorije sa rednim brojem: ${category.sequence_number}`);
 }
 
-
 // Google API client load i inicijalizacija
 function initClient() {
-    // Provera da li su gapi.client i gapi.auth2 dostupni
     if (typeof gapi !== 'undefined' && gapi.client && gapi.auth2) {
         gapi.client.init({
             clientId: '252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com',
             scope: 'email profile openid'
         }).then(() => {
-            console.log('Google API client initialized.');
             const authInstance = gapi.auth2.getAuthInstance();
             if (authInstance) {
                 authInstance.isSignedIn.listen(updateSignInStatus);
                 updateSignInStatus(authInstance.isSignedIn.get());
-            } else {
-                console.error('gapi.auth2.getAuthInstance() returned null.');
             }
-        }).catch(error => {
-            console.error('Greška pri inicijalizaciji Google API klijenta:', error);
-        });
-    } else {
-        console.warn('GAPI client or auth2 not fully loaded, skipping initClient.');
+        }).catch(error => console.error('Greška pri inicijalizaciji Google API klijenta:', error));
     }
 }
 
@@ -449,18 +415,8 @@ function updateSignInStatus(isSignedIn) {
     }
 }
 
-// Učitavanje Google API klijenta tek kada je DOM spreman
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof gapi !== 'undefined') {
         gapi.load('client:auth2', initClient);
-    } else {
-        console.warn('GAPI library not loaded at DOMContentLoaded, attempting fallback on window.onload.');
-        window.onload = () => {
-            if (typeof gapi !== 'undefined') {
-                gapi.load('client:auth2', initClient);
-            } else {
-                console.error('GAPI library still not loaded after window.onload. Google login might not work.');
-            }
-        };
     }
 });
