@@ -1,42 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="sr">
 <head>
-    <title>Stranica</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<meta charset="UTF-8">
+<title>Botanica Demo</title>
+<!-- Skripta za Google prijavu, asinhrono učitavanje -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+    /* Osnovni stilovi za telo stranice, inpute, dugmad itd. */
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, select, button, textarea { margin: 5px 0; width: 100%; }
+    fieldset { margin-bottom: 15px; }
+</style>
 </head>
 <body>
-    <button id="actionButton" disabled>Pritisni</button>
-    <p id="response"></p>
+<h2>Botanica Demo</h2>
 
-    <script>
-        // Prvo pozivamo server da postavi HttpOnly cookie
-        $.ajax({
-            url: 'https://botanica.ngrok.app/set_token',
-            type: 'GET',
-            xhrFields: { withCredentials: true }, // <--- šalje cookie i prima ga
-            success: function(data){
-                console.log(data.message);
-                $('#actionButton').prop('disabled', false); // dugme aktivno
-            },
-            error: function(){
-                $('#response').text('Greška pri dobijanju tokena.');
-            }
-        });
+<!-- Sekcija za prijavu putem Google-a -->
+<div id="login-section">
+    <!-- Google prijava komponenta -->
+    <div id="g_id_onload"
+         data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
+</div>
 
-        $('#actionButton').click(function(){
-            $.ajax({
-                url: 'https://botanica.ngrok.app/button_press',
-                type: 'POST',
-                contentType: 'application/json',
-                xhrFields: { withCredentials: true }, // <--- šalje cookie
-                success: function(response){
-                    $('#response').text(response.message);
-                },
-                error: function(jqXHR){
-                    $('#response').text('Došlo je do greške: ' + jqXHR.responseText);
-                }
-            });
-        });
-    </script>
+<!-- Glavna sekcija aplikacije, prikazuje se tek nakon uspešne prijave -->
+<div id="main-section" style="display:none;">
+    <p>Prijavljen korisnik: <span id="user-email"></span></p>
+
+    <!-- Fieldset za upravljanje kategorijama -->
+    <fieldset>
+        <legend>Kategorija</legend>
+        <input type="number" id="seq-num" placeholder="Redni broj (1-99)">
+        <input type="number" id="priority" placeholder="Prioritet (0-9)">
+        <select id="rule">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+        </select>
+        <textarea id="response" placeholder="Odgovor"></textarea>
+        <input type="text" id="tags" placeholder='Tagovi (razdvojeni zarezom)'>
+        <button onclick="saveCategory()">Sačuvaj kategoriju</button>
+        <button onclick="fetchCategories()">Dohvati kategorije</button>
+        <pre id="categories-output"></pre>
+    </fieldset>
+
+    <!-- Fieldset za upravljanje korisničkim podešavanjima -->
+    <fieldset>
+        <legend>Korisnička podešavanja</legend>
+        <input type="text" id="discord-token" placeholder="Discord Token">
+        <label>
+            <input type="checkbox" id="is-checkbox"> Označeno polje
+        </label>
+        <textarea id="general-response" placeholder="Generalni odgovor"></textarea>
+        <select id="user-rule">
+            <option value="">--Izaberi pravilo--</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+        </select>
+        <input type="text" id="user-client-email" placeholder="Email klijenta (opciono)">
+        <button onclick="saveUserSettings()">Sačuvaj podešavanja</button>
+        <button onclick="fetchUserSettings()">Dohvati podešavanja</button>
+        <pre id="user-settings-output"></pre>
+    </fieldset>
+</div>
+
+<!-- Link ka eksternom JavaScript fajlu -->
+<script src="script.js"></script>
 </body>
 </html>
