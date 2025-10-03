@@ -1,0 +1,637 @@
+/* Osnovni reset i font */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Poravnavanje na vrh radi boljeg prikaza većeg sadržaja */
+    min-height: 100vh;
+    padding: 20px;
+}
+
+#app-container {
+    width: 100%;
+    max-width: 1400px; /* Maksimalna širina aplikacije */
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    min-height: 80vh; /* Minimalna visina za dashboard */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Sekcija za prijavu */
+#login-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Puni ekran za login */
+    padding: 40px;
+    text-align: center;
+    background: linear-gradient(135deg, #e0f2f7 0%, #c1dce7 100%);
+}
+
+.auth-card {
+    background-color: #fff;
+    padding: 40px 50px;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+}
+
+.app-logo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 25px;
+    border: 3px solid #007bff;
+    object-fit: cover;
+}
+
+#login-section h2 {
+    color: #007bff;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+#login-section p {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 0.95em;
+}
+
+.g_id_signin {
+    --g_id_signin_width: 240px; /* Prilagođavanje Google dugmeta */
+}
+
+/* Dashboard Layout */
+.dashboard-layout {
+    display: flex;
+    flex-grow: 1;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50; /* Tamnija pozadina */
+    color: #ecf0f1;
+    padding: 25px 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0; /* Sprečava sidebar da se smanjuje */
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 0 20px 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.sidebar-logo {
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    margin-right: 15px;
+    background-color: #007bff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    color: #fff;
+    font-size: 1.5em;
+}
+
+.sidebar-header h3 {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #fff;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+}
+
+.nav-item {
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: flex;
+    align-items: center;
+    font-size: 1.05em;
+    border-left: 5px solid transparent;
+}
+
+.nav-item i {
+    margin-right: 12px;
+    font-size: 1.1em;
+}
+
+.nav-item:hover {
+    background-color: #34495e;
+    color: #007bff;
+    border-left-color: #007bff;
+}
+
+.nav-item.active {
+    background-color: #007bff;
+    color: #fff;
+    border-left-color: #f39c12; /* Akcent boja */
+}
+
+.sidebar-footer {
+    margin-top: auto; /* Gura footer na dno sidebara */
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.sidebar-footer p {
+    font-size: 0.85em;
+    margin-bottom: 10px;
+    color: #bdc3c7;
+}
+
+.btn-logout {
+    background-color: #e74c3c;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.btn-logout:hover {
+    background-color: #c0392b;
+}
+
+/* Content Area */
+.content-area {
+    flex-grow: 1;
+    padding: 30px;
+    background-color: #fdfdfd;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.navbar h1 {
+    font-size: 2em;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.navbar-actions .btn-icon {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.3em;
+    margin-left: 15px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.navbar-actions .btn-icon:hover {
+    color: #007bff;
+}
+
+/* Card Stil */
+.card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    padding: 30px;
+    margin-bottom: 30px;
+    border-left: 5px solid #007bff;
+}
+
+.card h3 {
+    font-size: 1.6em;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+.card h3 i {
+    margin-right: 15px;
+    color: #007bff;
+    font-size: 1.2em;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 0.95em;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="email"],
+.form-group textarea,
+.form-group select {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    background-color: #fcfcfc;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    outline: none;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.checkbox-group {
+    flex-direction: row;
+    align-items: center;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+    transform: scale(1.2);
+    accent-color: #007bff; /* Boja checkboksa */
+}
+
+.checkbox-group label {
+    margin-bottom: 0;
+}
+
+.full-width {
+    grid-column: 1 / -1; /* Zauzima celu širinu u gridu */
+}
+
+/* Dugmad */
+.form-actions {
+    display: flex;
+    flex-wrap: wrap; /* Omogućava prelamanje dugmadi na manjim ekranima */
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn i {
+    margin-right: 8px;
+}
+
+.btn:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+    transform: translateY(-2px);
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+.btn-action {
+    padding: 8px 12px;
+    font-size: 0.9em;
+    margin-left: 8px;
+    border-radius: 5px;
+    box-shadow: none; /* Akcione dugmad u tabeli nemaju senku */
+}
+.btn-action:hover {
+    box-shadow: none;
+    transform: translateY(-1px);
+}
+
+
+/* Tabela stilovi */
+.data-display {
+    margin-top: 35px;
+}
+
+.data-display h4 {
+    font-size: 1.3em;
+    color: #2c3e50;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    font-weight: 600;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px; /* Minimalna širina tabele */
+}
+
+.data-table thead {
+    background-color: #f8f9fa;
+}
+
+.data-table th {
+    padding: 15px 20px;
+    text-align: left;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.data-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid #e9ecef;
+    color: #444;
+    vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f2f7fb;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.code-block {
+    background-color: #f8f8f8;
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #333;
+    max-height: 300px; /* Ograničenje visine za logove */
+    overflow-y: auto;
+}
+
+/* Utility klase */
+.mt-3 { margin-top: 30px; }
+
+
+/* Responzivnost */
+@media (max-width: 992px) {
+    .dashboard-layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding-bottom: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header {
+        padding-top: 25px;
+        padding-bottom: 25px;
+        justify-content: center;
+        border-bottom: none;
+    }
+
+    .sidebar-nav ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .nav-item {
+        flex-grow: 1;
+        text-align: center;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        justify-content: center;
+        padding: 10px 15px;
+    }
+    .nav-item i {
+        margin-right: 0;
+        margin-bottom: 5px; /* Razmak između ikone i teksta */
+        display: block; /* Ikona iznad teksta */
+    }
+
+    .nav-item:hover {
+        border-left-color: transparent;
+        border-bottom-color: #007bff;
+    }
+
+    .nav-item.active {
+        border-left-color: transparent;
+        border-bottom-color: #f39c12;
+    }
+
+    .sidebar-footer {
+        margin-top: 20px;
+        border-top: none;
+        padding: 15px 20px;
+        background-color: #34495e;
+    }
+    .sidebar-footer p {
+        margin-bottom: 5px;
+    }
+    .btn-logout {
+        width: auto;
+        padding: 6px 12px;
+    }
+
+    .content-area {
+        padding: 20px;
+    }
+
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .navbar h1 {
+        margin-bottom: 10px;
+        font-size: 1.8em;
+    }
+
+    .navbar-actions {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr; /* Jedna kolona na malim ekranima */
+    }
+
+    .btn {
+        width: 100%;
+        margin-bottom: 10px; /* Dodati razmak između dugmadi */
+    }
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    #app-container {
+        border-radius: 0; /* Bez zaobljenih ivica na vrlo malim ekranima */
+        box-shadow: none;
+    }
+    .card {
+        padding: 20px;
+    }
+    .card h3 {
+        font-size: 1.4em;
+        margin-bottom: 20px;
+    }
+    .data-table th, .data-table td {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+    .btn {
+        font-size: 0.9em;
+        padding: 10px 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    #login-section .auth-card {
+        padding: 30px;
+    }
+    #login-section h2 {
+        font-size: 1.5em;
+    }
+    #login-section p {
+        font-size: 0.85em;
+    }
+    .app-logo {
+        width: 100px;
+        height: 100px;
+    }
+    .content-area {
+        padding: 15px;
+    }
+    .navbar h1 {
+        font-size: 1.5em;
+    }
+    .nav-item {
+        font-size: 0.9em;
+    }
+    .sidebar-logo {
+        width: 35px;
+        height: 35px;
+        font-size: 1.2em;
+    }
+    .sidebar-header h3 {
+        font-size: 1.2em;
+    }
+}
