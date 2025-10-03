@@ -1,10 +1,13 @@
 let currentUserId = null;
 let currentUserEmail = null;
 
+// Bazni URL za API pozive
+const API_BASE_URL = 'https://botanica.ngrok.app';
+
 // Funkcija koja se poziva nakon Google prijave
 window.handleCredentialResponse = async (response) => {
     try {
-        const res = await fetch('https://botanica.ngrok.app/oauth_callback', {
+        const res = await fetch(`${API_BASE_URL}/oauth_callback`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ credential: response.credential })
@@ -96,7 +99,7 @@ async function saveCategory() {
     };
 
     try {
-        const res = await fetch('https://botanica.ngrok.app/categories', {
+        const res = await fetch(`${API_BASE_URL}/categories`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(categoryData)
@@ -121,7 +124,7 @@ async function fetchCategories() {
         return [];
     }
     try {
-        const res = await fetch('https://botanica.ngrok.app/get_categories', {
+        const res = await fetch(`${API_BASE_URL}/get_categories`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ google_user_id: currentUserId })
@@ -168,7 +171,7 @@ async function populateCategoryFields() {
             document.getElementById('priority').value = category.priority;
             document.getElementById('rule').value = category.rule;
             document.getElementById('response').value = category.response;
-            document.getElementById('tags').value = Array.isArray(category.tags) ? category.tags.join(', ') : category.tags || ''; // tags je verovatno array
+            document.getElementById('tags').value = Array.isArray(category.tags) ? category.tags.join(', ') : category.tags || '';
             alert(`Podaci kategorije sa rednim brojem ${targetSeqNum} uspešno popunjeni za izmenu!`);
         } else {
             alert(`Kategorija sa rednim brojem ${targetSeqNum} nije pronađena.`);
@@ -188,7 +191,7 @@ async function deleteCategoryRequest(seqNum) {
     }
     if (confirm(`Da li ste sigurni da želite da obrišete kategoriju sa rednim brojem ${seqNum}?`)) {
         try {
-            const res = await fetch('https://botanica.ngrok.app/categories', {
+            const res = await fetch(`${API_BASE_URL}/categories`, {
                 method: 'DELETE', // Korišćenje DELETE metode
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -225,7 +228,7 @@ async function saveUserSettings() {
     };
 
     try {
-        const res = await fetch('https://botanica.ngrok.app/user_settings', {
+        const res = await fetch(`${API_BASE_URL}/user_settings`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(settingsData)
@@ -249,7 +252,7 @@ async function fetchUserSettings() {
         return;
     }
     try {
-        const res = await fetch('https://botanica.ngrok.app/get_user_settings', {
+        const res = await fetch(`${API_BASE_URL}/get_user_settings`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ google_user_id: currentUserId })
@@ -258,10 +261,7 @@ async function fetchUserSettings() {
 
         if (data.status === 'success' && data.user_settings) {
             const settings = data.user_settings;
-            // Prikazujemo prazan string ako discord_token_set nije true, da se ne bi prikazivala 'N/A' u polju za unos.
-            // Važno: Backend sada vraća 'discord_token_set' (boolean) umesto stvarnog tokena za sigurnost.
-            // Frontend ne treba da prikazuje stvarni token u polju za unos.
-            document.getElementById('discord-token').value = settings.discord_token_set ? '******' : ''; // Prikazuje zvezdice ako je token postavljen
+            document.getElementById('discord-token').value = settings.discord_token_set ? '******' : '';
             document.getElementById('is-checkbox').checked = settings.is_checkbox_checked || false;
             document.getElementById('general-response').value = settings.general_response || '';
             document.getElementById('user-rule').value = settings.user_rule || '';
@@ -292,32 +292,47 @@ function resetCategoryForm() {
     document.getElementById('tags').value = '';
 }
 
-// Funkcije za manipulaciju UI-jem (SADA SU CENTRALIZOVANE U scriptd.js)
-
+// Funkcije za manipulaciju UI-jem
 document.addEventListener('DOMContentLoaded', () => {
     // Inicijalno sakrivanje svih tabova osim prvog
+    // Ovi elementi ne postoje u pruženom HTML-u, ali ih ostavljam jer su bili u originalnom JS-u
+    // i pretpostavljam da će biti dodati ili da je ovo deo šireg projekta.
     document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
-    document.getElementById('user-settings-tab').style.display = 'block';
-    // Dodaj "active" klasu na prvi nav-item
-    document.querySelector('.sidebar-nav .nav-item').classList.add('active');
+    const userSettingsTab = document.getElementById('user-settings-tab');
+    if (userSettingsTab) { // Provera postojanja elementa
+        userSettingsTab.style.display = 'block';
+    }
+    const firstNavItem = document.querySelector('.sidebar-nav .nav-item');
+    if (firstNavItem) { // Provera postojanja elementa
+        firstNavItem.classList.add('active');
+    }
 });
 
 function showSection(sectionId) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
-    document.getElementById(sectionId).style.display = 'block';
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+        targetSection.style.display = 'block';
+    }
 
     document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => item.classList.remove('active'));
-    document.querySelector(`.nav-item[onclick="showSection('${sectionId}')"]`).classList.add('active');
+    const activeNavItem = document.querySelector(`.nav-item[onclick="showSection('${sectionId}')"]`);
+    if (activeNavItem) {
+        activeNavItem.classList.add('active');
+    }
 }
 
 // Funkcija za prikaz korisničkih podešavanja u tabeli
 function displayUserSettings(data) {
     const tbody = document.getElementById('user-settings-table-body');
+    if (!tbody) {
+        console.warn('Element #user-settings-table-body nije pronađen.');
+        return;
+    }
     tbody.innerHTML = ''; // Očisti prethodne podatke
 
     if (data && Object.keys(data).length > 0) {
         const row = tbody.insertRow();
-        // Prikazuje "Postavljen" ili "Nije postavljen" umesto stvarnog tokena
         row.insertCell().textContent = data.discord_token_set ? 'Postavljen' : 'Nije postavljen';
         row.insertCell().textContent = data.is_checkbox_checked ? 'Da' : 'Ne';
         row.insertCell().textContent = data.general_response || 'N/A';
@@ -335,23 +350,26 @@ function displayUserSettings(data) {
 // Funkcija za prikaz kategorija u tabeli
 function displayCategories(data) {
     const tbody = document.getElementById('categories-table-body');
+    if (!tbody) {
+        console.warn('Element #categories-table-body nije pronađen.');
+        return;
+    }
     tbody.innerHTML = ''; // Očisti prethodne podatke
 
     if (data && data.length > 0) {
         data.forEach(category => {
             const row = tbody.insertRow();
-            row.insertCell().textContent = category.sequence_number; // Ispravljen naziv
+            row.insertCell().textContent = category.sequence_number;
             row.insertCell().textContent = category.priority;
             row.insertCell().textContent = category.rule;
             row.insertCell().textContent = category.response;
-            row.insertCell().textContent = Array.isArray(category.tags) ? category.tags.join(', ') : category.tags || ''; // Provera da li je niz
+            row.insertCell().textContent = Array.isArray(category.tags) ? category.tags.join(', ') : category.tags || '';
 
             const actionsCell = row.insertCell();
             const editBtn = document.createElement('button');
             editBtn.className = 'btn btn-action btn-edit';
             editBtn.innerHTML = '<i class="fas fa-edit"></i>';
             editBtn.title = 'Izmeni';
-            // Poziva funkciju editCategory sa celim objektom kategorije
             editBtn.onclick = () => editCategory(category);
             actionsCell.appendChild(editBtn);
 
@@ -359,7 +377,7 @@ function displayCategories(data) {
             deleteBtn.className = 'btn btn-action btn-delete';
             deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
             deleteBtn.title = 'Obriši';
-            // Poziva deleteCategoryRequest sa sequence_number
+            // KLJUČNA PROMENA: Pozivanje deleteCategoryRequest sa sequence_number
             deleteBtn.onclick = () => deleteCategoryRequest(category.sequence_number);
             actionsCell.appendChild(deleteBtn);
         });
@@ -389,14 +407,12 @@ function initClient() {
     if (typeof gapi !== 'undefined' && gapi.client && gapi.auth2) {
         gapi.client.init({
             clientId: '252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com',
-            scope: 'email profile openid' // Dodao openid
+            scope: 'email profile openid'
         }).then(() => {
             console.log('Google API client initialized.');
-            // Slušaj promene statusa prijave
             const authInstance = gapi.auth2.getAuthInstance();
             if (authInstance) {
                 authInstance.isSignedIn.listen(updateSignInStatus);
-                // Inicijalno proveri status
                 updateSignInStatus(authInstance.isSignedIn.get());
             } else {
                 console.error('gapi.auth2.getAuthInstance() returned null.');
@@ -412,7 +428,7 @@ function initClient() {
 function updateSignInStatus(isSignedIn) {
     if (isSignedIn) {
         const profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
-        currentUserId = profile.getId(); // Google User ID
+        currentUserId = profile.getId();
         currentUserEmail = profile.getEmail();
 
         document.getElementById('user-email').textContent = currentUserEmail;
@@ -435,12 +451,10 @@ function updateSignInStatus(isSignedIn) {
 
 // Učitavanje Google API klijenta tek kada je DOM spreman
 document.addEventListener('DOMContentLoaded', () => {
-    // Prvo pokušaj sa direktnim učitavanjem
     if (typeof gapi !== 'undefined') {
         gapi.load('client:auth2', initClient);
     } else {
         console.warn('GAPI library not loaded at DOMContentLoaded, attempting fallback on window.onload.');
-        // Fallback za slučaj da GAPI kasni sa učitavanjem
         window.onload = () => {
             if (typeof gapi !== 'undefined') {
                 gapi.load('client:auth2', initClient);
