@@ -1,74 +1,382 @@
 <!DOCTYPE html>
 <html lang="sr">
 <head>
-<meta charset="UTF-8">
-<title>Botanica Demo</title>
-<!-- Skripta za Google prijavu, asinhrono učitavanje -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<style>
-    /* Osnovni stilovi za telo stranice, inpute, dugmad itd. */
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    input, select, button, textarea { margin: 5px 0; width: 100%; }
-    fieldset { margin-bottom: 15px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Botanica Dashboard</title>
+    <!-- Google prijava skripta -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Font Awesome za ikone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts - Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Naš CSS fajl -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h2>Botanica Demo</h2>
+    <div id="app-container">
+        <!-- Sekcija za prijavu putem Google-a -->
+        <div id="login-section" class="auth-card">
+            <img src="https://via.placeholder.com/150/0000FF/FFFFFF?text=Botanica+Logo" alt="Botanica Logo" class="app-logo">
+            <h2>Dobrodošli u Botanica Dashboard</h2>
+            <p>Molimo prijavite se putem Google naloga za pristup.</p>
+            <div id="g_id_onload"
+                 data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse">
+            </div>
+            <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signin_with" data-shape="rectangular" data-logo_alignment="left"></div>
+        </div>
 
-<!-- Sekcija za prijavu putem Google-a -->
-<div id="login-section">
-    <!-- Google prijava komponenta -->
-    <div id="g_id_onload"
-         data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse">
+        <!-- Glavna sekcija aplikacije, prikazuje se tek nakon uspešne prijave -->
+        <div id="main-section" class="dashboard-layout" style="display:none;">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <img src="https://via.placeholder.com/50/0000FF/FFFFFF?text=B" alt="Botanica Icon" class="sidebar-logo">
+                    <h3>Botanica Admin</h3>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li class="nav-item active" onclick="showSection('user-settings-tab')">
+                            <i class="fas fa-cog"></i> Korisnička podešavanja
+                        </li>
+                        <li class="nav-item" onclick="showSection('categories-tab')">
+                            <i class="fas fa-list-alt"></i> Upravljanje kategorijama
+                        </li>
+                        <li class="nav-item" onclick="showSection('logs-tab')">
+                            <i class="fas fa-file-alt"></i> Logovi
+                        </li>
+                    </ul>
+                </nav>
+                <div class="sidebar-footer">
+                    <p>Prijavljen: <span id="user-email"></span></p>
+                    <button class="btn btn-logout" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Odjavi se</button>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <header class="navbar">
+                    <h1>Dashboard</h1>
+                    <div class="navbar-actions">
+                        <button class="btn btn-icon"><i class="fas fa-bell"></i></button>
+                        <button class="btn btn-icon"><i class="fas fa-user-circle"></i></button>
+                    </div>
+                </header>
+
+                <div id="user-settings-tab" class="tab-content active">
+                    <div class="card">
+                        <h3><i class="fas fa-cog"></i> Korisnička podešavanja</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="discord-token">Discord Token</label>
+                                <input type="text" id="discord-token" placeholder="Unesite Discord Token">
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="is-checkbox">
+                                <label for="is-checkbox">Aktivno polje</label>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="general-response">Generalni odgovor</label>
+                                <textarea id="general-response" placeholder="Unesite generalni odgovor..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="user-rule">Pravilo</label>
+                                <select id="user-rule">
+                                    <option value="">-- Izaberi pravilo --</option>
+                                    <option value="A">Pravilo A</option>
+                                    <option value="B">Pravilo B</option>
+                                    <option value="C">Pravilo C</option>
+                                    <option value="D">Pravilo D</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="user-client-email">Email klijenta (opciono)</label>
+                                <input type="email" id="user-client-email" placeholder="client@example.com">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="saveUserSettings()"><i class="fas fa-save"></i> Sačuvaj podešavanja</button>
+                            <button class="btn btn-secondary" onclick="fetchUserSettings()"><i class="fas fa-sync-alt"></i> Dohvati podešavanja</button>
+                        </div>
+                        <div class="data-display mt-3">
+                            <h4>Trenutna podešavanja</h4>
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Discord Token</th>
+                                            <th>Aktivno</th>
+                                            <th>Generalni Odgovor</th>
+                                            <th>Pravilo</th>
+                                            <th>Email Klijenta</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="user-settings-table-body">
+                                        <!-- Podaci će se ovde dinamički učitavati -->
+                                        <tr><td colspan="5" class="text-center">Nema podataka za prikaz.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="categories-tab" class="tab-content">
+                    <div class="card">
+                        <h3><i class="fas fa-list-alt"></i> Upravljanje kategorijama</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="seq-num">Redni broj (1-99)</label>
+                                <input type="number" id="seq-num" placeholder="npr. 15" min="1" max="99">
+                            </div>
+                            <div class="form-group">
+                                <label for="priority">Prioritet (0-9)</label>
+                                <input type="number" id="priority" placeholder="npr. 5" min="0" max="9">
+                            </div>
+                            <div class="form-group">
+                                <label for="rule">Pravilo</label>
+                                <select id="rule">
+                                    <option value="A">Pravilo A</option>
+                                    <option value="B">Pravilo B</option>
+                                    <option value="C">Pravilo C</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="response">Odgovor</label>
+                                <textarea id="response" placeholder="Unesite odgovor za kategoriju..."></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="tags">Tagovi (razdvojeni zarezom)</label>
+                                <input type="text" id="tags" placeholder='npr. cveće, bašta, proleće'>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="saveCategory()"><i class="fas fa-save"></i> Sačuvaj kategoriju</button>
+                            <button class="btn btn-secondary" onclick="fetchCategories()"><i class="fas fa-sync-alt"></i> Dohvati kategorije</button>
+                            <button class="btn btn-info" onclick="populateCategoryFields()"><i class="fas fa-magic"></i> Popuni po rednom broju</button>
+                        </div>
+                        <div class="data-display mt-3">
+                            <h4>Postojeće kategorije</h4>
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Redni broj</th>
+                                            <th>Prioritet</th>
+                                            <th>Pravilo</th>
+                                            <th>Odgovor</th>
+                                            <th>Tagovi</th>
+                                            <th>Akcije</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="categories-table-body">
+                                        <!-- Podaci će se ovde dinamički učitavati -->
+                                        <tr><td colspan="6" class="text-center">Nema podataka za prikaz.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="logs-tab" class="tab-content">
+                    <div class="card">
+                        <h3><i class="fas fa-file-alt"></i> Logovi sistema</h3>
+                        <p>Ovde bi se prikazivali logovi sistema.</p>
+                        <pre id="logs-output" class="code-block">Nema logova za prikaz.</pre>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
-    <div class="g_id_signin" data-type="standard"></div>
-</div>
 
-<!-- Glavna sekcija aplikacije, prikazuje se tek nakon uspešne prijave -->
-<div id="main-section" style="display:none;">
-    <p>Prijavljen korisnik: <span id="user-email"></span></p>
+    <!-- Naš JavaScript fajl -->
+    <script src="scriptd.js"></script>
+    <script>
+        // Funkcije za manipulaciju UI-jem koje dopunjuju scriptd.js
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicijalno sakrivanje svih tabova osim prvog
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+            document.getElementById('user-settings-tab').style.display = 'block';
+        });
 
-    <!-- Fieldset za upravljanje korisničkim podešavanjima -->
-    <fieldset>
-        <legend>Korisnička podešavanja</legend>
-        <input type="text" id="discord-token" placeholder="Discord Token">
-        <label>
-            <input type="checkbox" id="is-checkbox"> Označeno polje
-        </label>
-        <textarea id="general-response" placeholder="Generalni odgovor"></textarea>
-        <select id="user-rule">
-            <option value="">--Izaberi pravilo--</option>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-            <option value="D">D</option>
-        </select>
-        <input type="text" id="user-client-email" placeholder="Email klijenta (opciono)">
-        <button onclick="saveUserSettings()">Sačuvaj podešavanja</button>
-        <button onclick="fetchUserSettings()">Dohvati podešavanja</button>
-        <pre id="user-settings-output"></pre>
-    </fieldset>
+        function showSection(sectionId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+            document.getElementById(sectionId).style.display = 'block';
 
-    <!-- Fieldset za upravljanje kategorijama -->
-    <fieldset>
-        <legend>Kategorija</legend>
-        <input type="number" id="seq-num" placeholder="Redni broj (1-99)">
-        <input type="number" id="priority" placeholder="Prioritet (0-9)">
-        <select id="rule">
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-        </select>
-        <textarea id="response" placeholder="Odgovor"></textarea>
-        <input type="text" id="tags" placeholder='Tagovi (razdvojeni zarezom)'>
-        <button onclick="saveCategory()">Sačuvaj kategoriju</button>
-        <button onclick="fetchCategories()">Dohvati kategorije</button>
-        <pre id="categories-output"></pre>
-    </fieldset>
-</div>
+            document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => item.classList.remove('active'));
+            document.querySelector(`.nav-item[onclick="showSection('${sectionId}')"]`).classList.add('active');
+        }
 
-<!-- Link ka eksternom JavaScript fajlu -->
-<script src="scriptd.js"></script>
+        // Nova funkcija za odjavu
+        function signOut() {
+            // Logika za Google odjavu
+            const auth2 = gapi.auth2.getAuthInstance();
+            if (auth2) {
+                auth2.signOut().then(() => {
+                    console.log('User signed out.');
+                    document.getElementById('main-section').style.display = 'none';
+                    document.getElementById('login-section').style.display = 'flex';
+                    document.getElementById('user-email').textContent = ''; // Obriši email
+                });
+            } else {
+                // Ako gapi.auth2 nije inicijalizovan, jednostavno preusmeri na login
+                document.getElementById('main-section').style.display = 'none';
+                document.getElementById('login-section').style.display = 'flex';
+                document.getElementById('user-email').textContent = '';
+            }
+        }
+
+
+        // Funkcija za prikaz korisničkih podešavanja u tabeli
+        function displayUserSettings(data) {
+            const tbody = document.getElementById('user-settings-table-body');
+            tbody.innerHTML = ''; // Očisti prethodne podatke
+
+            if (data && Object.keys(data).length > 0) {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = data.discordToken || 'N/A';
+                row.insertCell().textContent = data.isCheckbox ? 'Da' : 'Ne';
+                row.insertCell().textContent = data.generalResponse || 'N/A';
+                row.insertCell().textContent = data.userRule || 'N/A';
+                row.insertCell().textContent = data.userClientEmail || 'N/A';
+            } else {
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 5;
+                cell.className = 'text-center';
+                cell.textContent = 'Nema podataka za prikaz.';
+            }
+        }
+
+        // Funkcija za prikaz kategorija u tabeli
+        function displayCategories(data) {
+            const tbody = document.getElementById('categories-table-body');
+            tbody.innerHTML = ''; // Očisti prethodne podatke
+
+            if (data && data.length > 0) {
+                data.forEach(category => {
+                    const row = tbody.insertRow();
+                    row.insertCell().textContent = category.seqNum;
+                    row.insertCell().textContent = category.priority;
+                    row.insertCell().textContent = category.rule;
+                    row.insertCell().textContent = category.response;
+                    row.insertCell().textContent = category.tags;
+
+                    const actionsCell = row.insertCell();
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'btn btn-action btn-edit';
+                    editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                    editBtn.title = 'Izmeni';
+                    editBtn.onclick = () => editCategory(category);
+                    actionsCell.appendChild(editBtn);
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-action btn-delete';
+                    deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                    deleteBtn.title = 'Obriši';
+                    deleteBtn.onclick = () => deleteCategory(category.seqNum); // Pretpostavimo da brišemo po seqNum
+                    actionsCell.appendChild(deleteBtn);
+                });
+            } else {
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 6;
+                cell.className = 'text-center';
+                cell.textContent = 'Nema podataka za prikaz.';
+            }
+        }
+
+        // Funkcija za popunjavanje polja kategorije na osnovu seqNum
+        async function populateCategoryFields() {
+            const seqNum = document.getElementById('seq-num').value;
+            if (!seqNum) {
+                alert('Molimo unesite redni broj (Sequence Number) za popunjavanje.');
+                return;
+            }
+
+            try {
+                // Pretpostavimo da fetchCategoriesWithFilter postoji u scriptd.js
+                // I da vraća listu kategorija, od kojih tražimo onu sa matching seqNum
+                const categories = await fetchCategories(); // Dohvati sve kategorije
+                const category = categories.find(cat => cat.seqNum == seqNum);
+
+                if (category) {
+                    document.getElementById('priority').value = category.priority;
+                    document.getElementById('rule').value = category.rule;
+                    document.getElementById('response').value = category.response;
+                    document.getElementById('tags').value = category.tags;
+                    alert('Podaci kategorije uspešno popunjeni!');
+                } else {
+                    alert('Kategorija sa datim rednim brojem nije pronađena.');
+                    // Opciono, očisti ostala polja ako kategorija nije pronađena
+                    document.getElementById('priority').value = '';
+                    document.getElementById('rule').value = 'A';
+                    document.getElementById('response').value = '';
+                    document.getElementById('tags').value = '';
+                }
+            } catch (error) {
+                console.error('Greška pri dohvatanju kategorije:', error);
+                alert('Došlo je do greške prilikom dohvatanja kategorije.');
+            }
+        }
+
+        // Funkcija za popunjavanje forme za izmenu
+        function editCategory(category) {
+            document.getElementById('seq-num').value = category.seqNum;
+            document.getElementById('priority').value = category.priority;
+            document.getElementById('rule').value = category.rule;
+            document.getElementById('response').value = category.response;
+            document.getElementById('tags').value = category.tags;
+            alert(`Učitani podaci za izmenu kategorije sa rednim brojem: ${category.seqNum}`);
+        }
+
+        // Funkcija za brisanje kategorije
+        async function deleteCategory(seqNum) {
+            if (confirm(`Da li ste sigurni da želite da obrišete kategoriju sa rednim brojem ${seqNum}?`)) {
+                try {
+                    // Pretpostavimo da deleteCategoryRequest postoji u scriptd.js
+                    await deleteCategoryRequest(seqNum);
+                    alert(`Kategorija sa rednim brojem ${seqNum} je obrisana.`);
+                    fetchCategories(); // Ponovo dohvati i prikaži kategorije
+                } catch (error) {
+                    console.error('Greška pri brisanju kategorije:', error);
+                    alert('Došlo je do greške prilikom brisanja kategorije.');
+                }
+            }
+        }
+
+        // Dodato za Google Sign-In init
+        function initClient() {
+            gapi.client.init({
+                clientId: '252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com',
+                scope: 'email profile'
+            }).then(() => {
+                // Slušaj promene statusa prijave
+                gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
+                // Inicijalno proveri status
+                updateSignInStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+            });
+        }
+
+        function updateSignInStatus(isSignedIn) {
+            if (isSignedIn) {
+                const profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
+                const email = profile.getEmail();
+                document.getElementById('user-email').textContent = email;
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('main-section').style.display = 'flex'; // Koristi flex za layout
+                // Nakon prijave, dohvati podatke
+                fetchUserSettings();
+                fetchCategories();
+            } else {
+                document.getElementById('main-section').style.display = 'none';
+                document.getElementById('login-section').style.display = 'flex';
+                document.getElementById('user-email').textContent = '';
+            }
+        }
+
+        // Google API client load
+        gapi.load('client:auth2', initClient);
+    </script>
 </body>
 </html>
