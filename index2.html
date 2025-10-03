@@ -3,147 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stranica sa sidebarom</title>
-    <style>
-        body { margin:0; font-family: Arial, sans-serif; }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed; left:0; top:0; width:250px; height:100%;
-            background-color:#ffffff; color:#333333; padding-top:60px; padding-left: 10px;
-            transition: transform 0.3s ease; z-index:1002; overflow-y:auto;
-        }
-        .sidebar a {
-            display:block; color:#333333; padding:15px 20px; text-decoration:none;
-            transition: background 0.3s; font-size: 1.5em; font-weight: 700;
-        }
-        .sidebar a:hover { background-color: #E0E0E0; }
-
-        /* Glavni sadržaj */
-        #main {
-            margin-left:250px;
-            transition: margin-left 0.3s ease; 
-        }
-
-        .sidebar.desktop-closed { transform: translateX(-250px); }
-        body.desktop-sidebar-closed #main { margin-left:0; }
-
-        section {
-            min-height:60vh; display:flex; flex-direction:column;
-            justify-content:flex-start; align-items:center; font-size:2em;
-            padding:20px; text-align:center;
-        }
-        section p { font-size:1em; margin-top:10px; }
-
-        /* Scroll to top button */
-        #topBtn {
-            display:none; position:fixed; top:20px; right:30px; z-index:1004;
-            font-size:16px; padding:10px 15px; background-color:#888; color:white;
-            border:none; border-radius:5px; cursor:pointer; transition:background-color 0.3s;
-        }
-        #topBtn:hover { background-color:#007BFF; }
-
-        /* Toggle sidebar */
-        #toggleBtn {
-            display:block; position:fixed; top:15px; left:15px; font-size:24px;
-            background:none; border:none; color:#333; cursor:pointer; z-index:1005;
-        }
-
-        @media screen and (max-width:768px) {
-            .sidebar { transform: translateX(-250px); }
-            .sidebar.mobile-open { transform: translateX(0); }
-            #main { margin-left:0; }
-        }
-    </style>
+    <title>Botanica Dashboard</title>
+    <!-- Google prijava skripta -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Font Awesome za ikone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts - Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Naš CSS fajl -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="sidebar" class="sidebar"></div>
-    
-    <div id="main">
-        <button id="toggleBtn">☰</button>
-        <div id="sections"></div>
+    <div id="app-container">
+        <!-- Sekcija za prijavu putem Google-a -->
+        <div id="login-section" class="auth-card">
+            <img src="https://via.placeholder.com/150/0000FF/FFFFFF?text=Botanica+Logo" alt="Botanica Logo" class="app-logo">
+            <h2>Dobrodošli u Botanica Dashboard</h2>
+            <p>Molimo prijavite se putem Google naloga za pristup.</p>
+            <div id="g_id_onload"
+                 data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse">
+            </div>
+            <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signin_with" data-shape="rectangular" data-logo_alignment="left"></div>
+        </div>
+
+        <!-- Glavna sekcija aplikacije, prikazuje se tek nakon uspešne prijave -->
+        <div id="main-section" class="dashboard-layout" style="display:none;">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <img src="https://via.placeholder.com/50/0000FF/FFFFFF?text=B" alt="Botanica Icon" class="sidebar-logo">
+                    <h3>Botanica Admin</h3>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li class="nav-item active" onclick="showSection('user-settings-tab')">
+                            <i class="fas fa-cog"></i> Korisnička podešavanja
+                        </li>
+                        <li class="nav-item" onclick="showSection('categories-tab')">
+                            <i class="fas fa-list-alt"></i> Upravljanje kategorijama
+                        </li>
+                        <li class="nav-item" onclick="showSection('logs-tab')">
+                            <i class="fas fa-file-alt"></i> Logovi
+                        </li>
+                    </ul>
+                </nav>
+                <div class="sidebar-footer">
+                    <p>Prijavljen: <span id="user-email"></span></p>
+                    <button class="btn btn-logout" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Odjavi se</button>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <header class="navbar">
+                    <h1>Dashboard</h1>
+                    <div class="navbar-actions">
+                        <button class="btn btn-icon"><i class="fas fa-bell"></i></button>
+                        <button class="btn btn-icon"><i class="fas fa-user-circle"></i></button>
+                    </div>
+                </header>
+
+                <div id="user-settings-tab" class="tab-content active">
+                    <div class="card">
+                        <h3><i class="fas fa-cog"></i> Korisnička podešavanja</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="discord-token">Discord Token</label>
+                                <input type="text" id="discord-token" placeholder="Unesite Discord Token">
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="is-checkbox">
+                                <label for="is-checkbox">Aktivno polje</label>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="general-response">Generalni odgovor</label>
+                                <textarea id="general-response" placeholder="Unesite generalni odgovor..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="user-rule">Pravilo</label>
+                                <select id="user-rule">
+                                    <option value="">-- Izaberi pravilo --</option>
+                                    <option value="A">Pravilo A</option>
+                                    <option value="B">Pravilo B</option>
+                                    <option value="C">Pravilo C</option>
+                                    <option value="D">Pravilo D</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="user-client-email">Email klijenta (opciono)</label>
+                                <input type="email" id="user-client-email" placeholder="client@example.com">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="saveUserSettings()"><i class="fas fa-save"></i> Sačuvaj podešavanja</button>
+                            <button class="btn btn-secondary" onclick="fetchUserSettings()"><i class="fas fa-sync-alt"></i> Dohvati podešavanja</button>
+                        </div>
+                        <div class="data-display mt-3">
+                            <h4>Trenutna podešavanja</h4>
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Discord Token</th>
+                                            <th>Aktivno</th>
+                                            <th>Generalni Odgovor</th>
+                                            <th>Pravilo</th>
+                                            <th>Email Klijenta</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="user-settings-table-body">
+                                        <!-- Podaci će se ovde dinamički učitavati -->
+                                        <tr><td colspan="5" class="text-center">Nema podataka za prikaz.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="categories-tab" class="tab-content">
+                    <div class="card">
+                        <h3><i class="fas fa-list-alt"></i> Upravljanje kategorijama</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="seq-num">Redni broj (1-99)</label>
+                                <input type="number" id="seq-num" placeholder="npr. 15" min="1" max="99">
+                            </div>
+                            <div class="form-group">
+                                <label for="priority">Prioritet (0-9)</label>
+                                <input type="number" id="priority" placeholder="npr. 5" min="0" max="9">
+                            </div>
+                            <div class="form-group">
+                                <label for="rule">Pravilo</label>
+                                <select id="rule">
+                                    <option value="A">Pravilo A</option>
+                                    <option value="B">Pravilo B</option>
+                                    <option value="C">Pravilo C</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="response">Odgovor</label>
+                                <textarea id="response" placeholder="Unesite odgovor za kategoriju..."></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="tags">Tagovi (razdvojeni zarezom)</label>
+                                <input type="text" id="tags" placeholder='npr. cveće, bašta, proleće'>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" onclick="saveCategory()"><i class="fas fa-save"></i> Sačuvaj kategoriju</button>
+                            <button class="btn btn-secondary" onclick="fetchCategories()"><i class="fas fa-sync-alt"></i> Dohvati kategorije</button>
+                            <button class="btn btn-info" onclick="populateCategoryFields()"><i class="fas fa-magic"></i> Popuni po rednom broju</button>
+                        </div>
+                        <div class="data-display mt-3">
+                            <h4>Postojeće kategorije</h4>
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Redni broj</th>
+                                            <th>Prioritet</th>
+                                            <th>Pravilo</th>
+                                            <th>Odgovor</th>
+                                            <th>Tagovi</th>
+                                            <th>Akcije</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="categories-table-body">
+                                        <!-- Podaci će se ovde dinamički učitavati -->
+                                        <tr><td colspan="6" class="text-center">Nema podataka za prikaz.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="logs-tab" class="tab-content">
+                    <div class="card">
+                        <h3><i class="fas fa-file-alt"></i> Logovi sistema</h3>
+                        <p>Ovde bi se prikazivali logovi sistema.</p>
+                        <pre id="logs-output" class="code-block">Nema logova za prikaz.</pre>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
 
-    <button id="topBtn" onclick="scrollToTop()">Botanica</button>
-
-    <script>
-        const toggleBtn = document.getElementById('toggleBtn');
-        const sidebar = document.getElementById('sidebar');
-        const sectionsContainer = document.getElementById('sections');
-        const body = document.body;
-
-        function toggleSidebar() {
-            if (window.innerWidth > 768) {
-                sidebar.classList.toggle('desktop-closed');
-                body.classList.toggle('desktop-sidebar-closed');
-            } else {
-                sidebar.classList.toggle('mobile-open');
-            }
-        }
-        toggleBtn.addEventListener('click', toggleSidebar);
-
-        function setSidebarState() {
-            if (window.innerWidth > 768) {
-                sidebar.classList.remove('desktop-closed');
-                body.classList.remove('desktop-sidebar-closed');
-                sidebar.classList.remove('mobile-open');
-            } else {
-                sidebar.classList.remove('mobile-open');
-                sidebar.classList.remove('desktop-closed');
-                body.classList.remove('desktop-sidebar-closed');
-            }
-        }
-        window.addEventListener('load', setSidebarState);
-        window.addEventListener('resize', setSidebarState);
-
-        const topBtn = document.getElementById("topBtn");
-        window.onscroll = () => topBtn.style.display = (document.documentElement.scrollTop > 200) ? "block" : "none";
-        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-
-        // Učitavanje sekcija sa JSON fajla
-        fetch("content.json")
-            .then(res => res.ok ? res.json() : Promise.reject("Greška u učitavanju JSON-a"))
-            .then(data => {
-                sidebar.innerHTML = ""; 
-                sectionsContainer.innerHTML = "";
-                let i = 0;
-                for(let key in data) {
-                    i++;
-                    const item = data[key];
-
-                    const link = document.createElement("a");
-                    link.dataset.target = key;
-                    link.textContent = item.title;
-                    link.addEventListener("click", e => {
-                        e.preventDefault();
-                        const sec = document.getElementById(key);
-                        if(sec) sec.scrollIntoView({behavior:"smooth"});
-                        if(window.innerWidth <= 768) sidebar.classList.remove('mobile-open');
-                    });
-                    sidebar.appendChild(link);
-
-                    const section = document.createElement("section");
-                    section.id = key;
-                    section.style.backgroundColor = item.bgColor || (i%2===0?"#F5F5F5":"#FFFFFF");
-                    section.style.color = "#333333";
-                    section.innerHTML = item.content || "";
-                    sectionsContainer.appendChild(section);
-                }
-
-                // Hardkodirani link ispod dinamickih linkova
-                const managerLink = document.createElement("a");
-                managerLink.href = "manager";
-                managerLink.textContent = "Manager";
-                sidebar.appendChild(managerLink);
-            })
-            .catch(err => console.error(err));
-    </script>
-
-    <!-- Chat widget iframe -->
-    <iframe 
-      src="https://cibulskia.github.io/bot/chat_widget?site=botanica"  
-      style="position: fixed; bottom: 0; right: 0; width: 100%; max-width: 400px; height: 600px; border: none; z-index: 9999;"
-      scrolling="no"
-    ></iframe>
+    <!-- Naš JavaScript fajl (mora biti nakon DOM elemenata koje manipuliše) -->
+    <script src="script.js"></script>
 </body>
 </html>
