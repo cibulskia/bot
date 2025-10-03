@@ -2,276 +2,73 @@
 <html lang="sr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Botanica Demo - Modern</title>
+<title>Botanica Demo</title>
+<!-- Skripta za Google prijavu, asinhrono učitavanje -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-    :root {
-        --primary-color: #4CAF50; /* Zelena */
-        --secondary-color: #8BC34A; /* Svetlo zelena */
-        --accent-color: #FFC107; /* Žuta */
-        --text-color: #333;
-        --light-text-color: #666;
-        --bg-color: #f4f7f6;
-        --card-bg: #ffffff;
-        --border-color: #e0e0e0;
-        --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        --border-radius: 8px;
-    }
-
-    body {
-        font-family: 'Poppins', sans-serif;
-        margin: 0;
-        padding: 20px;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        line-height: 1.6;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        min-height: 100vh;
-        box-sizing: border-box;
-    }
-
-    h2 {
-        text-align: center;
-        color: var(--primary-color);
-        margin-bottom: 30px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
-
-    #app-container {
-        background-color: var(--card-bg);
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow);
-        padding: 30px 40px;
-        width: 100%;
-        max-width: 800px;
-        box-sizing: border-box;
-    }
-
-    #login-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 50px 0;
-    }
-
-    #main-section {
-        display: flex;
-        flex-direction: column;
-        gap: 25px;
-    }
-
-    fieldset {
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        padding: 25px;
-        margin: 0;
-        background-color: var(--card-bg);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-    }
-
-    fieldset:hover {
-        border-color: var(--primary-color);
-        box-shadow: var(--shadow);
-    }
-
-    legend {
-        font-weight: 600;
-        color: var(--primary-color);
-        padding: 0 10px;
-        margin-left: -10px; /* Adjust based on padding */
-    }
-
-    input[type="text"],
-    input[type="number"],
-    textarea,
-    select {
-        width: calc(100% - 20px);
-        padding: 12px;
-        margin-bottom: 15px;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        font-size: 1rem;
-        color: var(--text-color);
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        box-sizing: border-box;
-    }
-
-    input[type="text"]:focus,
-    input[type="number"]:focus,
-    textarea:focus,
-    select:focus {
-        border-color: var(--primary-color);
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
-    }
-
-    textarea {
-        resize: vertical;
-        min-height: 80px;
-    }
-
-    button {
-        background-color: var(--primary-color);
-        color: white;
-        padding: 12px 20px;
-        border: none;
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-        margin-right: 10px;
-        margin-bottom: 10px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    button:hover {
-        background-color: var(--secondary-color);
-        transform: translateY(-2px);
-    }
-
-    button:active {
-        background-color: #388E3C; /* Tamnija zelena */
-        transform: translateY(0);
-    }
-
-    label {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-        color: var(--light-text-color);
-        font-size: 0.95rem;
-    }
-
-    input[type="checkbox"] {
-        width: auto;
-        margin-right: 10px;
-        transform: scale(1.2);
-        accent-color: var(--primary-color); /* Modern checkbox styling */
-    }
-
-    pre {
-        background-color: var(--bg-color);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        padding: 15px;
-        margin-top: 15px;
-        white-space: pre-wrap;
-        word-break: break-all;
-        font-family: 'Consolas', 'Monaco', monospace;
-        font-size: 0.9em;
-        color: var(--light-text-color);
-        max-height: 200px;
-        overflow-y: auto;
-    }
-
-    #user-email {
-        font-weight: 600;
-        color: var(--primary-color);
-    }
-
-    .form-row {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 15px;
-    }
-
-    .form-row > * {
-        flex: 1;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        body {
-            padding: 15px;
-        }
-        #app-container {
-            padding: 20px 25px;
-        }
-        .form-row {
-            flex-direction: column;
-            gap: 0;
-        }
-        input, select, button, textarea {
-            width: 100%;
-            margin-right: 0;
-        }
-        button {
-            margin-right: 0;
-            margin-bottom: 10px;
-        }
-    }
+    /* Osnovni stilovi za telo stranice, inpute, dugmad itd. */
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, select, button, textarea { margin: 5px 0; width: 100%; }
+    fieldset { margin-bottom: 15px; }
 </style>
 </head>
 <body>
-<div id="app-container">
-    <h2>Botanica Demo</h2>
+<h2>Botanica Demo</h2>
 
-    <div id="login-section">
-        <p style="text-align:center; margin-bottom: 20px; color: var(--light-text-color);">Molimo prijavite se da biste nastavili.</p>
-        <div id="g_id_onload"
-             data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse">
-        </div>
-        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signin_with" data-shape="rectangular"></div>
+<!-- Sekcija za prijavu putem Google-a -->
+<div id="login-section">
+    <!-- Google prijava komponenta -->
+    <div id="g_id_onload"
+         data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
     </div>
-
-    <div id="main-section" style="display:none;">
-        <p>Prijavljen kao: <span id="user-email"></span></p>
-
-        <fieldset>
-            <legend>Upravljanje Kategorijama</legend>
-            <div class="form-row">
-                <input type="number" id="seq-num" placeholder="Redni broj (1-99)">
-                <input type="number" id="priority" placeholder="Prioritet (0-9)">
-                <select id="rule">
-                    <option value="A">Pravilo A</option>
-                    <option value="B">Pravilo B</option>
-                    <option value="C">Pravilo C</option>
-                </select>
-            </div>
-            <textarea id="response" placeholder="Unesite odgovor ovde..."></textarea>
-            <input type="text" id="tags" placeholder='Tagovi (razdvojeni zarezom, npr. cvet, drvo, voda)'>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
-                <button onclick="saveCategory()">Sačuvaj kategoriju</button>
-                <button onclick="fetchCategories()">Učitaj kategorije</button>
-            </div>
-            <pre id="categories-output"></pre>
-        </fieldset>
-
-        <fieldset>
-            <legend>Korisnička Podešavanja</legend>
-            <input type="text" id="discord-token" placeholder="Discord Token">
-            <label>
-                <input type="checkbox" id="is-checkbox"> Omogući funkciju
-            </label>
-            <textarea id="general-response" placeholder="Unesite generalni odgovor ovde..."></textarea>
-            <div class="form-row">
-                <select id="user-rule">
-                    <option value="">-- Izaberi pravilo --</option>
-                    <option value="A">Pravilo A</option>
-                    <option value="B">Pravilo B</option>
-                    <option value="C">Pravilo C</option>
-                    <option value="D">Pravilo D</option>
-                </select>
-                <input type="text" id="user-client-email" placeholder="Email klijenta (opciono)">
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
-                <button onclick="saveUserSettings()">Sačuvaj podešavanja</button>
-                <button onclick="fetchUserSettings()">Učitaj podešavanja</button>
-            </div>
-            <pre id="user-settings-output"></pre>
-        </fieldset>
-    </div>
+    <div class="g_id_signin" data-type="standard"></div>
 </div>
 
+<!-- Glavna sekcija aplikacije, prikazuje se tek nakon uspešne prijave -->
+<div id="main-section" style="display:none;">
+    <p>Prijavljen korisnik: <span id="user-email"></span></p>
+
+    <!-- Fieldset za upravljanje korisničkim podešavanjima -->
+    <fieldset>
+        <legend>Korisnička podešavanja</legend>
+        <input type="text" id="discord-token" placeholder="Discord Token">
+        <label>
+            <input type="checkbox" id="is-checkbox"> Označeno polje
+        </label>
+        <textarea id="general-response" placeholder="Generalni odgovor"></textarea>
+        <select id="user-rule">
+            <option value="">--Izaberi pravilo--</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+        </select>
+        <input type="text" id="user-client-email" placeholder="Email klijenta (opciono)">
+        <button onclick="saveUserSettings()">Sačuvaj podešavanja</button>
+        <button onclick="fetchUserSettings()">Dohvati podešavanja</button>
+        <pre id="user-settings-output"></pre>
+    </fieldset>
+
+    <!-- Fieldset za upravljanje kategorijama -->
+    <fieldset>
+        <legend>Kategorija</legend>
+        <input type="number" id="seq-num" placeholder="Redni broj (1-99)">
+        <input type="number" id="priority" placeholder="Prioritet (0-9)">
+        <select id="rule">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+        </select>
+        <textarea id="response" placeholder="Odgovor"></textarea>
+        <input type="text" id="tags" placeholder='Tagovi (razdvojeni zarezom)'>
+        <button onclick="saveCategory()">Sačuvaj kategoriju</button>
+        <button onclick="fetchCategories()">Dohvati kategorije</button>
+        <pre id="categories-output"></pre>
+    </fieldset>
+</div>
+
+<!-- Link ka eksternom JavaScript fajlu -->
 <script src="scriptd.js"></script>
 </body>
 </html>
