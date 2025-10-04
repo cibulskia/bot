@@ -1,210 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sigurno Dugme sa Google Autentifikacijom</title>
-
-<meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' https://accounts.google.com https://unpkg.com;
-        connect-src 'self' https://accounts.google.com https://botanica.ngrok.app;
-        frame-src https://accounts.google.com;
-        img-src 'self' https://ssl.gstatic.com;
-        style-src 'self' 'unsafe-inline' https://accounts.google.com; /* DODATO OVDE */
-    ">
-
-    <!-- Google Sign-In biblioteka -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- Biblioteka za dekodiranje JWT-a na klijentu (samo za prikaz, ne za sigurnosne provere) -->
-    <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
-
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f4f4f4;
-            margin: 0;
-            color: #333;
-        }
-        .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-        h1 {
-            color: #007bff;
-            margin-bottom: 25px;
-        }
-        #login-status {
-            margin-bottom: 20px;
-            font-weight: bold;
-            color: #555;
-        }
-        #g_id_onload, #g_id_signin {
-            margin-bottom: 20px;
-        }
-        #secureButton {
-            background-color: #28a745;
-            color: white;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-        #secureButton:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        #secureButton:hover:enabled {
-            background-color: #218838;
-        }
-        #response-message {
-            margin-top: 25px;
-            font-weight: bold;
-            color: #007bff;
-            min-height: 20px;
-        }
-        .error-message {
-            color: #dc3545;
-        }
-        .success-message {
-            color: #28a745;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sigurno dugme</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Sigurno Dugme</h1>
+<button id="secureButton" disabled>Pristisni dugme</button>
 
-        <!-- Google One Tap / Automatski login -->
-        <div id="g_id_onload"
-             data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse"
-             data-auto_select="false"
-             data-cancel_on_tap_outside="false">
-        </div>
+<script>
+const CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com";
+let googleToken = null;
 
-        <!-- Google Sign-In dugme (ako auto_select ne uspe ili korisnik klikne) -->
-        <div class="g_id_signin"
-             data-type="standard"
-             data-size="large"
-             data-theme="outline"
-             data-text="sign_in_with"
-             data-shape="rectangular"
-             data-logo_alignment="left">
-        </div>
+// Inicijalizacija Google One Tap / autologin
+window.onload = () => {
+    google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        auto_select: true,
+        callback: handleCredentialResponse
+    });
+    google.accounts.id.prompt(); // prikazuje prompt ako nije ulogovan
+};
 
-        <p id="login-status">Niste ulogovani.</p>
-        <button id="secureButton" disabled>Pritisni Sigurno Dugme</button>
-        <p id="response-message"></p>
-    </div>
+function handleCredentialResponse(response) {
+    // response.credential je ID token
+    googleToken = response.credential;
+    document.getElementById("secureButton").disabled = false;
+}
 
-    <script>
-        // --- KONFIGURACIJA (DIREKTNO U KODU) ---
-        // Adresa vašeg ngrok tunela
-        const BACKEND_URL = "https://botanica.ngrok.app";
-        // --- KRAJ KONFIGURACIJE ---
-        
-        let googleIdToken = null;
-        let currentUserEmail = null;
+// Dugme
+document.getElementById("secureButton").addEventListener("click", async () => {
+    if (!googleToken) return alert("Niste ulogovani");
 
-        const secureButton = document.getElementById('secureButton');
-        const loginStatus = document.getElementById('login-status');
-        const responseMessage = document.getElementById('response-message');
-
-        function updateLoginStatus() {
-            if (googleIdToken && currentUserEmail) {
-                loginStatus.textContent = `Ulogovani ste kao: ${currentUserEmail}`;
-                secureButton.disabled = false;
-            } else {
-                loginStatus.textContent = 'Niste ulogovani.';
-                secureButton.disabled = true;
-                responseMessage.textContent = '';
-            }
-        }
-
-        window.handleCredentialResponse = (response) => {
-            if (response.credential) {
-                googleIdToken = response.credential;
-                try {
-                    const decodedToken = jwt_decode(googleIdToken);
-                    currentUserEmail = decodedToken.email;
-                    console.log("Korisnik ulogovan:", decodedToken.email);
-                    responseMessage.className = '';
-                } catch (error) {
-                    console.error("Greška pri dekodiranju tokena na klijentu:", error);
-                    googleIdToken = null;
-                    currentUserEmail = null;
-                    responseMessage.textContent = "Greška pri obradi prijave.";
-                    responseMessage.classList.add('error-message');
-                }
-            } else {
-                googleIdToken = null;
-                currentUserEmail = null;
-                console.warn("Nije primljen Google ID token.");
-            }
-            updateLoginStatus();
-        };
-
-        secureButton.addEventListener('click', async () => {
-            if (!googleIdToken) {
-                alert("Niste ulogovani. Molimo ulogujte se putem Google-a.");
-                return;
-            }
-
-            secureButton.disabled = true;
-            responseMessage.textContent = "Slanje zahteva...";
-            responseMessage.className = '';
-
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/button-press`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ id_token: googleIdToken })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    responseMessage.textContent = `Backend odgovor: ${data.message} (Korisnik: ${data.user_email})`;
-                    responseMessage.classList.add('success-message');
-                    console.log("Uspešan odgovor od backenda:", data);
-                } else {
-                    responseMessage.textContent = `Greška sa backenda: ${data.message}`;
-                    responseMessage.classList.add('error-message');
-                    console.error("Greška sa backenda:", data);
-
-                    if (response.status === 401) {
-                        googleIdToken = null;
-                        currentUserEmail = null;
-                        alert("Sesija je istekla ili je token nevažeći. Molimo ulogujte se ponovo.");
-                    }
-                }
-            } catch (error) {
-                responseMessage.textContent = `Došlo je do mrežne greške: ${error.message}`;
-                responseMessage.classList.add('error-message');
-                console.error("Mrežna greška:", error);
-            } finally {
-                updateLoginStatus();
+    try {
+        const res = await fetch("https://botanica.ngrok.app/click", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${googleToken}`,
+                "Content-Type": "application/json"
             }
         });
-
-        document.addEventListener('DOMContentLoaded', updateLoginStatus);
-    </script>
+        const data = await res.json();
+        alert(data.message || data.error);
+    } catch (err) {
+        console.error(err);
+        alert("Greška pri komunikaciji sa serverom");
+    }
+});
+</script>
 </body>
 </html>
