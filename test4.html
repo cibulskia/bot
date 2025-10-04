@@ -3,111 +3,231 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sigurno Dugme</title>
+<title>Sigurno Dugme i Kategorije</title>
 <meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-    body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #f0f2f5; }
-    button {
-        padding: 15px 30px;
-        font-size: 18px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-    button:disabled {
-        background-color: #cccccc;
-        cursor: not-allowed;
-    }
-    button:hover:enabled {
-        background-color: #0056b3;
-        transform: translateY(-2px);
-    }
-    #statusMessage {
-        margin-top: 20px;
-        font-size: 14px;
-        color: #333;
-    }
-    #g_id_onload { /* Skrivanje Google One Tap okvira dok se ne pripremi */
-        display: none;
-    }
+    body { font-family: sans-serif; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 20px; background-color: #f0f2f5; }
+    .container { max-width: 800px; width: 100%; }
+    button { padding: 10px 20px; margin: 5px; font-size: 14px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.3s ease, transform 0.2s ease; }
+    button:disabled { background-color: #cccccc; cursor: not-allowed; }
+    button:hover:enabled { background-color: #0056b3; transform: translateY(-2px); }
+    #statusMessage { margin-top: 10px; font-size: 14px; color: #333; }
+    input, select { margin: 3px; }
+    .section { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background-color: white; }
+    .subcategory-item { display: flex; align-items: center; justify-content: space-between; margin: 5px 0; }
 </style>
 </head>
 <body>
-    <div>
-        <div id="g_id_onload"
-             data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse"
-             data-auto_select="true"
-             data-ux_mode="popup">
-        </div>
+<div class="container">
+    <div id="g_id_onload"
+         data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse"
+         data-auto_select="true"
+         data-ux_mode="popup">
+    </div>
+
+    <div class="section">
+        <h3>Kategorija</h3>
+        <label>Checkbox 1: <input type="checkbox" id="cat_checkbox1"></label>
+        <label>Checkbox 2: <input type="checkbox" id="cat_checkbox2"></label>
+        <label>Checkbox 3: <input type="checkbox" id="cat_checkbox3"></label>
+        <label>Checkbox 4: <input type="checkbox" id="cat_checkbox4"></label><br>
+        <label>Select 1: <select id="cat_select1"><option value="">--Izaberi--</option></select></label>
+        <label>Select 2: <select id="cat_select2"><option value="">--Izaberi--</option></select></label>
+        <label>Select 3: <select id="cat_select3"><option value="">--Izaberi--</option></select></label><br>
+        <label>Text 1: <input type="text" id="cat_text1"></label>
+        <label>Text 2: <input type="text" id="cat_text2"></label><br>
+        <button id="loadCategory">Učitaj kategoriju</button>
+        <button id="updateCategory">Ažuriraj kategoriju</button>
+        <button id="deleteCategory">Obriši kategoriju</button>
+    </div>
+
+    <div class="section">
+        <h3>Podkategorije</h3>
+        <input type="text" id="newSubName" placeholder="Ime nove podkategorije">
+        <button id="createSubcategory">Kreiraj podkategoriju</button>
+        <div id="subcategoriesList"></div>
+    </div>
+
+    <div class="section">
+        <h3>Sigurno Dugme</h3>
         <button id="secureButton" disabled>Pritisni dugme</button>
         <p id="statusMessage"></p>
     </div>
+</div>
 
 <script>
-const CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com";
+const API_BASE = "https://botanica.ngrok.app";
 let googleToken = null;
+
+// Kategorija elementi
+const cat_checkbox1 = document.getElementById("cat_checkbox1");
+const cat_checkbox2 = document.getElementById("cat_checkbox2");
+const cat_checkbox3 = document.getElementById("cat_checkbox3");
+const cat_checkbox4 = document.getElementById("cat_checkbox4");
+const cat_select1 = document.getElementById("cat_select1");
+const cat_select2 = document.getElementById("cat_select2");
+const cat_select3 = document.getElementById("cat_select3");
+const cat_text1 = document.getElementById("cat_text1");
+const cat_text2 = document.getElementById("cat_text2");
+
+// Dugmad
 const secureButton = document.getElementById("secureButton");
 const statusMessage = document.getElementById("statusMessage");
+const loadCategoryBtn = document.getElementById("loadCategory");
+const updateCategoryBtn = document.getElementById("updateCategory");
+const deleteCategoryBtn = document.getElementById("deleteCategory");
+const createSubBtn = document.getElementById("createSubcategory");
+const subNameInput = document.getElementById("newSubName");
+const subListDiv = document.getElementById("subcategoriesList");
 
-// Globalna funkcija za Google callback
+// Popuniti dropdown primerima
+["Opcija 1","Opcija 2","Opcija 3"].forEach(opt => {
+    [cat_select1, cat_select2, cat_select3].forEach(sel => {
+        const o = document.createElement("option");
+        o.value = opt; o.textContent = opt; sel.appendChild(o);
+    });
+});
+
+// --- Google One Tap ---
 window.handleCredentialResponse = (response) => {
     if (response.credential) {
         googleToken = response.credential;
         secureButton.disabled = false;
-        statusMessage.textContent = "Uspesno ulogovani! Sada možete pritisnuti dugme.";
+        statusMessage.textContent = "Uspesno ulogovani!";
     } else {
-        statusMessage.textContent = "Prijava putem Google-a nije uspela ili je otkazana.";
+        statusMessage.textContent = "Google prijava nije uspela.";
         secureButton.disabled = true;
     }
 };
 
-// Prikazivanje Google One Tap prompta nakon učitavanja skripte
-// google.accounts.id.prompt() se automatski poziva preko data-auto_select i data-ux_mode
-// u <div id="g_id_onload">
-window.onload = () => {
-    if (!googleToken) {
-        statusMessage.textContent = "Čekam Google prijavu...";
-    }
-};
-
-secureButton.addEventListener("click", async () => {
-    if (!googleToken) {
-        statusMessage.textContent = "Greška: Niste ulogovani. Molimo pokušajte ponovo.";
-        // Možete ovde ponovo pozvati google.accounts.id.prompt() ako želite
-        google.accounts.id.prompt();
-        return;
-    }
-
-    secureButton.disabled = true; // Onemogući dugme tokom slanja zahteva
-    statusMessage.textContent = "Šaljem zahtev...";
-
-    try {
-        const res = await fetch("https://botanica.ngrok.app/click", {
-            method: "POST",
+// --- Helper za API zahteve ---
+async function apiFetch(endpoint, method="GET", body=null){
+    if(!googleToken) { statusMessage.textContent="Niste ulogovani!"; return null; }
+    try{
+        const res = await fetch(API_BASE + endpoint, {
+            method,
             headers: {
                 "Authorization": `Bearer ${googleToken}`,
                 "Content-Type": "application/json"
-            }
+            },
+            body: body ? JSON.stringify(body) : null
         });
-
         const data = await res.json();
-        if (res.ok) {
-            statusMessage.textContent = `Uspeh: ${data.message}`;
-        } else {
-            statusMessage.textContent = `Greška: ${data.error || "Nepoznata greška"}`;
-        }
-    } catch (err) {
-        console.error("Greška pri komunikaciji sa serverom:", err);
-        statusMessage.textContent = "Greška: Nije moguće komunicirati sa serverom.";
-    } finally {
-        secureButton.disabled = false; // Ponovo omogući dugme nakon završetka
+        if(!res.ok) { statusMessage.textContent = data.error || JSON.stringify(data); return null; }
+        return data;
+    } catch(err){
+        console.error(err);
+        statusMessage.textContent = "Greška pri komunikaciji sa serverom.";
+        return null;
+    }
+}
+
+// --- Sigurno dugme ---
+secureButton.addEventListener("click", async () => {
+    secureButton.disabled = true;
+    statusMessage.textContent = "Šaljem zahtev...";
+    const data = await apiFetch("/click", "POST");
+    if(data) statusMessage.textContent = `Uspeh: ${data.message}`;
+    secureButton.disabled = false;
+});
+
+// --- Kategorija CRUD ---
+loadCategoryBtn.addEventListener("click", async () => {
+    const data = await apiFetch("/category/load");
+    if(data){
+        cat_checkbox1.checked = !!data.checkbox1;
+        cat_checkbox2.checked = !!data.checkbox2;
+        cat_checkbox3.checked = !!data.checkbox3;
+        cat_checkbox4.checked = !!data.checkbox4;
+        cat_select1.value = data.select1 || "";
+        cat_select2.value = data.select2 || "";
+        cat_select3.value = data.select3 || "";
+        cat_text1.value = data.text1 || "";
+        cat_text2.value = data.text2 || "";
+        statusMessage.textContent = "Kategorija učitana!";
     }
 });
+
+updateCategoryBtn.addEventListener("click", async () => {
+    const body = {
+        checkbox1: cat_checkbox1.checked ? 1 : 0,
+        checkbox2: cat_checkbox2.checked ? 1 : 0,
+        checkbox3: cat_checkbox3.checked ? 1 : 0,
+        checkbox4: cat_checkbox4.checked ? 1 : 0,
+        select1: cat_select1.value,
+        select2: cat_select2.value,
+        select3: cat_select3.value,
+        text1: cat_text1.value,
+        text2: cat_text2.value
+    };
+    const data = await apiFetch("/category/update", "POST", body);
+    if(data) statusMessage.textContent = data.message;
+});
+
+deleteCategoryBtn.addEventListener("click", async () => {
+    if(!confirm("Obrisati kategoriju i sve podkategorije?")) return;
+    const data = await apiFetch("/category/delete", "DELETE");
+    if(data){
+        statusMessage.textContent = data.message;
+        subListDiv.innerHTML = "";
+    }
+});
+
+// --- Podkategorije ---
+async function refreshSubcategories(){
+    const data = await apiFetch("/subcategory/list");
+    if(data){
+        subListDiv.innerHTML = "";
+        data.forEach(sub => {
+            const div = document.createElement("div");
+            div.className = "subcategory-item";
+            div.innerHTML = `
+                <span>${sub.name}</span>
+                <span>
+                    <button onclick="editSub(${sub.id})">Edit</button>
+                    <button onclick="deleteSub(${sub.id})">Delete</button>
+                </span>
+            `;
+            subListDiv.appendChild(div);
+        });
+    }
+}
+
+createSubBtn.addEventListener("click", async () => {
+    if(!subNameInput.value) return alert("Unesite ime podkategorije");
+    const body = { name: subNameInput.value };
+    const data = await apiFetch("/subcategory/create", "POST", body);
+    if(data){
+        statusMessage.textContent = data.message;
+        subNameInput.value = "";
+        refreshSubcategories();
+    }
+});
+
+window.editSub = async (id) => {
+    const data = await apiFetch("/subcategory/list");
+    if(!data) return;
+    const sub = data.find(s => s.id === id);
+    if(!sub) return alert("Podkategorija ne postoji");
+    // Simple prompt edit (može se zameniti formom)
+    const newName = prompt("Novo ime podkategorije:", sub.name);
+    if(newName){
+        await apiFetch(`/subcategory/update/${id}`, "POST", { ...sub, name:newName });
+        refreshSubcategories();
+    }
+};
+
+window.deleteSub = async (id) => {
+    if(!confirm("Obrisati podkategoriju?")) return;
+    const data = await apiFetch(`/subcategory/delete/${id}`, "DELETE");
+    if(data) refreshSubcategories();
+};
+
+// Auto refresh podkategorija
+setInterval(refreshSubcategories, 5000);
 </script>
 </body>
 </html>
+
