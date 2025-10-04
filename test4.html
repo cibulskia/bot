@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sigurno Dugme</title>
-    <!-- VAŽNO: Content Security Policy - Iako meta tag ima ograničen efekat, dobar je početak.
-         Za punu sigurnost, CSP zaglavlja bi trebala biti postavljena na serveru. -->
+    <title>Sigurno Dugme sa Google Autentifikacijom</title>
+
+    <!-- Content Security Policy -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' https://accounts.google.com https://unpkg.com;
-        connect-src 'self' https://accounts.google.com https://adresa-tunela.ngrok.app;
+        connect-src 'self' https://accounts.google.com https://botanica.ngrok.app;
         frame-src https://accounts.google.com;
         img-src 'self' https://ssl.gstatic.com;
         style-src 'self' 'unsafe-inline';
@@ -17,7 +17,8 @@
 
     <!-- Google Sign-In biblioteka -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script> <!-- Za dekodiranje JWT-a na klijentu (opciono, samo za prikaz informacija) -->
+    <!-- Biblioteka za dekodiranje JWT-a na klijentu (samo za prikaz, ne za sigurnosne provere) -->
+    <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
 
     <style>
         body {
@@ -29,6 +30,7 @@
             min-height: 100vh;
             background-color: #f4f4f4;
             margin: 0;
+            color: #333;
         }
         .container {
             background-color: #fff;
@@ -36,17 +38,23 @@
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 25px;
         }
         #login-status {
             margin-bottom: 20px;
-            color: #555;
             font-weight: bold;
+            color: #555;
         }
         #g_id_onload, #g_id_signin {
             margin-bottom: 20px;
         }
         #secureButton {
-            background-color: #007bff;
+            background-color: #28a745;
             color: white;
             padding: 12px 25px;
             border: none;
@@ -54,24 +62,33 @@
             font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         #secureButton:disabled {
             background-color: #cccccc;
             cursor: not-allowed;
+            box-shadow: none;
         }
         #secureButton:hover:enabled {
-            background-color: #0056b3;
+            background-color: #218838;
         }
         #response-message {
-            margin-top: 20px;
-            color: #333;
+            margin-top: 25px;
             font-weight: bold;
+            color: #007bff;
+            min-height: 20px;
+        }
+        .error-message {
+            color: #dc3545;
+        }
+        .success-message {
+            color: #28a745;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Google Autentifikovano Dugme</h1>
+        <h1>Sigurno Dugme</h1>
 
         <!-- Google One Tap / Automatski login -->
         <div id="g_id_onload"
@@ -97,9 +114,14 @@
     </div>
 
     <script>
-        const BACKEND_URL = "https://adresa-tunela.ngrok.app"; // Zamenite sa vašom ngrok HTTPS adresom
+        // --- KONFIGURACIJA (DIREKTNO U KODU) ---
+        // Adresa vašeg ngrok tunela
+        const BACKEND_URL = "https://botanica.ngrok.app";
+        // --- KRAJ KONFIGURACIJE ---
+        
         let googleIdToken = null;
-        let currentUserEmail = null; // Za prikaz imejla korisnika
+        let currentUserEmail = null;
+
         const secureButton = document.getElementById('secureButton');
         const loginStatus = document.getElementById('login-status');
         const responseMessage = document.getElementById('response-message');
@@ -111,41 +133,48 @@
             } else {
                 loginStatus.textContent = 'Niste ulogovani.';
                 secureButton.disabled = true;
+                responseMessage.textContent = '';
             }
         }
 
-        // Callback funkcija za Google Sign-In
-        function handleCredentialResponse(response) {
-            // console.log("Encoded JWT ID token: " + response.credential);
-            googleIdToken = response.credential;
-
-            try {
-                // Dekodiranje tokena na klijentu (samo za prikaz, ne za sigurnosne provere!)
-                const decodedToken = jwt_decode(googleIdToken);
-                currentUserEmail = decodedToken.email;
-                console.log("Korisnik ulogovan:", decodedToken.email);
-            } catch (error) {
-                console.error("Greška pri dekodiranju tokena:", error);
-                currentUserEmail = null;
+        window.handleCredentialResponse = (response) => {
+            if (response.credential) {
+                googleIdToken = response.credential;
+                try {
+                    const decodedToken = jwt_decode(googleIdToken);
+                    currentUserEmail = decodedToken.email;
+                    console.log("Korisnik ulogovan:", decodedToken.email);
+                    responseMessage.className = '';
+                } catch (error) {
+                    console.error("Greška pri dekodiranju tokena na klijentu:", error);
+                    googleIdToken = null;
+                    currentUserEmail = null;
+                    responseMessage.textContent = "Greška pri obradi prijave.";
+                    responseMessage.classList.add('error-message');
+                }
+            } else {
                 googleIdToken = null;
+                currentUserEmail = null;
+                console.warn("Nije primljen Google ID token.");
             }
             updateLoginStatus();
-        }
+        };
 
-        // Event listener za sigurno dugme
         secureButton.addEventListener('click', async () => {
             if (!googleIdToken) {
                 alert("Niste ulogovani. Molimo ulogujte se putem Google-a.");
                 return;
             }
 
+            secureButton.disabled = true;
+            responseMessage.textContent = "Slanje zahteva...";
+            responseMessage.className = '';
+
             try {
                 const response = await fetch(`${BACKEND_URL}/api/button-press`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        // Nema potrebe za 'Authorization' zaglavljem direktno ovde,
-                        // token šaljemo u telu zahteva.
                     },
                     body: JSON.stringify({ id_token: googleIdToken })
                 });
@@ -153,31 +182,30 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    responseMessage.style.color = 'green';
                     responseMessage.textContent = `Backend odgovor: ${data.message} (Korisnik: ${data.user_email})`;
+                    responseMessage.classList.add('success-message');
                     console.log("Uspešan odgovor od backenda:", data);
                 } else {
-                    responseMessage.style.color = 'red';
                     responseMessage.textContent = `Greška sa backenda: ${data.message}`;
+                    responseMessage.classList.add('error-message');
                     console.error("Greška sa backenda:", data);
+
                     if (response.status === 401) {
-                        // Token je nevažeći ili istekao, resetujemo stanje
                         googleIdToken = null;
                         currentUserEmail = null;
-                        updateLoginStatus();
                         alert("Sesija je istekla ili je token nevažeći. Molimo ulogujte se ponovo.");
                     }
                 }
             } catch (error) {
-                responseMessage.style.color = 'red';
                 responseMessage.textContent = `Došlo je do mrežne greške: ${error.message}`;
+                responseMessage.classList.add('error-message');
                 console.error("Mrežna greška:", error);
+            } finally {
+                updateLoginStatus();
             }
         });
 
-        // Inicijalno ažuriranje statusa pri učitavanju stranice
         document.addEventListener('DOMContentLoaded', updateLoginStatus);
-
     </script>
 </body>
 </html>
