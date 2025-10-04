@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Categories Editor</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<h1>Categories Editor</h1>
+
+<div id="g_id_onload"
+     data-client_id="YOUR_GOOGLE_CLIENT_ID"
+     data-login_uri="https://botanica.ngrok.app"
+     data-auto_prompt="false">
+</div>
+
+<div id="g_id_signin"></div>
+
+<div id="app" style="display:none;">
+<h2>Category Actions</h2>
+<label>Checkbox1: <input type="checkbox" id="cb1"></label>
+<label>Checkbox2: <input type="checkbox" id="cb2"></label>
+<label>Checkbox3: <input type="checkbox" id="cb3"></label>
+<label>Checkbox4: <input type="checkbox" id="cb4"></label><br>
+<select id="sel1"><option>A</option><option>B</option><option>C</option></select>
+<select id="sel2"><option>1</option><option>2</option><option>3</option></select>
+<select id="sel3"><option>X</option><option>Y</option><option>Z</option></select><br>
+<input type="text" id="txt1" placeholder="Text1">
+<input type="text" id="txt2" placeholder="Text2"><br>
+<button onclick="loadCategory()">Load Category</button>
+<button onclick="updateCategory()">Update Category</button>
+<button onclick="deleteCategory()">Delete Category</button>
+
+<h2>Subcategories</h2>
+<button onclick="loadSubcategories()">Load Subcategories</button>
+<ul id="subcatList"></ul>
+<button onclick="createSubcategory()">Add Subcategory</button>
+</div>
+
+<script>
+let googleUserToken = '';
+
+function handleCredentialResponse(response) {
+    googleUserToken = response.credential;
+    document.getElementById('app').style.display='block';
+}
+
+window.onload = function() {
+    google.accounts.id.initialize({
+        client_id: 'YOUR_GOOGLE_CLIENT_ID',
+        callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+        document.getElementById('g_id_signin'),
+        { theme: 'outline', size: 'large' }
+    );
+}
+
+const apiUrl = 'https://botanica.ngrok.app';
+
+async function loadCategory(){
+    let res = await fetch(`${apiUrl}/get_category`, {headers:{'Authorization':'Bearer '+googleUserToken}});
+    let data = await res.json();
+    document.getElementById('cb1').checked = data.checkbox1;
+    document.getElementById('cb2').checked = data.checkbox2;
+    document.getElementById('cb3').checked = data.checkbox3;
+    document.getElementById('cb4').checked = data.checkbox4;
+    document.getElementById('sel1').value = data.select1;
+    document.getElementById('sel2').value = data.select2;
+    document.getElementById('sel3').value = data.select3;
+    document.getElementById('txt1').value = data.text1;
+    document.getElementById('txt2').value = data.text2;
+}
+
+async function updateCategory(){
+    let payload = {
+        checkbox1: document.getElementById('cb1').checked?1:0,
+        checkbox2: document.getElementById('cb2').checked?1:0,
+        checkbox3: document.getElementById('cb3').checked?1:0,
+        checkbox4: document.getElementById('cb4').checked?1:0,
+        select1: document.getElementById('sel1').value,
+        select2: document.getElementById('sel2').value,
+        select3: document.getElementById('sel3').value,
+        text1: document.getElementById('txt1').value,
+        text2: document.getElementById('txt2').value
+    };
+    await fetch(`${apiUrl}/update_category`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+googleUserToken},
+        body: JSON.stringify(payload)
+    });
+    alert("Category updated");
+}
+
+async function deleteCategory(){
+    await fetch(`${apiUrl}/delete_category`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+googleUserToken}
+    });
+    alert("Category deleted");
+}
+
+async function loadSubcategories(){
+    let res = await fetch(`${apiUrl}/get_subcategories`, {headers:{'Authorization':'Bearer '+googleUserToken}});
+    let data = await res.json();
+    let ul = document.getElementById('subcatList');
+    ul.innerHTML='';
+    data.forEach(sc=>{
+        let li = document.createElement('li');
+        li.textContent = sc.name;
+        let editBtn = document.createElement('button');
+        editBtn.textContent='Edit';
+        editBtn.onclick=()=>editSubcategory(sc);
+        let delBtn=document.createElement('button');
+        delBtn.textContent='Delete';
+        delBtn.onclick=()=>deleteSubcategory(sc.id);
+        li.appendChild(editBtn);
+        li.appendChild(delBtn);
+        ul.appendChild(li);
+    });
+}
+
+function editSubcategory(sc){
+    let name = prompt("Name", sc.name);
+    if(name){
+        sc.name=name;
+        fetch(`${apiUrl}/update_subcategory`, {
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':'Bearer '+googleUserToken},
+            body: JSON.stringify(sc)
+        }).then(()=>loadSubcategories());
+    }
+}
+
+function deleteSubcategory(id){
+    fetch(`${apiUrl}/delete_subcategory`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+googleUserToken},
+        body: JSON.stringify({id})
+    }).then(()=>loadSubcategories());
+}
+
+function createSubcategory(){
+    let name = prompt("New subcategory name");
+    if(name){
+        fetch(`${apiUrl}/update_subcategory`, {
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':'Bearer '+googleUserToken},
+            body: JSON.stringify({name})
+        }).then(()=>loadSubcategories());
+    }
+}
+</script>
+</body>
+</html>
