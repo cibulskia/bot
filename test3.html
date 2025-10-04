@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Data Manager</title>
-    <link rel="stylesheet" href="stylet.css">
+    <link rel="stylesheet" href="style.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -13,8 +13,9 @@
 
         <div id="auth-section">
             <h2>Sign in with Google</h2>
+            <!-- Google Sign-In dugme i njegova konfiguracija -->
             <div id="g_id_onload"
-                 data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
                  data-callback="handleCredentialResponse"
                  data-auto_select="false"
                  data-cancel_on_tap_outside="false">
@@ -111,8 +112,8 @@
     </div>
 
     <script>
-        const CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"; // **ZAMENI SA TVOJIM CLIENT ID-JEM**
-        const BACKEND_URL = "https://botanica.ngrok.app"; // IZMENJENO OVDJE
+        const CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"; // **ZAMENI SA TVOJIM CLIENT ID-JEM**
+        const BACKEND_URL = "https://botanica.ngrok.app";
         let googleToken = null;
         let googleId = null;
         let userName = null;
@@ -142,10 +143,14 @@
                 googleId = data.sub;
                 userName = data.name;
 
-                document.getElementById('g_id_signin').style.display = 'none';
-                signOutButton.style.display = 'block';
-                authSection.style.display = 'none';
-                appSection.style.display = 'block';
+                // --- IZMENE SU OVDE: ---
+                // Google GSI biblioteka preuzima kontrolu nad div-om 'g_id_signin'
+                // pa je bolje sakriti/prikazati ceo auth-section.
+                // document.getElementById('g_id_signin').style.display = 'none'; // Stara linija, uklonjena
+                signOutButton.style.display = 'block'; // Ovo dugme je nezavisno od Google GSI
+                authSection.style.display = 'none'; // Sakrijte ceo auth-section
+                appSection.style.display = 'block'; // Prikažite app-section
+                // --- KRAJ IZMENA ---
 
                 userNameSpan.textContent = userName;
                 userGoogleIdSpan.textContent = googleId;
@@ -165,10 +170,17 @@
             googleToken = null;
             googleId = null;
             userName = null;
-            document.getElementById('g_id_signin').style.display = 'block';
-            signOutButton.style.display = 'none';
-            authSection.style.display = 'block';
-            appSection.style.display = 'none';
+
+            // --- IZMENE SU OVDE: ---
+            // document.getElementById('g_id_signin').style.display = 'block'; // Stara linija, uklonjena
+            // Kada se odjavite, Google GSI dugme se ponovo automatski prikazuje
+            // unutar svog kontejnera 'g_id_signin' ako je taj kontejner vidljiv.
+            // Zato sada samo prikazujemo ceo 'authSection'.
+            signOutButton.style.display = 'none'; // Sakrijte dugme za odjavu
+            authSection.style.display = 'block'; // Prikažite ceo auth-section
+            appSection.style.display = 'none'; // Sakrijte app-section
+            // --- KRAJ IZMENA ---
+
             categoryForm.reset();
             subcategoriesList.innerHTML = '<p>No subcategories found.</p>';
             showMessage("Signed out successfully.");
