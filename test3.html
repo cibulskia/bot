@@ -3,520 +3,428 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google ID Data Manager</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1, h2 { color: #0056b3; }
-        button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; margin-bottom: 10px; }
-        button:hover { background-color: #0056b3; }
-        input[type="text"], select { width: calc(100% - 22px); padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
-        input[type="checkbox"] { margin-right: 5px; }
-        .section { background-color: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
-        .section h2 { margin-top: 0; }
-        .response { background-color: #e2f0cb; border: 1px solid #a8d58a; padding: 10px; margin-top: 20px; border-radius: 5px; white-space: pre-wrap; word-wrap: break-word; }
-        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 10px; margin-top: 20px; border-radius: 5px; }
-        .subcategory-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .subcategory-item:last-child { border-bottom: none; }
-        .subcategory-details { margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-left: 3px solid #007bff; }
-    </style>
+    <title>User Data Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <div class="container">
-        <h1>Google ID Data Manager</h1>
+        <h1>User Data Manager</h1>
 
-        <button onclick="authenticate()">Authenticate with Google</button>
-        <p>Authenticated Google ID: <span id="googleIdDisplay">Not authenticated</span></p>
-        <div id="response" class="response" style="display: none;"></div>
-        <div id="error" class="error" style="display: none;"></div>
-
-        <hr>
-
-        <div class="section">
-            <h2>Category Management</h2>
-            <div>
-                <label><input type="checkbox" id="catCheckbox1"> Checkbox 1</label>
-                <label><input type="checkbox" id="catCheckbox2"> Checkbox 2</label>
-                <label><input type="checkbox" id="catCheckbox3"> Checkbox 3</label>
-                <label><input type="checkbox" id="catCheckbox4"> Checkbox 4</label>
+        <div id="auth-section">
+            <h2>Sign in with Google</h2>
+            <div id="g_id_onload"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_select="false"
+                 data-cancel_on_tap_outside="false">
             </div>
-            <br>
-            <div>
-                <select id="catDropdown1">
-                    <option value="">Select 1</option>
-                    <option value="OptionA1">Option A1</option>
-                    <option value="OptionB1">Option B1</option>
-                </select>
-                <select id="catDropdown2">
-                    <option value="">Select 2</option>
-                    <option value="OptionA2">Option A2</option>
-                    <option value="OptionB2">Option B2</option>
-                </select>
-                <select id="catDropdown3">
-                    <option value="">Select 3</option>
-                    <option value="OptionA3">Option A3</option>
-                    <option value="OptionB3">Option B3</option>
-                </select>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left">
             </div>
-            <br>
-            <div>
-                <input type="text" id="catTextInput1" placeholder="Text Input 1">
-                <input type="text" id="catTextInput2" placeholder="Text Input 2">
-            </div>
-            <button onclick="loadCategoryData()">Load Category Data</button>
-            <button onclick="updateCategoryData()">Update Category Data</button>
-            <button onclick="deleteCategoryData()">Delete Category</button>
-            <button onclick="createOrUpdateCategory()">Save/Create Category</button>
+            <button id="signOutButton" class="button" style="display: none;">Sign Out</button>
         </div>
 
-        <div class="section">
-            <h2>Subcategory Management</h2>
-            <button onclick="listSubcategories()">List All Subcategories</button>
-            <br><br>
-            <div id="subcategoriesList"></div>
+        <div id="app-section" style="display: none;">
+            <p>Welcome, <span id="userName"></span>!</p>
+            <p>Your Google ID: <span id="userGoogleId"></span></p>
 
-            <h3>Create New Subcategory</h3>
-            <input type="text" id="newSubcatName" placeholder="Subcategory Name">
-            <div>
-                <label><input type="checkbox" id="subcatCheckbox1"> Checkbox 1</label>
-                <label><input type="checkbox" id="subcatCheckbox2"> Checkbox 2</label>
-                <label><input type="checkbox" id="subcatCheckbox3"> Checkbox 3</label>
-                <label><input type="checkbox" id="subcatCheckbox4"> Checkbox 4</label>
+            <div class="section">
+                <h2>Main Category Data</h2>
+                <form id="categoryForm">
+                    <label>Checkbox 1: <input type="checkbox" id="catCheckbox1"></label><br>
+                    <label>Checkbox 2: <input type="checkbox" id="catCheckbox2"></label><br>
+                    <label>Checkbox 3: <input type="checkbox" id="catCheckbox3"></label><br>
+                    <label>Checkbox 4: <input type="checkbox" id="catCheckbox4"></label><br>
+                    <label>Dropdown 1:
+                        <select id="catDropdown1">
+                            <option value="optionA">Option A</option>
+                            <option value="optionB">Option B</option>
+                            <option value="optionC">Option C</option>
+                        </select>
+                    </label><br>
+                    <label>Dropdown 2:
+                        <select id="catDropdown2">
+                            <option value="valueX">Value X</option>
+                            <option value="valueY">Value Y</option>
+                        </select>
+                    </label><br>
+                    <label>Dropdown 3:
+                        <select id="catDropdown3">
+                            <option value="foo">Foo</option>
+                            <option value="bar">Bar</option>
+                        </select>
+                    </label><br>
+                    <label>Text Input 1: <input type="text" id="catTextInput1"></label><br>
+                    <label>Text Input 2: <input type="text" id="catTextInput2"></label><br>
+                    <button type="submit" class="button">Save Category</button>
+                    <button type="button" id="deleteCategoryButton" class="button delete-button">Delete Category</button>
+                </form>
             </div>
-            <br>
-            <div>
-                <select id="subcatDropdown1">
-                    <option value="">Select 1</option>
-                    <option value="SubOptionA1">Sub Option A1</option>
-                    <option value="SubOptionB1">Sub Option B1</option>
-                </select>
-                <select id="subcatDropdown2">
-                    <option value="">Select 2</option>
-                    <option value="SubOptionA2">Sub Option A2</option>
-                    <option value="SubOptionB2">Sub Option B2</option>
-                </select>
-                <select id="subcatDropdown3">
-                    <option value="">Select 3</option>
-                    <option value="SubOptionA3">Sub Option A3</option>
-                    <option value="SubOptionB3">Sub Option B3</option>
-                </select>
+
+            <div class="section">
+                <h2>Subcategories</h2>
+                <form id="newSubcategoryForm">
+                    <h3>Add New Subcategory</h3>
+                    <label>Name: <input type="text" id="subName" required></label><br>
+                    <label>Checkbox 1: <input type="checkbox" id="subCheckbox1"></label><br>
+                    <label>Checkbox 2: <input type="checkbox" id="subCheckbox2"></label><br>
+                    <label>Checkbox 3: <input type="checkbox" id="subCheckbox3"></label><br>
+                    <label>Checkbox 4: <input type="checkbox" id="subCheckbox4"></label><br>
+                    <label>Dropdown 1:
+                        <select id="subDropdown1">
+                            <option value="optionA">Option A</option>
+                            <option value="optionB">Option B</option>
+                            <option value="optionC">Option C</option>
+                        </select>
+                    </label><br>
+                    <label>Dropdown 2:
+                        <select id="subDropdown2">
+                            <option value="valueX">Value X</option>
+                            <option value="valueY">Value Y</option>
+                        </select>
+                    </label><br>
+                    <label>Dropdown 3:
+                        <select id="subDropdown3">
+                            <option value="foo">Foo</option>
+                            <option value="bar">Bar</option>
+                        </select>
+                    </label><br>
+                    <label>Text Input 1: <input type="text" id="subTextInput1"></label><br>
+                    <label>Text Input 2: <input type="text" id="subTextInput2"></label><br>
+                    <button type="submit" class="button">Add Subcategory</button>
+                </form>
+
+                <h3>Existing Subcategories</h3>
+                <div id="subcategoriesList">
+                    <p>No subcategories found.</p>
+                </div>
             </div>
-            <br>
-            <div>
-                <input type="text" id="subcatTextInput1" placeholder="Sub Text Input 1">
-                <input type="text" id="subcatTextInput2" placeholder="Sub Text Input 2">
-            </div>
-            <button onclick="createSubcategory()">Create Subcategory</button>
         </div>
+
+        <div id="message" class="message"></div>
     </div>
 
     <script>
-        const BACKEND_URL = 'https://botanica.ngrok.app';
-        const FRONTEND_URL = 'https://cibulskia.github.io'; // Not directly used for API calls, but for context
+        const CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"; // **ZAMENI SA TVOJIM CLIENT ID-JEM**
+        const BACKEND_URL = "http://localhost:8080";
+        let googleToken = null;
+        let googleId = null;
+        let userName = null;
 
-        let currentGoogleId = null;
+        const authSection = document.getElementById('auth-section');
+        const appSection = document.getElementById('app-section');
+        const userNameSpan = document.getElementById('userName');
+        const userGoogleIdSpan = document.getElementById('userGoogleId');
+        const signOutButton = document.getElementById('signOutButton');
+        const messageDiv = document.getElementById('message');
+        const categoryForm = document.getElementById('categoryForm');
+        const newSubcategoryForm = document.getElementById('newSubcategoryForm');
+        const subcategoriesList = document.getElementById('subcategoriesList');
+        const deleteCategoryButton = document.getElementById('deleteCategoryButton');
 
-        function showResponse(message) {
-            const responseDiv = document.getElementById('response');
-            responseDiv.innerText = JSON.stringify(message, null, 2);
-            responseDiv.style.display = 'block';
-            document.getElementById('error').style.display = 'none';
+        function showMessage(msg, type = 'info') {
+            messageDiv.textContent = msg;
+            messageDiv.className = `message ${type}`;
+            setTimeout(() => messageDiv.textContent = '', 5000); // Clear after 5 seconds
         }
 
-        function showError(message) {
-            const errorDiv = document.getElementById('error');
-            errorDiv.innerText = `Error: ${message}`;
-            errorDiv.style.display = 'block';
-            document.getElementById('response').style.display = 'none';
-        }
-
-        async function authenticate() {
+        async function handleCredentialResponse(response) {
+            googleToken = response.credential;
             try {
-                // The backend /authorize endpoint will redirect to Google's OAuth consent screen
-                // and then back to /oauth_callback which sets the authenticated_google_id on the backend.
-                // For a frontend hosted separately, you'd typically handle this redirect directly.
-                // Since the backend handles the full OAuth flow including the final redirect,
-                // we'll open a new window and poll/check for authentication status.
+                const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${googleToken}`);
+                const data = await res.json();
+                googleId = data.sub;
+                userName = data.name;
 
-                const authWindow = window.open(`${BACKEND_URL}/authorize`, '_blank', 'width=500,height=600');
-                
-                // A simpler, more direct approach for demonstration:
-                // After the user authenticates, they are redirected back to your frontend.
-                // The backend /oauth_callback endpoint needs to redirect *back* to a known frontend URL
-                // with the Google ID or a session token. For this simplified setup, we'll
-                // rely on the backend setting `authenticated_google_id` and then
-                // the frontend will try to load category data, which will implicitly check auth.
-                showResponse("Please complete authentication in the new window. Then click 'Load Category Data' or 'List Subcategories'.");
+                document.getElementById('g_id_signin').style.display = 'none';
+                signOutButton.style.display = 'block';
+                authSection.style.display = 'none';
+                appSection.style.display = 'block';
+
+                userNameSpan.textContent = userName;
+                userGoogleIdSpan.textContent = googleId;
+
+                fetchCategoryData();
+                fetchSubcategories();
+
             } catch (error) {
-                showError(`Authentication failed: ${error.message}`);
+                console.error("Error verifying token:", error);
+                showMessage("Error signing in. Please try again.", "error");
+                googleToken = null;
+                googleId = null;
             }
         }
 
-        // Function to extract Google ID from backend response after authentication (if the backend returned it)
-        // This is a placeholder; in a real app, the backend would manage sessions or tokens.
-        // For this simple example, we rely on the backend storing the ID internally.
-        async function checkAuthenticationStatus() {
+        function signOut() {
+            googleToken = null;
+            googleId = null;
+            userName = null;
+            document.getElementById('g_id_signin').style.display = 'block';
+            signOutButton.style.display = 'none';
+            authSection.style.display = 'block';
+            appSection.style.display = 'none';
+            categoryForm.reset();
+            subcategoriesList.innerHTML = '<p>No subcategories found.</p>';
+            showMessage("Signed out successfully.");
+        }
+
+        signOutButton.addEventListener('click', signOut);
+
+        async function authenticatedFetch(url, options = {}) {
+            if (!googleToken) {
+                showMessage("Please sign in first.", "error");
+                signOut();
+                return null;
+            }
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${googleToken}`,
+                ...options.headers
+            };
+
             try {
-                const response = await fetch(`${BACKEND_URL}/api/category`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    currentGoogleId = data.google_id;
-                    document.getElementById('googleIdDisplay').innerText = currentGoogleId;
-                    showResponse("Authenticated successfully. Google ID loaded.");
-                    return true;
-                } else if (response.status === 401) {
-                    currentGoogleId = null;
-                    document.getElementById('googleIdDisplay').innerText = "Not authenticated";
-                    showError("Not authenticated. Please click 'Authenticate with Google'.");
-                    return false;
-                } else {
-                    const errorText = await response.text();
-                    showError(`Failed to check authentication status: ${errorText}`);
-                    return false;
+                const response = await fetch(`${BACKEND_URL}${url}`, { ...options, headers });
+                if (response.status === 401) {
+                    showMessage("Session expired or invalid token. Please sign in again.", "error");
+                    signOut();
+                    return null;
                 }
+                return response;
             } catch (error) {
-                showError(`Network error checking authentication: ${error.message}`);
-                return false;
+                console.error("Network or server error:", error);
+                showMessage("Could not connect to the server.", "error");
+                return null;
             }
         }
 
-
-        async function fetchWithAuth(url, options = {}) {
-            // This is a simplified fetch. In a production app, you'd handle
-            // sending a secure token (e.g., JWT) with each request.
-            // For this setup, we rely on the backend remembering the authenticated ID.
-            const response = await fetch(url, options);
-            if (response.status === 401) {
-                showError("Unauthorized. Please authenticate with Google again.");
-                currentGoogleId = null;
-                document.getElementById('googleIdDisplay').innerText = "Not authenticated";
-            }
-            return response;
-        }
-
-        async function loadCategoryData() {
-            try {
-                const response = await fetchWithAuth(`${BACKEND_URL}/api/category`);
-                if (response.ok) {
-                    const data = await response.json();
-                    currentGoogleId = data.google_id;
-                    document.getElementById('googleIdDisplay').innerText = currentGoogleId;
-                    document.getElementById('catCheckbox1').checked = data.checkbox1;
-                    document.getElementById('catCheckbox2').checked = data.checkbox2;
-                    document.getElementById('catCheckbox3').checked = data.checkbox3;
-                    document.getElementById('catCheckbox4').checked = data.checkbox4;
-                    document.getElementById('catDropdown1').value = data.dropdown1;
-                    document.getElementById('catDropdown2').value = data.dropdown2;
-                    document.getElementById('catDropdown3').value = data.dropdown3;
-                    document.getElementById('catTextInput1').value = data.text_input1;
-                    document.getElementById('catTextInput2').value = data.text_input2;
-                    showResponse("Category data loaded successfully.");
-                } else if (response.status === 404) {
-                    showResponse("No category found for this Google ID. You can create one by clicking 'Save/Create Category'.");
-                    clearCategoryForm();
-                } else {
-                    const errorText = await response.text();
-                    showError(`Failed to load category data: ${errorText}`);
-                }
-            } catch (error) {
-                showError(`Network error loading category data: ${error.message}`);
+        // --- Category Management ---
+        async function fetchCategoryData() {
+            const response = await authenticatedFetch('/categories');
+            if (response && response.ok) {
+                const data = await response.json();
+                document.getElementById('catCheckbox1').checked = data.checkbox1 === 1;
+                document.getElementById('catCheckbox2').checked = data.checkbox2 === 1;
+                document.getElementById('catCheckbox3').checked = data.checkbox3 === 1;
+                document.getElementById('catCheckbox4').checked = data.checkbox4 === 1;
+                document.getElementById('catDropdown1').value = data.dropdown1;
+                document.getElementById('catDropdown2').value = data.dropdown2;
+                document.getElementById('catDropdown3').value = data.dropdown3;
+                document.getElementById('catTextInput1').value = data.text_input1;
+                document.getElementById('catTextInput2').value = data.text_input2;
+                showMessage("Category data loaded.", "success");
+            } else if (response && response.status === 404) {
+                showMessage("No main category found for you. Fill the form and save to create one.", "info");
+                categoryForm.reset(); // Clear form if no existing category
+            } else if (response) {
+                const errorData = await response.json();
+                showMessage(`Error fetching category: ${errorData.error || response.statusText}`, "error");
             }
         }
 
-        function getCategoryDataFromForm() {
-            return {
-                checkbox1: document.getElementById('catCheckbox1').checked,
-                checkbox2: document.getElementById('catCheckbox2').checked,
-                checkbox3: document.getElementById('catCheckbox3').checked,
-                checkbox4: document.getElementById('catCheckbox4').checked,
+        categoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                checkbox1: document.getElementById('catCheckbox1').checked ? 1 : 0,
+                checkbox2: document.getElementById('catCheckbox2').checked ? 1 : 0,
+                checkbox3: document.getElementById('catCheckbox3').checked ? 1 : 0,
+                checkbox4: document.getElementById('catCheckbox4').checked ? 1 : 0,
                 dropdown1: document.getElementById('catDropdown1').value,
                 dropdown2: document.getElementById('catDropdown2').value,
                 dropdown3: document.getElementById('catDropdown3').value,
                 text_input1: document.getElementById('catTextInput1').value,
                 text_input2: document.getElementById('catTextInput2').value,
             };
-        }
 
-        function clearCategoryForm() {
-            document.getElementById('catCheckbox1').checked = false;
-            document.getElementById('catCheckbox2').checked = false;
-            document.getElementById('catCheckbox3').checked = false;
-            document.getElementById('catCheckbox4').checked = false;
-            document.getElementById('catDropdown1').value = '';
-            document.getElementById('catDropdown2').value = '';
-            document.getElementById('catDropdown3').value = '';
-            document.getElementById('catTextInput1').value = '';
-            document.getElementById('catTextInput2').value = '';
-        }
+            let response = await authenticatedFetch('/categories', {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
 
-        async function createOrUpdateCategory() {
-            const data = getCategoryDataFromForm();
-            try {
-                const response = await fetchWithAuth(`${BACKEND_URL}/api/category`, {
-                    method: 'POST', // POST for insert or replace
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                if (response.ok) {
-                    const result = await response.json();
-                    showResponse(result);
-                    loadCategoryData(); // Reload to confirm
-                } else {
-                    const errorText = await response.text();
-                    showError(`Failed to create/update category: ${errorText}`);
-                }
-            } catch (error) {
-                showError(`Network error creating/updating category: ${error.message}`);
-            }
-        }
-
-        async function updateCategoryData() {
-            const data = getCategoryDataFromForm();
-            try {
-                const response = await fetchWithAuth(`${BACKEND_URL}/api/category`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                if (response.ok) {
-                    const result = await response.json();
-                    showResponse(result);
-                } else {
-                    const errorText = await response.text();
-                    showError(`Failed to update category data: ${errorText}`);
-                }
-            } catch (error) {
-                showError(`Network error updating category data: ${error.message}`);
-            }
-        }
-
-        async function deleteCategoryData() {
-            if (!confirm("Are you sure you want to delete all category data for your Google ID? This will also delete all associated subcategories.")) {
-                return;
-            }
-            try {
-                const response = await fetchWithAuth(`${BACKEND_URL}/api/category`, {
-                    method: 'DELETE'
-                });
-                if (response.ok) {
-                    const result = await response.json();
-                    showResponse(result);
-                    clearCategoryForm();
-                    document.getElementById('subcategoriesList').innerHTML = ''; // Clear subcategories too
-                } else {
-                    const errorText = await response.text();
-                    showError(`Failed to delete category data: ${errorText}`);
-                }
-            } catch (error) {
-                showError(`Network error deleting category data: ${error.message}`);
-            }
-        }
-
-        async function listSubcategories() {
-            try {
-                const response = await fetchWithAuth(`${BACKEND_URL}/api/subcategories`);
-                if (response.ok) {
-                    const subcategories = await response.json();
-                    const listDiv = document.getElementById('subcategoriesList');
-                    listDiv.innerHTML = '<h3>Your Subcategories:</h3>';
-                    if (subcategories.length === 0) {
-                        listDiv.innerHTML += '<p>No subcategories found.</p>';
-                    } else {
-                        subcategories.forEach(sub => {
-                            const subItem = document.createElement('div');
-                            subItem.className = 'subcategory-item';
-                            subItem.innerHTML = `
-                                <span>${sub.name} (ID: ${sub.id})</span>
-                                <span>
-                                    <button onclick="editSubcategory(${sub.id})">Edit</button>
-                                    <button onclick="deleteSubcategory(${sub.id})">Delete</button>
-                                </span>
-                            `;
-                            listDiv.appendChild(subItem);
-
-                            const subDetailsDiv = document.createElement('div');
-                            subDetailsDiv.id = `subcategory-details-${sub.id}`;
-                            subDetailsDiv.className = 'subcategory-details';
-                            subDetailsDiv.style.display = 'none'; // Hidden by default
-                            listDiv.appendChild(subDetailsDiv);
-                        });
-                    }
-                    showResponse("Subcategories loaded.");
-                } else {
-                    const errorText = await response.text();
-                    showError(`Failed to load subcategories: ${errorText}`);
-                }
-            } catch (error) {
-                showError(`Network error loading subcategories: ${error.message}`);
-            }
-        }
-
-        async function editSubcategory(subcategoryId) {
-            const detailsDiv = document.getElementById(`subcategory-details-${subcategoryId}`);
-            if (detailsDiv.style.display === 'block') {
-                detailsDiv.style.display = 'none';
-                return;
-            }
-
-            try {
-                const response = await fetchWithAuth(`${BACKEND_URL}/api/subcategories`);
-                if (!response.ok) throw new Error(await response.text());
-                const subcategories = await response.json();
-                const sub = subcategories.find(s => s.id === subcategoryId);
-
-                if (sub) {
-                    detailsDiv.innerHTML = `
-                        <h4>Edit Subcategory: ${sub.name}</h4>
-                        Name: <input type="text" id="editSubcatName-${sub.id}" value="${sub.name}"><br>
-                        <div>
-                            <label><input type="checkbox" id="editSubcatCheckbox1-${sub.id}" ${sub.checkbox1 ? 'checked' : ''}> Checkbox 1</label>
-                            <label><input type="checkbox" id="editSubcatCheckbox2-${sub.id}" ${sub.checkbox2 ? 'checked' : ''}> Checkbox 2</label>
-                            <label><input type="checkbox" id="editSubcatCheckbox3-${sub.id}" ${sub.checkbox3 ? 'checked' : ''}> Checkbox 3</label>
-                            <label><input type="checkbox" id="editSubcatCheckbox4-${sub.id}" ${sub.checkbox4 ? 'checked' : ''}> Checkbox 4</label>
-                        </div>
-                        <br>
-                        <div>
-                            <select id="editSubcatDropdown1-${sub.id}">
-                                <option value="SubOptionA1" ${sub.dropdown1 === 'SubOptionA1' ? 'selected' : ''}>Sub Option A1</option>
-                                <option value="SubOptionB1" ${sub.dropdown1 === 'SubOptionB1' ? 'selected' : ''}>Sub Option B1</option>
-                            </select>
-                            <select id="editSubcatDropdown2-${sub.id}">
-                                <option value="SubOptionA2" ${sub.dropdown2 === 'SubOptionA2' ? 'selected' : ''}>Sub Option A2</option>
-                                <option value="SubOptionB2" ${sub.dropdown2 === 'SubOptionB2' ? 'selected' : ''}>Sub Option B2</option>
-                            </select>
-                            <select id="editSubcatDropdown3-${sub.id}">
-                                <option value="SubOptionA3" ${sub.dropdown3 === 'SubOptionA3' ? 'selected' : ''}>Sub Option A3</option>
-                                <option value="SubOptionB3" ${sub.dropdown3 === 'SubOptionB3' ? 'selected' : ''}>Sub Option B3</option>
-                            </select>
-                        </div>
-                        <br>
-                        <input type="text" id="editSubcatTextInput1-${sub.id}" value="${sub.text_input1}" placeholder="Sub Text Input 1"><br>
-                        <input type="text" id="editSubcatTextInput2-${sub.id}" value="${sub.text_input2}" placeholder="Sub Text Input 2"><br>
-                        <button onclick="updateSubcategory(${sub.id})">Update Subcategory</button>
-                    `;
-                    detailsDiv.style.display = 'block';
-                } else {
-                    showError(`Subcategory with ID ${subcategoryId} not found.`);
-                }
-            } catch (error) {
-                showError(`Error loading subcategory for editing: ${error.message}`);
-            }
-        }
-
-        async function updateSubcategory(subcategoryId) {
-            const data = {
-                name: document.getElementById(`editSubcatName-${subcategoryId}`).value,
-                checkbox1: document.getElementById(`editSubcatCheckbox1-${subcategoryId}`).checked,
-                checkbox2: document.getElementById(`editSubcatCheckbox2-${subcategoryId}`).checked,
-                checkbox3: document.getElementById(`editSubcatCheckbox3-${subcategoryId}`).checked,
-                checkbox4: document.getElementById(`editSubcatCheckbox4-${subcategoryId}`).checked,
-                dropdown1: document.getElementById(`editSubcatDropdown1-${subcategoryId}`).value,
-                dropdown2: document.getElementById(`editSubcatDropdown2-${subcategoryId}`).value,
-                dropdown3: document.getElementById(`editSubcatDropdown3-${subcategoryId}`).value,
-                text_input1: document.getElementById(`editSubcatTextInput1-${subcategoryId}`).value,
-                text_input2: document.getElementById(`editSubcatTextInput2-${subcategoryId}`).value,
-            };
-
-            try {
-                const response = await fetchWithAuth(`${BACKEND_URL}/api/subcategory/${subcategoryId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                if (response.ok) {
-                    const result = await response.json();
-                    showResponse(result);
-                    document.getElementById(`subcategory-details-${subcategoryId}`).style.display = 'none';
-                    listSubcategories(); // Refresh the list
-                } else {
-                    const errorText = await response.text();
-                    showError(`Failed to update subcategory: ${errorText}`);
-                }
-            } catch (error) {
-                showError(`Network error updating subcategory: ${error.message}`);
-            }
-        }
-
-        async function deleteSubcategory(subcategoryId) {
-            if (!confirm(`Are you sure you want to delete subcategory ID: ${subcategoryId}?`)) {
-                return;
-            }
-            try {
-                const response = await fetchWithAuth(`${BACKEND_URL}/api/subcategory/${subcategoryId}`, {
-                    method: 'DELETE'
-                });
-                if (response.ok) {
-                    const result = await response.json();
-                    showResponse(result);
-                    listSubcategories(); // Refresh the list
-                } else {
-                    const errorText = await response.text();
-                    showError(`Failed to delete subcategory: ${errorText}`);
-                }
-            } catch (error) {
-                showError(`Network error deleting subcategory: ${error.message}`);
-            }
-        }
-
-        async function createSubcategory() {
-            const name = document.getElementById('newSubcatName').value;
-            if (!name) {
-                showError("Subcategory name cannot be empty.");
-                return;
-            }
-            const data = {
-                name: name,
-                checkbox1: document.getElementById('subcatCheckbox1').checked,
-                checkbox2: document.getElementById('subcatCheckbox2').checked,
-                checkbox3: document.getElementById('subcatCheckbox3').checked,
-                checkbox4: document.getElementById('subcatCheckbox4').checked,
-                dropdown1: document.getElementById('subcatDropdown1').value,
-                dropdown2: document.getElementById('subcatDropdown2').value,
-                dropdown3: document.getElementById('subcatDropdown3').value,
-                text_input1: document.getElementById('subcatTextInput1').value,
-                text_input2: document.getElementById('subcatTextInput2').value,
-            };
-
-            try {
-                const response = await fetchWithAuth(`${BACKEND_URL}/api/subcategory`, {
+            if (response && response.status === 404) { // Category not found, try POST to create
+                response = await authenticatedFetch('/categories', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify(data)
                 });
-                if (response.ok) {
-                    const result = await response.json();
-                    showResponse(result);
-                    document.getElementById('newSubcatName').value = ''; // Clear form
-                    listSubcategories(); // Refresh the list
-                } else {
-                    const errorText = await response.text();
-                    showError(`Failed to create subcategory: ${errorText}`);
-                }
-            } catch (error) {
-                showError(`Network error creating subcategory: ${error.message}`);
+            }
+
+            if (response && response.ok) {
+                const result = await response.json();
+                showMessage(result.message, "success");
+                fetchCategoryData(); // Reload to ensure data is fresh
+            } else if (response) {
+                const errorData = await response.json();
+                showMessage(`Error saving category: ${errorData.error || response.statusText}`, "error");
+            }
+        });
+
+        deleteCategoryButton.addEventListener('click', async () => {
+            if (!confirm("Are you sure you want to delete your main category and ALL associated subcategories? This cannot be undone.")) {
+                return;
+            }
+            const response = await authenticatedFetch('/categories', {
+                method: 'DELETE'
+            });
+            if (response && response.ok) {
+                const result = await response.json();
+                showMessage(result.message, "success");
+                categoryForm.reset();
+                subcategoriesList.innerHTML = '<p>No subcategories found.</p>';
+            } else if (response) {
+                const errorData = await response.json();
+                showMessage(`Error deleting category: ${errorData.error || response.statusText}`, "error");
+            }
+        });
+
+
+        // --- Subcategory Management ---
+        async function fetchSubcategories() {
+            const response = await authenticatedFetch('/subcategories');
+            if (response && response.ok) {
+                const subcategories = await response.json();
+                renderSubcategories(subcategories);
+            } else if (response) {
+                const errorData = await response.json();
+                showMessage(`Error fetching subcategories: ${errorData.error || response.statusText}`, "error");
+                subcategoriesList.innerHTML = '<p>Error loading subcategories.</p>';
             }
         }
 
-        // Initial check on page load
-        // Note: For a true GitHub Pages app, you'd need to handle the OAuth redirect
-        // back to this page and extract a token/ID. This example assumes the backend
-        // manages the session after the initial OAuth flow is completed via the backend's
-        // /oauth_callback redirect, and subsequent requests will implicitly be authorized.
-        // A more robust solution would involve client-side storage of tokens.
-        window.onload = checkAuthenticationStatus;
+        function renderSubcategories(subcategories) {
+            subcategoriesList.innerHTML = '';
+            if (subcategories.length === 0) {
+                subcategoriesList.innerHTML = '<p>No subcategories found.</p>';
+                return;
+            }
+
+            subcategories.forEach(sub => {
+                const subDiv = document.createElement('div');
+                subDiv.className = 'subcategory-item';
+                subDiv.innerHTML = `
+                    <h3>Subcategory: ${sub.name} (ID: ${sub.id})</h3>
+                    <form data-sub-id="${sub.id}" class="subcategory-form">
+                        <label>Name: <input type="text" value="${sub.name}" data-field="name" required></label><br>
+                        <label>Checkbox 1: <input type="checkbox" ${sub.checkbox1 === 1 ? 'checked' : ''} data-field="checkbox1"></label><br>
+                        <label>Checkbox 2: <input type="checkbox" ${sub.checkbox2 === 1 ? 'checked' : ''} data-field="checkbox2"></label><br>
+                        <label>Checkbox 3: <input type="checkbox" ${sub.checkbox3 === 1 ? 'checked' : ''} data-field="checkbox3"></label><br>
+                        <label>Checkbox 4: <input type="checkbox" ${sub.checkbox4 === 1 ? 'checked' : ''} data-field="checkbox4"></label><br>
+                        <label>Dropdown 1:
+                            <select data-field="dropdown1">
+                                <option value="optionA" ${sub.dropdown1 === 'optionA' ? 'selected' : ''}>Option A</option>
+                                <option value="optionB" ${sub.dropdown1 === 'optionB' ? 'selected' : ''}>Option B</option>
+                                <option value="optionC" ${sub.dropdown1 === 'optionC' ? 'selected' : ''}>Option C</option>
+                            </select>
+                        </label><br>
+                        <label>Dropdown 2:
+                            <select data-field="dropdown2">
+                                <option value="valueX" ${sub.dropdown2 === 'valueX' ? 'selected' : ''}>Value X</option>
+                                <option value="valueY" ${sub.dropdown2 === 'valueY' ? 'selected' : ''}>Value Y</option>
+                            </select>
+                        </label><br>
+                        <label>Dropdown 3:
+                            <select data-field="dropdown3">
+                                <option value="foo" ${sub.dropdown3 === 'foo' ? 'selected' : ''}>Foo</option>
+                                <option value="bar" ${sub.dropdown3 === 'bar' ? 'selected' : ''}>Bar</option>
+                            </select>
+                        </label><br>
+                        <label>Text Input 1: <input type="text" value="${sub.text_input1}" data-field="text_input1"></label><br>
+                        <label>Text Input 2: <input type="text" value="${sub.text_input2}" data-field="text_input2"></label><br>
+                        <button type="submit" class="button">Update</button>
+                        <button type="button" class="button delete-button" onclick="deleteSubcategory(${sub.id})">Delete</button>
+                    </form>
+                `;
+                subcategoriesList.appendChild(subDiv);
+            });
+
+            // Add event listeners for update forms
+            document.querySelectorAll('.subcategory-form').forEach(form => {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const subId = form.dataset.subId;
+                    const data = {
+                        name: form.querySelector('[data-field="name"]').value,
+                        checkbox1: form.querySelector('[data-field="checkbox1"]').checked ? 1 : 0,
+                        checkbox2: form.querySelector('[data-field="checkbox2"]').checked ? 1 : 0,
+                        checkbox3: form.querySelector('[data-field="checkbox3"]').checked ? 1 : 0,
+                        checkbox4: form.querySelector('[data-field="checkbox4"]').checked ? 1 : 0,
+                        dropdown1: form.querySelector('[data-field="dropdown1"]').value,
+                        dropdown2: form.querySelector('[data-field="dropdown2"]').value,
+                        dropdown3: form.querySelector('[data-field="dropdown3"]').value,
+                        text_input1: form.querySelector('[data-field="text_input1"]').value,
+                        text_input2: form.querySelector('[data-field="text_input2"]').value,
+                    };
+
+                    const response = await authenticatedFetch(`/subcategories/${subId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response && response.ok) {
+                        const result = await response.json();
+                        showMessage(result.message, "success");
+                        fetchSubcategories(); // Reload to show updated data
+                    } else if (response) {
+                        const errorData = await response.json();
+                        showMessage(`Error updating subcategory: ${errorData.error || response.statusText}`, "error");
+                    }
+                });
+            });
+        }
+
+        newSubcategoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('subName').value,
+                checkbox1: document.getElementById('subCheckbox1').checked ? 1 : 0,
+                checkbox2: document.getElementById('subCheckbox2').checked ? 1 : 0,
+                checkbox3: document.getElementById('subCheckbox3').checked ? 1 : 0,
+                checkbox4: document.getElementById('subCheckbox4').checked ? 1 : 0,
+                dropdown1: document.getElementById('subDropdown1').value,
+                dropdown2: document.getElementById('subDropdown2').value,
+                dropdown3: document.getElementById('subDropdown3').value,
+                text_input1: document.getElementById('subTextInput1').value,
+                text_input2: document.getElementById('subTextInput2').value,
+            };
+
+            const response = await authenticatedFetch('/subcategories', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            if (response && response.ok) {
+                const result = await response.json();
+                showMessage(result.message, "success");
+                newSubcategoryForm.reset();
+                fetchSubcategories(); // Refresh list
+            } else if (response) {
+                const errorData = await response.json();
+                showMessage(`Error adding subcategory: ${errorData.error || response.statusText}`, "error");
+            }
+        });
+
+        async function deleteSubcategory(subId) {
+            if (!confirm(`Are you sure you want to delete subcategory ID: ${subId}?`)) {
+                return;
+            }
+            const response = await authenticatedFetch(`/subcategories/${subId}`, {
+                method: 'DELETE'
+            });
+
+            if (response && response.ok) {
+                const result = await response.json();
+                showMessage(result.message, "success");
+                fetchSubcategories(); // Refresh list
+            } else if (response) {
+                const errorData = await response.json();
+                showMessage(`Error deleting subcategory: ${errorData.error || response.statusText}`, "error");
+            }
+        }
     </script>
 </body>
 </html>
