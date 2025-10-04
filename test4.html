@@ -3,35 +3,88 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sigurno dugme</title>
+<title>Sigurno Dugme</title>
+<meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+    body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #f0f2f5; }
+    button {
+        padding: 15px 30px;
+        font-size: 18px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+    button:hover:enabled {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+    #statusMessage {
+        margin-top: 20px;
+        font-size: 14px;
+        color: #333;
+    }
+    #g_id_onload { /* Skrivanje Google One Tap okvira dok se ne pripremi */
+        display: none;
+    }
+</style>
 </head>
 <body>
-<button id="secureButton" disabled>Pristisni dugme</button>
+    <div>
+        <div id="g_id_onload"
+             data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse"
+             data-auto_select="true"
+             data-ux_mode="popup">
+        </div>
+        <button id="secureButton" disabled>Pritisni dugme</button>
+        <p id="statusMessage"></p>
+    </div>
 
 <script>
 const CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com";
 let googleToken = null;
+const secureButton = document.getElementById("secureButton");
+const statusMessage = document.getElementById("statusMessage");
 
-// Inicijalizacija Google One Tap / autologin
-window.onload = () => {
-    google.accounts.id.initialize({
-        client_id: CLIENT_ID,
-        auto_select: true,
-        callback: handleCredentialResponse
-    });
-    google.accounts.id.prompt(); // prikazuje prompt ako nije ulogovan
+// Globalna funkcija za Google callback
+window.handleCredentialResponse = (response) => {
+    if (response.credential) {
+        googleToken = response.credential;
+        secureButton.disabled = false;
+        statusMessage.textContent = "Uspesno ulogovani! Sada možete pritisnuti dugme.";
+    } else {
+        statusMessage.textContent = "Prijava putem Google-a nije uspela ili je otkazana.";
+        secureButton.disabled = true;
+    }
 };
 
-function handleCredentialResponse(response) {
-    // response.credential je ID token
-    googleToken = response.credential;
-    document.getElementById("secureButton").disabled = false;
-}
+// Prikazivanje Google One Tap prompta nakon učitavanja skripte
+// google.accounts.id.prompt() se automatski poziva preko data-auto_select i data-ux_mode
+// u <div id="g_id_onload">
+window.onload = () => {
+    if (!googleToken) {
+        statusMessage.textContent = "Čekam Google prijavu...";
+    }
+};
 
-// Dugme
-document.getElementById("secureButton").addEventListener("click", async () => {
-    if (!googleToken) return alert("Niste ulogovani");
+secureButton.addEventListener("click", async () => {
+    if (!googleToken) {
+        statusMessage.textContent = "Greška: Niste ulogovani. Molimo pokušajte ponovo.";
+        // Možete ovde ponovo pozvati google.accounts.id.prompt() ako želite
+        google.accounts.id.prompt();
+        return;
+    }
+
+    secureButton.disabled = true; // Onemogući dugme tokom slanja zahteva
+    statusMessage.textContent = "Šaljem zahtev...";
 
     try {
         const res = await fetch("https://botanica.ngrok.app/click", {
@@ -41,11 +94,18 @@ document.getElementById("secureButton").addEventListener("click", async () => {
                 "Content-Type": "application/json"
             }
         });
+
         const data = await res.json();
-        alert(data.message || data.error);
+        if (res.ok) {
+            statusMessage.textContent = `Uspeh: ${data.message}`;
+        } else {
+            statusMessage.textContent = `Greška: ${data.error || "Nepoznata greška"}`;
+        }
     } catch (err) {
-        console.error(err);
-        alert("Greška pri komunikaciji sa serverom");
+        console.error("Greška pri komunikaciji sa serverom:", err);
+        statusMessage.textContent = "Greška: Nije moguće komunicirati sa serverom.";
+    } finally {
+        secureButton.disabled = false; // Ponovo omogući dugme nakon završetka
     }
 });
 </script>
