@@ -14,7 +14,7 @@
         <div id="auth-section">
             <h2>Sign in with Google</h2>
             <div id="g_id_onload"
-                 data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
                  data-callback="handleCredentialResponse"
                  data-auto_select="false"
                  data-cancel_on_tap_outside="false">
@@ -111,8 +111,8 @@
     </div>
 
     <script>
-        const CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"; // **ZAMENI SA TVOJIM CLIENT ID-JEM**
-        const BACKEND_URL = "https://botanica.ngrok.app";
+        const CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"; // **ZAMENI SA TVOJIM CLIENT ID-JEM**
+        const BACKEND_URL = "https://botanica.ngrok.app"; // IZMENJENO OVDJE
         let googleToken = null;
         let googleId = null;
         let userName = null;
@@ -199,7 +199,7 @@
                 return response;
             } catch (error) {
                 console.error("Network or server error:", error);
-                showMessage("Could not connect to the server.", "error");
+                showMessage("Could not connect to the server. Check if the ngrok tunnel is active and correctly configured.", "error");
                 return null;
             }
         }
