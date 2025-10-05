@@ -21,6 +21,9 @@
   .subcat-list { max-height:160px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
   .subcat-item { padding:6px; cursor:pointer; border-bottom:1px dashed #eee; }
   .subcat-item:hover { background:#f0f8ff; }
+
+  /* sakrij checkbox za proizvodjaca, ali ostavi funkcionalnost */
+  #cat_cb1 { display:none; }
 </style>
 </head>
 <body>
@@ -36,7 +39,8 @@
   <h2>Korisnicka podesavanja</h2>
   <div class="row">
     <div class="col">
-      <label><input type="checkbox" id="cat_cb1"> proizvodjac</label>
+      <!-- checkbox proizvodjac je sada nevidljiv, ali vrednost ostaje -->
+      <label><input type="checkbox" id="cat_cb1" checked> proizvodjac</label>
       <label><input type="checkbox" id="cat_cb2"> poslodavac</label>
     </div>
     <div class="col">
@@ -148,7 +152,7 @@ document.getElementById("btnLoadCategory").addEventListener("click", async () =>
     const data = r.json;
     if (!data.category) {
       status.textContent = "Nema kategorije (još). Polja su prazna.";
-      setCategoryFields({checkboxes:[false,false], dropdown:"", texts:["","","",""]});
+      setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]});
       document.getElementById("subcatList").innerHTML = "";
       return;
     }
@@ -198,7 +202,7 @@ document.getElementById("btnDeleteCategory").addEventListener("click", async () 
       return;
     }
     status.textContent = r.json.message || "Obrisano.";
-    setCategoryFields({checkboxes:[false,false], dropdown:"", texts:["","","",""]});
+    setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]});
     document.getElementById("subcatList").innerHTML = "";
   } catch (e) {
     console.error(e);
@@ -274,7 +278,7 @@ document.getElementById("btnUpdateSubcat").addEventListener("click", async () =>
 function getCategoryFields() {
   return {
     checkboxes: [
-      document.getElementById("cat_cb1").checked,
+      true, // proizvodjac je uvek true
       document.getElementById("cat_cb2").checked
     ],
     dropdown: document.getElementById("cat_dropdown").value,
@@ -288,8 +292,9 @@ function getCategoryFields() {
 }
 
 function setCategoryFields(obj) {
-  const cb = obj.checkboxes || [false,false];
-  document.getElementById("cat_cb1").checked = !!cb[0];
+  // fiksiramo checkbox proizvodjac
+  document.getElementById("cat_cb1").checked = true;
+  const cb = obj.checkboxes || [true,false];
   document.getElementById("cat_cb2").checked = !!cb[1];
   document.getElementById("cat_dropdown").value = obj.dropdown || "";
   const texts = obj.texts || ["","","",""];
