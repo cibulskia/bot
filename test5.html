@@ -11,7 +11,8 @@
   .box { background:white; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); margin-bottom:16px; }
   h2 { margin-top:0; }
   label { display:block; margin:6px 0; }
-  input[type="text"] { width:100%; padding:8px; border-radius:6px; border:1px solid #ddd; }
+  input[type="text"], textarea, select { width:100%; padding:8px; border-radius:6px; border:1px solid #ddd; font-family:Arial,sans-serif; font-size:14px; }
+  textarea { resize:vertical; min-height:80px; }
   button { padding:10px 14px; border-radius:8px; border:none; background:#0b76ff; color:white; cursor:pointer; margin-right:8px; }
   button.danger { background:#d9534f; }
   button.secondary { background:#6c757d; }
@@ -52,7 +53,7 @@
       </label>
 
       <label>ime firme: <input type="text" id="cat_text1" placeholder="Unesite ime firme"></label>
-      <label>opis firme: <input type="text" id="cat_text2" placeholder="Unesite opis firme"></label>
+      <label>opis firme: <textarea id="cat_text2" placeholder="Unesite opis firme"></textarea></label>
       <label>email: <input type="text" id="cat_text3" placeholder="Unesite email"></label>
       <label>internet stranica: <input type="text" id="cat_text4" placeholder="Unesite internet stranicu"></label>
     </div>
@@ -79,12 +80,12 @@
     <div style="flex:1;">
       <h3 id="subcatEditorTitle">Nije izabrana lista ponuda</h3>
       <label>posao: <input type="text" id="sub_name" disabled></label>
-      <label><input type="checkbox" id="sub_cb1">prijavljujem se za posao</label>
       <label>kratak opis: <input type="text" id="sub_text1" disabled></label>
-      <label>objasnjenje: <input type="text" id="sub_text2" disabled></label>
+      <label>objasnjenje: <textarea id="sub_text2" disabled></textarea></label>
       <label>rok za ponudu: <input type="text" id="sub_text3" disabled></label>
       <label>rok za izradu: <input type="text" id="sub_text4" disabled></label>
 
+      <label><input type="checkbox" id="sub_cb1">prijavljujem se za posao</label>
       <div style="margin-top:8px;">
         <button id="btnUpdateSubcat">posalji prijavu</button>
       </div>
@@ -258,7 +259,16 @@ document.getElementById("btnUpdateSubcat").addEventListener("click", async () =>
   const status = document.getElementById("subStatus");
   status.textContent = "Ažuriram...";
   try {
-    const payload = { checkboxes: [document.getElementById("sub_cb1").checked] };
+    const payload = {
+      checkboxes: [document.getElementById("sub_cb1").checked],
+      name: document.getElementById("sub_name").value,
+      texts: [
+        document.getElementById("sub_text1").value,
+        document.getElementById("sub_text2").value,
+        document.getElementById("sub_text3").value,
+        document.getElementById("sub_text4").value
+      ]
+    };
     const r = await apiFetch("/subcategory/update/" + selectedSubcatId, "POST", payload);
     if (!r.ok) {
       status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
