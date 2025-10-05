@@ -1,29 +1,17 @@
 // oauth.js
 const CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com";
 const API_BASE = "https://botanica.ngrok.app"; // backend tunel
-let googleToken = null;
-
-// Google One Tap callback
-window.handleCredentialResponse = (response) => {
-  if (response && response.credential) {
-    googleToken = response.credential;
-    document.getElementById("loginStatus").textContent = "Ulogovan (token primljen).";
-    document.getElementById("signOutBtn").style.display = "inline-block";
-    console.log("Google token received.");
-  } else {
-    document.getElementById("loginStatus").textContent = "Prijava nije uspela.";
-  }
-};
+// googleToken se sada deklarise u frontend.html
 
 document.getElementById("signOutBtn").addEventListener("click", () => {
-  googleToken = null;
+  googleToken = null; // Koristi globalni googleToken iz frontend.html
   document.getElementById("loginStatus").textContent = "Odjavljeno.";
   document.getElementById("signOutBtn").style.display = "none";
 });
 
 // helper: fetch with auth
 async function apiFetch(path, method = "GET", body = null) {
-  if (!googleToken) {
+  if (!googleToken) { // Koristi globalni googleToken iz frontend.html
     throw new Error("No Google token. Please sign in.");
   }
   const headers = {
