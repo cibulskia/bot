@@ -1,4 +1,3 @@
-<!-- frontend.html -->
 <!DOCTYPE html>
 <html lang="sr">
 <head>
@@ -21,11 +20,13 @@
   .subcat-list { max-height:160px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
   .subcat-item { padding:6px; cursor:pointer; border-bottom:1px dashed #eee; }
   .subcat-item:hover { background:#f0f8ff; }
-  /* sakrij checkbox-e vizuelno, ali ostavi u DOM */
+
+  /* sakrivanje oba checkboxa sa UI, ali ostaju funkcionalni u JS */
   .hidden-checkbox { display:none; }
 </style>
 </head>
 <body>
+
 <div id="g_id_onload" data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_select="true" data-ux_mode="popup"></div>
 
 <div class="box">
@@ -38,10 +39,9 @@
   <h2>Korisnicka podesavanja</h2>
   <div class="row">
     <div class="col">
-      <!-- Skriven checkbox za proizvodjača, uvek označen -->
-      <input type="checkbox" id="cat_cb1" class="hidden-checkbox" checked>
-      <!-- Skriven checkbox za poslodavca (nije potreban vizuelno) -->
-      <input type="checkbox" id="cat_cb2" class="hidden-checkbox">
+      <!-- sakriveni checkboxi -->
+      <label class="hidden-checkbox"><input type="checkbox" id="cat_cb1" checked> proizvodjac</label>
+      <label class="hidden-checkbox"><input type="checkbox" id="cat_cb2"> poslodavac</label>
     </div>
     <div class="col">
       <label>vrsta obrade:
@@ -278,7 +278,7 @@ document.getElementById("btnUpdateSubcat").addEventListener("click", async () =>
 function getCategoryFields() {
   return {
     checkboxes: [
-      true, // proizvodjac uvek true
+      document.getElementById("cat_cb1").checked,
       document.getElementById("cat_cb2").checked
     ],
     dropdown: document.getElementById("cat_dropdown").value,
@@ -292,9 +292,9 @@ function getCategoryFields() {
 }
 
 function setCategoryFields(obj) {
-  // checkbox proizvodjac uvek true
-  document.getElementById("cat_cb1").checked = true;
-  document.getElementById("cat_cb2").checked = (obj.checkboxes && obj.checkboxes[1]) || false;
+  const cb = obj.checkboxes || [true,false];
+  document.getElementById("cat_cb1").checked = !!cb[0]; // proizvodjac
+  document.getElementById("cat_cb2").checked = !!cb[1]; // poslodavac
   document.getElementById("cat_dropdown").value = obj.dropdown || "";
   const texts = obj.texts || ["","","",""];
   document.getElementById("cat_text1").value = texts[0] || "";
