@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Platforma za saradnju (Demo)</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Koristimo Montserrat font kao u Botanica primeru -->
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="style.css"> <!-- Povezujemo eksterni CSS fajl -->
+</head>
+<body>
+<div id="g_id_onload" data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_select="true" data-ux_mode="popup"></div>
+
+<div class="app-wrapper"> <!-- Novi omotač za ceo sadržaj -->
+
+  <!-- LOGIN SEKCIJA - Prilagođena da izgleda kao Botanica auth-card -->
+  <div class="auth-card-mockup" id="login-card"> <!-- Novi ID za lakšu manipulaciju, ali app.js i dalje gleda loginStatus -->
+    <img src="https://via.placeholder.com/150/0b76ff/FFFFFF?text=Platforma+Logo" alt="Platforma Logo" class="app-logo">
+    <h2>Dobrodošli na Platformu za saradnju</h2>
+    <p>Molimo prijavite se putem Google naloga za pristup.</p>
+    <!-- Google dugme za prijavu, pozicionira se unutar auth-card-mockup -->
+    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signin_with" data-shape="rectangular" data-logo_alignment="left"></div>
+    <p id="loginStatus" class="status-message-inline"></p> <!-- status message iz app.js -->
+    <button id="signOutBtn" style="display:none" class="btn btn-secondary btn-logout-inline"><i class="fas fa-sign-out-alt"></i> Odjavi se</button>
+  </div>
+  
+  <!-- Ostatak sadržaja, nakon prijave -->
+  <div class="container main-dashboard-content" style="display:none;" id="logged-in-content"> <!-- Novi ID i klasa za ostatak sadržaja nakon prijave -->
+    <!-- Navbar za prikaz emaila i odjavu (ako app.js ne manipuliše signOutBtn direktno, ovo je opcija) -->
+    <header class="navbar-top-mockup">
+        <div class="navbar-title">
+            <h1>Platforma Dashboard</h1>
+        </div>
+        <div class="navbar-user-info">
+            <span id="user-email-display"></span> <!-- placeholder za email, popunjava se iz app.js -->
+            <!-- Dugme za odjavu se i dalje nalazi u login-card-u i to je ok, jer se skriva/pokazuje tamo -->
+        </div>
+    </header>
+
+    <div class="content-row-mockup"> <!-- Omotač za kolone, da izgleda kao "tab" sadržaj -->
+        <div class="card col-settings"> <!-- box postaje card -->
+            <h2><i class="fas fa-cogs"></i> Korisnička podešavanja</h2>
+            <div class="form-grid-mockup"> <!-- Umesto .row i .col, koristimo grid za bolji raspored -->
+                <!-- cat_cb_container je i dalje tu, sa display:none; kao u originalnom CSS-u -->
+                <div class="form-group checkbox-group" id="cat_cb_container">
+                    <label><input type="checkbox" id="cat_cb1"> Proizvođač</label>
+                    <label><input type="checkbox" id="cat_cb2"> Poslodavac</label>
+                </div>
+                <div class="form-group">
+                    <label for="cat_dropdown">Primarna delatnost:</label>
+                    <select id="cat_dropdown">
+                        <option value="">-- izaberi --</option>
+                        <option value="opt1">Strugarska obrada</option>
+                        <option value="opt2">Glodačka obrada</option>
+                        <option value="opt3">Strugarska i glodačka obrada</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cat_text1">Naziv firme:</label>
+                    <input type="text" id="cat_text1" placeholder="Unesite naziv firme">
+                </div>
+                <div class="form-group full-width">
+                    <label for="cat_text2">Detaljan opis firme:</label>
+                    <textarea id="cat_text2" placeholder="Unesite detaljan opis vaše firme i usluga"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="cat_text3">Kontakt email:</label>
+                    <input type="text" id="cat_text3" placeholder="Unesite kontakt email">
+                </div>
+                <div class="form-group">
+                    <label for="cat_text4">Web stranica:</label>
+                    <input type="text" id="cat_text4" placeholder="Unesite URL vaše web stranice">
+                </div>
+            </div>
+
+            <div class="form-actions-mockup"> <!-- button-group postaje form-actions -->
+                <button id="btnLoadCategory" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Učitaj podešavanja</button>
+                <button id="btnUpdateCategory" class="btn btn-primary"><i class="fas fa-save"></i> Sačuvaj izmene</button>
+                <button id="btnDeleteCategory" class="btn btn-danger"><i class="fas fa-user-times"></i> Obriši nalog</button>
+            </div>
+            <div class="status-message mt-3" id="catStatus"></div>
+        </div>
+
+        <div class="card col-jobs"> <!-- box postaje card -->
+            <h2><i class="fas fa-briefcase"></i> Ponuda poslova</h2>
+            <div class="form-grid-mockup">
+                <div class="form-group full-width">
+                    <button id="btnListSubcats" class="btn btn-primary" style="width:100%;"><i class="fas fa-clipboard-list"></i> Prikaz svih ponuda</button>
+                </div>
+                <div class="form-group full-width subcat-list-container">
+                    <div class="subcat-list" id="subcatList"></div>
+                </div>
+            </div>
+
+            <div class="card sub-card mt-3"> <!-- Ugnježdena kartica za detalje posla -->
+                <h4 id="subcatEditorTitle" class="card-subtitle">Nije izabrana ponuda</h4>
+                <div class="form-grid-mockup">
+                    <div class="form-group">
+                        <label for="sub_name">Naziv posla:</label>
+                        <input type="text" id="sub_name" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="sub_text1">Kratak opis:</label>
+                        <input type="text" id="sub_text1" disabled>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="sub_text2">Detaljan opis posla:</label>
+                        <textarea id="sub_text2" disabled></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="sub_text3">Rok za dostavu ponude:</label>
+                        <input type="text" id="sub_text3" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="sub_text4">Očekivani rok za izradu:</label>
+                        <input type="text" id="sub_text4" disabled>
+                    </div>
+                    <div class="form-group checkbox-group full-width">
+                        <input type="checkbox" id="sub_cb1">
+                        <label for="sub_cb1">Želim da se prijavim za ovaj posao</label>
+                    </div>
+                </div>
+                <div class="form-actions-mockup">
+                    <button id="btnUpdateSubcat" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Pošalji prijavu</button>
+                </div>
+                <div class="status-message mt-3" id="subStatus"></div>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
+<!-- Aplikacijski kod - NE MENJA SE! -->
+<script src="app.js"></script>
+<script>
+    // Mala pomoćna skripta koja reaguje na prijavu/odjavu
+    // i skriva/pokazuje glavni sadržaj, pošto app.js ne radi "main-section" logiku
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginCard = document.getElementById('login-card');
+        const loggedInContent = document.getElementById('logged-in-content');
+        const loginStatusParagraph = document.getElementById('loginStatus');
+        const signOutButton = document.getElementById('signOutBtn');
+        const userEmailDisplay = document.getElementById('user-email-display');
+
+        // Funkcija za praćenje promena u DOM-u
+        const observer = new MutationObserver(mutations => {
+            mutations.forEach(mutation => {
+                if (mutation.attributeName === 'style' || mutation.type === 'childList') {
+                    // Proveravamo da li je signOutBtn prikazan
+                    const isUserLoggedIn = signOutButton.style.display !== 'none';
+
+                    if (isUserLoggedIn) {
+                        loginCard.style.display = 'none';
+                        loggedInContent.style.display = 'flex'; // Promenjeno na 'flex' za layout
+                        userEmailDisplay.textContent = loginStatusParagraph.textContent.replace('Uspesna prijava kao: ', '');
+                    } else {
+                        loginCard.style.display = 'flex'; // Prikazujemo login karticu
+                        loggedInContent.style.display = 'none';
+                        userEmailDisplay.textContent = '';
+                    }
+                }
+            });
+        });
+
+        // Konfiguracija observera: prati promene atributa i dece u loginStatus i signOutBtn
+        observer.observe(loginStatusParagraph, { attributes: true, childList: true, subtree: true });
+        observer.observe(signOutButton, { attributes: true, childList: true });
+
+        // Dodatno, na početku proveri stanje
+        if (signOutButton.style.display !== 'none') {
+            loginCard.style.display = 'none';
+            loggedInContent.style.display = 'flex';
+            userEmailDisplay.textContent = loginStatusParagraph.textContent.replace('Uspesna prijava kao: ', '');
+        } else {
+            loginCard.style.display = 'flex';
+            loggedInContent.style.display = 'none';
+            userEmailDisplay.textContent = '';
+        }
+    });
+</script>
+</body>
+</html>
