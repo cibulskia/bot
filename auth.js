@@ -1,18 +1,19 @@
 // oauth.js
-const CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com";
+// Konstante za API putanje
 const API_BASE = "https://botanica.ngrok.app"; // backend tunel
-// googleToken se sada deklarise u frontend.html
 
+// Odjava
 document.getElementById("signOutBtn").addEventListener("click", () => {
-  googleToken = null; // Koristi globalni googleToken iz frontend.html
+  // Resetuje globalni token definisan u frontend.html
+  googleToken = null;
   document.getElementById("loginStatus").textContent = "Odjavljeno.";
   document.getElementById("signOutBtn").style.display = "none";
 });
 
-// helper: fetch with auth
-// Postavi apiFetch u globalni opseg
+// Pomoćna funkcija za HTTP zahteve sa autorizacijom
+// Postavljena u globalni opseg (window) da bi bila dostupna u backend.js
 window.apiFetch = async function (path, method = "GET", body = null) {
-  if (!googleToken) { // Koristi globalni googleToken iz frontend.html
+  if (!googleToken) {
     throw new Error("No Google token. Please sign in.");
   }
   const headers = {
@@ -29,6 +30,7 @@ window.apiFetch = async function (path, method = "GET", body = null) {
     const json = JSON.parse(txt);
     return { ok: res.ok, status: res.status, json };
   } catch (e) {
-    return { ok: res.ok, status: res.status, json: { raw: txt } };
+    // Ako odgovor nije validan JSON (npr. prazan odgovor ili HTML greška)
+    return { ok: res.ok, status: res.status, json: { message: txt || "Unknown error" } };
   }
-}
+};
