@@ -21,9 +21,8 @@
   .subcat-list { max-height:160px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
   .subcat-item { padding:6px; cursor:pointer; border-bottom:1px dashed #eee; }
   .subcat-item:hover { background:#f0f8ff; }
-
-  /* sakrij checkbox za proizvodjaca, ali ostavi funkcionalnost */
-  #cat_cb1 { display:none; }
+  /* sakriveni checkbox */
+  .hidden-checkbox { display: none; }
 </style>
 </head>
 <body>
@@ -39,8 +38,8 @@
   <h2>Korisnicka podesavanja</h2>
   <div class="row">
     <div class="col">
-      <!-- checkbox proizvodjac je sada nevidljiv, ali vrednost ostaje -->
-      <label><input type="checkbox" id="cat_cb1" checked> proizvodjac</label>
+      <!-- Sakriveni checkbox proizvodjac -->
+      <input type="hidden" id="cat_cb1" value="true" class="hidden-checkbox">
       <label><input type="checkbox" id="cat_cb2"> poslodavac</label>
     </div>
     <div class="col">
@@ -198,7 +197,8 @@ document.getElementById("btnDeleteCategory").addEventListener("click", async () 
   try {
     const r = await apiFetch("/category/delete_all", "POST", {});
     if (!r.ok) {
-      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      status.textContent = "Greška: " + (r.json.error ||
+JSON.stringify(r.json));
       return;
     }
     status.textContent = r.json.message || "Obrisano.";
@@ -278,7 +278,7 @@ document.getElementById("btnUpdateSubcat").addEventListener("click", async () =>
 function getCategoryFields() {
   return {
     checkboxes: [
-      true, // proizvodjac je uvek true
+      document.getElementById("cat_cb1").value === "true",
       document.getElementById("cat_cb2").checked
     ],
     dropdown: document.getElementById("cat_dropdown").value,
@@ -292,9 +292,9 @@ function getCategoryFields() {
 }
 
 function setCategoryFields(obj) {
-  // fiksiramo checkbox proizvodjac
-  document.getElementById("cat_cb1").checked = true;
   const cb = obj.checkboxes || [true,false];
+  // checkbox proizvodjac uvek ostaje true (sakriven)
+  document.getElementById("cat_cb1").value = cb[0] ? "true" : "false";
   document.getElementById("cat_cb2").checked = !!cb[1];
   document.getElementById("cat_dropdown").value = obj.dropdown || "";
   const texts = obj.texts || ["","","",""];
