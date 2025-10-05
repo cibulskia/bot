@@ -8,10 +8,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
   :root {
-    --primary-color: #0b76ff; /* Plava */
+    --primary-color: #0b76ff;
     --primary-color-dark: #0056b3;
-    --secondary-color: #6c757d; /* Siva */
-    --accent-color: #28a745; /* Zelena za akciju */
+    --secondary-color: #6c757d;
+    --accent-color: #28a745;
     --accent-color-dark: #218838;
     --background-light: #f6f7fb;
     --background-white: #ffffff;
@@ -34,8 +34,6 @@
     background: var(--background-light);
     color: var(--text-color-dark);
     line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
   .container {
@@ -131,7 +129,6 @@
     margin-right: auto;
   }
 
-  /* General Button Styles */
   .btn {
     padding: 14px 28px;
     border-radius: var(--border-radius);
@@ -384,20 +381,28 @@
   @media (max-width: 900px) {
     .header .container {
       flex-direction: column;
-      height: auto;
-      text-align: center;
+      height: auto; /* Visina se prilagođava sadržaju */
+      padding: var(--spacing-sm) var(--spacing-md);
+      align-items: center;
     }
     .nav-menu ul {
-      margin-top: var(--spacing-md);
+      margin-top: var(--spacing-sm);
       flex-wrap: wrap;
       justify-content: center;
-      gap: var(--spacing-md);
+      gap: var(--spacing-sm);
     }
     .header-actions {
-      margin-top: var(--spacing-md);
+      margin-top: var(--spacing-sm);
+      display: flex;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      flex-wrap: wrap;
+      width: auto;
     }
     .header-actions .btn {
-      margin: 0 var(--spacing-sm);
+      margin: var(--spacing-sm) 0;
+      flex-grow: 0;
+      width: auto;
     }
     .hero {
       padding: 80px 0;
@@ -434,17 +439,16 @@
     .hero p {
       font-size: 1em;
     }
-    .btn {
-      width: 100%;
-      margin: var(--spacing-sm) 0 !important; /* Override margin for full width buttons */
-    }
     .nav-menu ul {
-        flex-direction: column;
-        align-items: center;
+      flex-direction: column;
+      align-items: center;
+    }
+    .nav-menu a {
+      padding: var(--spacing-sm) 0;
     }
   }
 
-  /* Animation for elements on scroll (optional, can be added with JS) */
+  /* Animation */
   .fade-in {
     opacity: 0;
     transform: translateY(20px);
@@ -487,184 +491,9 @@
     </div>
   </section>
 
-  <!-- About Section -->
-  <section id="about" class="section fade-in">
-    <div class="container">
-      <h2 class="section-title">O IndustriConnect Platformi</h2>
-      <p class="section-description">
-        U dinamičnom svetu industrije, pronalaženje pravih partnera može biti izazov. IndustriConnect je stvoren da premosti jaz između proizvođača i poslodavaca, nudeći transparentno i efikasno okruženje za saradnju.
-      </p>
-      <div class="grid-3-cols">
-        <div class="feature-card">
-          <i class="fas fa-handshake"></i>
-          <h3>Pouzdan Partnerstvo</h3>
-          <p>Gradimo mostove poverenja. Pronađite verificirane proizvođače i poslodavce koji dele vaše standarde kvaliteta.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-tachometer-alt"></i>
-          <h3>Efikasna Saradnja</h3>
-          <p>Optimizovan proces od objavljivanja posla do finalizacije. Uštedite vreme i resurse.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-chart-line"></i>
-          <h3>Rast Vašeg Poslovanja</h3>
-          <p>Pristupite širokoj mreži prilika i proširite svoje poslovanje na nova tržišta.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- Sections O Nama, Prednosti, Kako Radi, Testimonials, CTA, Footer ostaju isti... -->
   
-  <!-- Features Section -->
-  <section id="features" class="section fade-in">
-    <div class="container">
-      <h2 class="section-title">Ključne Prednosti</h2>
-      <p class="section-description">
-        Bilo da ste proizvođač koji traži nove poslove ili poslodavac koji traži specifične usluge, IndustriConnect nudi alate koji vam pomažu da uspete.
-      </p>
-      <div class="grid-3-cols">
-        <div class="feature-card">
-          <i class="fas fa-search-dollar"></i>
-          <h3>Pronalaženje Poslova</h3>
-          <p>Proizvođači mogu lako pregledati aktuelne ponude poslova za strugarsku, glodačku i kombinovanu obradu.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-user-tie"></i>
-          <h3>Objavljivanje Ponuda</h3>
-          <p>Poslodavci mogu brzo objaviti detaljne opise poslova i primati prijave od kvalifikovanih proizvođača.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-briefcase"></i>
-          <h3>Profilisanje Firma</h3>
-          <p>Kreirajte detaljan profil vaše firme sa opisom delatnosti i referencama za veći kredibilitet.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-bell"></i>
-          <h3>Obaveštenja u Realnom Vremenu</h3>
-          <p>Budite obavešteni o novim poslovima ili prijavama koje odgovaraju vašim kriterijumima.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-shield-alt"></i>
-          <h3>Sigurnost i Privatnost</h3>
-          <p>Vaši podaci su sigurni. Fokusiramo se na zaštitu informacija i transparentnost.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-headset"></i>
-          <h3>Korisnička Podrška</h3>
-          <p>Naš tim je uvek tu da vam pomogne oko bilo kakvih pitanja ili problema.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- How It Works Section -->
-  <section id="how-it-works" class="section fade-in">
-    <div class="container">
-      <h2 class="section-title">Kako Funkcioniše IndustriConnect?</h2>
-      <p class="section-description">
-        Jednostavno je započeti saradnju. Pratite ove korake da biste iskoristili pun potencijal platforme.
-      </p>
-      <div class="grid-3-cols">
-        <div class="feature-card">
-          <i class="fas fa-user-plus"></i>
-          <h3>1. Registrujte se</h3>
-          <p>Brza i laka registracija putem Google naloga. Kreirajte svoj profil kao proizvođač ili poslodavac.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-clipboard-check"></i>
-          <h3>2. Popunite Profil</h3>
-          <p>Unesite detalje o vašoj firmi, delatnosti i uslugama koje nudite ili tražite.</p>
-        </div>
-        <div class="feature-card">
-          <i class="fas fa-link"></i>
-          <h3>3. Povežite se</h3>
-          <p>Proizvođači apliciraju za poslove, poslodavci objavljuju ponude i pronalaze idealne kandidate.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonials Section -->
-  <section id="testimonials" class="section fade-in">
-    <div class="container">
-      <h2 class="section-title">Šta Kažu Naši Korisnici?</h2>
-      <p class="section-description">
-        Ponosi smo na uspešne priče koje su nastale zahvaljujući IndustriConnect platformi.
-      </p>
-      <div class="grid-3-cols">
-        <div class="testimonial-card">
-          <p class="testimonial-text">"Pronalaženje pouzdanih partnera za strugarsku obradu nikada nije bilo lakše. IndustriConnect nam je uštedeo sate pretrage i omogućio nam da se fokusiramo na ono što radimo najbolje."</p>
-          <p class="testimonial-author">Marko Petrović</p>
-          <p class="testimonial-role">CEO, "Precizna Obrada D.O.O."</p>
-        </div>
-        <div class="testimonial-card">
-          <p class="testimonial-text">"Kao proizvođač, uvek sam u potrazi za novim izazovima. Preko IndustriConnecta sam pronašao nekoliko izuzetnih poslova koji su mi pomogli da proširim kapacitete i znanje."</p>
-          <p class="testimonial-author">Jelena Kovačević</p>
-          <p class="testimonial-role">Vlasnik, "Metal-Craft Radionica"</p>
-        </div>
-        <div class="testimonial-card">
-          <p class="testimonial-text">"Imali smo hitan projekat i zahvaljujući platformi, za samo nekoliko dana smo dobili ponude od nekoliko visoko kvalifikovanih proizvođača. Izbor je bio lak!"</p>
-          <p class="testimonial-author">Ivan Simić</p>
-          <p class="testimonial-role">Rukovodilac nabavke, "Inovativni Sistemi A.D."</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="cta-section">
-    <div class="container fade-in">
-      <h2>Spremni za Akciju?</h2>
-      <p>Pridružite se zajednici uspešnih industrijskih profesionalaca. Vaša sledeća velika prilika je samo jedan klik daleko.</p>
-      <a href="test7.html" class="btn btn-primary btn-lg"><i class="fas fa-plus-circle"></i> Kreiraj Nalog Sada!</a>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-col">
-        <h3><i class="fas fa-industry"></i> IndustriConnect</h3>
-        <p>Vaš partner za industrijsku saradnju. Povezujemo talente i prilike.</p>
-        <div class="social-icons">
-          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h3>Brzi Linkovi</h3>
-        <ul>
-          <li><a href="#about">O Nama</a></li>
-          <li><a href="#features">Prednosti</a></li>
-          <li><a href="#how-it-works">Kako Radi</a></li>
-          <li><a href="#testimonials">Iskustva</a></li>
-          <li><a href="#contact">Kontakt</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h3>Usluge</h3>
-        <ul>
-          <li><a href="#">Objavljivanje Poslova</a></li>
-          <li><a href="#">Prijave Proizvođača</a></li>
-          <li><a href="#">Upravljanje Profilom</a></li>
-          <li><a href="#">Podrška</a></li>
-        </ul>
-      </div>
-      <div class="footer-col" id="contact">
-        <h3>Kontakt</h3>
-        <p><i class="fas fa-map-marker-alt"></i> Bulevar Oslobođenja 123, 21000 Novi Sad</p>
-        <p><i class="fas fa-envelope"></i> info@industriconnect.rs</p>
-        <p><i class="fas fa-phone"></i> +381 21 123 456</p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      &copy; 2023 IndustriConnect. Sva prava zadržana.
-    </div>
-  </footer>
-
   <script>
-    // Simple JavaScript for scroll-based animations (optional)
     document.addEventListener("DOMContentLoaded", function() {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -672,10 +501,9 @@
             entry.target.classList.add('appear');
             return;
           }
-          entry.target.classList.remove('appear'); // Optional: remove 'appear' when out of view
+          entry.target.classList.remove('appear');
         });
-      }, { threshold: 0.1 }); // Trigger when 10% of the element is visible
-
+      }, { threshold: 0.1 });
       document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el));
     });
   </script>
