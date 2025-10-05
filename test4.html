@@ -12,6 +12,7 @@
   h2 { margin-top:0; }
   label { display:block; margin:6px 0; }
   input[type="text"] { width:100%; padding:8px; border-radius:6px; border:1px solid #ddd; }
+  select { padding:8px; border-radius:6px; }
   button { padding:10px 14px; border-radius:8px; border:none; background:#0b76ff; color:white; cursor:pointer; margin-right:8px; }
   button.danger { background:#d9534f; }
   button.secondary { background:#6c757d; }
@@ -33,33 +34,33 @@
 </div>
 
 <div class="box">
-  <h2>Korisnicka podesavanja</h2>
+  <h2>Kategorija (glavni deo)</h2>
   <div class="row">
     <div class="col">
-      <label><input type="checkbox" id="cat_cb1"> proizvodjac</label>
-      <label><input type="checkbox" id="cat_cb2"> poslodavac</label>
+      <label><input type="checkbox" id="cat_cb1"> Checkbox 1</label>
+      <label><input type="checkbox" id="cat_cb2"> Checkbox 2</label>
     </div>
     <div class="col">
-      <label>vrsta obrade:
+      <label>Dropdown:
         <select id="cat_dropdown">
           <option value="">-- izaberi --</option>
-          <option value="opt1">strug</option>
-          <option value="opt2">glodalica</option>
-          <option value="opt3">strug i glodalica</option>
+          <option value="opt1">Opcija 1</option>
+          <option value="opt2">Opcija 2</option>
+          <option value="opt3">Opcija 3</option>
         </select>
       </label>
 
-      <label>ime firme: <input type="text" id="cat_text1" placeholder="Unesite ime firme"></label>
-      <label>opis firme: <input type="text" id="cat_text2" placeholder="Unesite opis firme"></label>
-      <label>email: <input type="text" id="cat_text3" placeholder="Unesite email"></label>
-      <label>internet stranica: <input type="text" id="cat_text4" placeholder="Unesite internet stranicu"></label>
+      <label>Text 1: <input type="text" id="cat_text1"></label>
+      <label>Text 2: <input type="text" id="cat_text2"></label>
+      <label>Text 3: <input type="text" id="cat_text3"></label>
+      <label>Text 4: <input type="text" id="cat_text4"></label>
     </div>
   </div>
 
   <div style="margin-top:12px;">
-    <button id="btnLoadCategory">Učitaj podesavanja</button>
-    <button id="btnUpdateCategory">Sačuvaj / Ažuriraj podesavanja</button>
-    <button id="btnDeleteCategory" class="danger">Obriši nalog</button>
+    <button id="btnLoadCategory">Učitaj kategoriju</button>
+    <button id="btnUpdateCategory">Sačuvaj / Ažuriraj kategoriju</button>
+    <button id="btnDeleteCategory" class="danger">Obriši sve iz kategorije</button>
   </div>
   <div class="status" id="catStatus"></div>
 </div>
@@ -70,21 +71,34 @@
     <div style="width:280px;">
       <div style="display:flex; gap:8px; margin-bottom:8px;">
         <button id="btnListSubcats">Lista podkategorija</button>
+        <button id="btnCreateSubcat">Kreiraj novu</button>
       </div>
       <div class="subcat-list" id="subcatList"></div>
     </div>
 
     <div style="flex:1;">
       <h3 id="subcatEditorTitle">Nije izabrana podkategorija</h3>
-      <label>Ime podkategorije: <input type="text" id="sub_name" disabled></label>
-      <label><input type="checkbox" id="sub_cb1">konkurisi</label>
-      <label>kratak opis: <input type="text" id="sub_text1" disabled></label>
-      <label>objasnjenje: <input type="text" id="sub_text2" disabled></label>
-      <label>dodatak 1: <input type="text" id="sub_text3" disabled></label>
-      <label>dodatak 2: <input type="text" id="sub_text4" disabled></label>
+      <label>Ime podkategorije: <input type="text" id="sub_name"></label>
+      <div style="display:flex; gap:12px;">
+        <label><input type="checkbox" id="sub_cb1">CB1</label>
+        <label><input type="checkbox" id="sub_cb2">CB2</label>
+      </div>
+      <label>Dropdown:
+        <select id="sub_dropdown">
+          <option value="">-- izaberi --</option>
+          <option value="opt1">Opcija 1</option>
+          <option value="opt2">Opcija 2</option>
+          <option value="opt3">Opcija 3</option>
+        </select>
+      </label>
+      <label>Text 1: <input type="text" id="sub_text1"></label>
+      <label>Text 2: <input type="text" id="sub_text2"></label>
+      <label>Text 3: <input type="text" id="sub_text3"></label>
+      <label>Text 4: <input type="text" id="sub_text4"></label>
 
       <div style="margin-top:8px;">
         <button id="btnUpdateSubcat">Ažuriraj podkategoriju</button>
+        <button id="btnDeleteSubcat" class="danger">Obriši podkategoriju</button>
       </div>
       <div class="status" id="subStatus"></div>
     </div>
@@ -206,7 +220,7 @@ document.getElementById("btnDeleteCategory").addEventListener("click", async () 
   }
 });
 
-// Subcategories list
+// Subcategories list/create
 document.getElementById("btnListSubcats").addEventListener("click", async () => {
   const status = document.getElementById("subStatus");
   status.textContent = "Učitavam listu...";
@@ -231,6 +245,24 @@ document.getElementById("btnListSubcats").addEventListener("click", async () => 
   }
 });
 
+document.getElementById("btnCreateSubcat").addEventListener("click", async () => {
+  const status = document.getElementById("subStatus");
+  status.textContent = "Kreiram...";
+  try {
+    const payload = getSubcatFields();
+    const r = await apiFetch("/subcategory/create", "POST", payload);
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
+    status.textContent = `Kreirana podkategorija id=${r.json.id}`;
+    await document.getElementById("btnListSubcats").click();
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri kreiranju.";
+  }
+});
+
 async function loadSubcatForEdit(id) {
   const status = document.getElementById("subStatus");
   status.textContent = "Učitavam podkategoriju...";
@@ -252,11 +284,14 @@ async function loadSubcatForEdit(id) {
 }
 
 document.getElementById("btnUpdateSubcat").addEventListener("click", async () => {
-  if (!selectedSubcatId) { alert("Nije izabrana podkategorija."); return; }
+  if (!selectedSubcatId) {
+    alert("Nije izabrana podkategorija. Možete kreirati novu ili iz liste izabrati neku.");
+    return;
+  }
   const status = document.getElementById("subStatus");
   status.textContent = "Ažuriram...";
   try {
-    const payload = { checkboxes: [document.getElementById("sub_cb1").checked] };
+    const payload = getSubcatFields();
     const r = await apiFetch("/subcategory/update/" + selectedSubcatId, "POST", payload);
     if (!r.ok) {
       status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
@@ -267,6 +302,28 @@ document.getElementById("btnUpdateSubcat").addEventListener("click", async () =>
   } catch (e) {
     console.error(e);
     status.textContent = "Greška pri ažuriranju.";
+  }
+});
+
+document.getElementById("btnDeleteSubcat").addEventListener("click", async () => {
+  if (!selectedSubcatId) { alert("Niste izabrali podkategoriju."); return; }
+  if (!confirm("Da li stvarno obrisati podkategoriju?")) return;
+  const status = document.getElementById("subStatus");
+  status.textContent = "Brišem...";
+  try {
+    const r = await apiFetch("/subcategory/delete/" + selectedSubcatId, "POST", {});
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
+    status.textContent = r.json.message || "Obrisano.";
+    selectedSubcatId = null;
+    document.getElementById("subcatEditorTitle").textContent = "Nije izabrana podkategorija";
+    setSubcatFields({name:"", checkboxes:[false,false], dropdown:"", texts:["","","",""]});
+    await document.getElementById("btnListSubcats").click();
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri brisanju podkategorije.";
   }
 });
 
@@ -299,18 +356,34 @@ function setCategoryFields(obj) {
   document.getElementById("cat_text4").value = texts[3] || "";
 }
 
+function getSubcatFields() {
+  return {
+    name: document.getElementById("sub_name").value || "",
+    checkboxes: [
+      document.getElementById("sub_cb1").checked,
+      document.getElementById("sub_cb2").checked
+    ],
+    dropdown: document.getElementById("sub_dropdown").value,
+    texts: [
+      document.getElementById("sub_text1").value,
+      document.getElementById("sub_text2").value,
+      document.getElementById("sub_text3").value,
+      document.getElementById("sub_text4").value
+    ]
+  };
+}
+
 function setSubcatFields(s) {
   document.getElementById("sub_name").value = s.name || "";
-  document.getElementById("sub_name").disabled = true;
-  document.getElementById("sub_cb1").checked = (s.checkboxes && s.checkboxes[0]) || false;
-  document.getElementById("sub_text1").value = (s.texts && s.texts[0]) || "";
-  document.getElementById("sub_text2").value = (s.texts && s.texts[1]) || "";
-  document.getElementById("sub_text3").value = (s.texts && s.texts[2]) || "";
-  document.getElementById("sub_text4").value = (s.texts && s.texts[3]) || "";
-  document.getElementById("sub_text1").disabled = true;
-  document.getElementById("sub_text2").disabled = true;
-  document.getElementById("sub_text3").disabled = true;
-  document.getElementById("sub_text4").disabled = true;
+  const cb = s.checkboxes || [false,false];
+  document.getElementById("sub_cb1").checked = !!cb[0];
+  document.getElementById("sub_cb2").checked = !!cb[1];
+  document.getElementById("sub_dropdown").value = s.dropdown || "";
+  const texts = s.texts || ["","","",""];
+  document.getElementById("sub_text1").value = texts[0] || "";
+  document.getElementById("sub_text2").value = texts[1] || "";
+  document.getElementById("sub_text3").value = texts[2] || "";
+  document.getElementById("sub_text4").value = texts[3] || "";
 }
 </script>
 </body>
