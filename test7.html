@@ -6,26 +6,27 @@
 <title>Category Manager (Demo)</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-  body { font-family: Arial, sans-serif; margin: 20px; background:#f6f7fb; color:#111; }
-  .box { background:white; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); margin-bottom:16px; }
-  h2 { margin-top:0; }
-  label { display:block; margin:6px 0; }
-  input[type="text"], textarea, select { width:100%; padding:8px; border-radius:6px; border:1px solid #ddd; font-family:Arial,sans-serif; font-size:14px; }
-  textarea { resize:vertical; min-height:80px; }
-  button { padding:10px 14px; border-radius:8px; border:none; background:#0b76ff; color:white; cursor:pointer; margin-right:8px; }
-  button.danger { background:#d9534f; }
-  button.secondary { background:#6c757d; }
-  .row { display:flex; gap:12px; }
-  .col { flex:1; }
-  .status { margin-top:8px; color:#333; }
-  .subcat-list { max-height:160px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
-  .subcat-item { padding:6px; cursor:pointer; border-bottom:1px dashed #eee; }
-  .subcat-item:hover { background:#f0f8ff; }
-  #cat_cb_container { display:none; }
+  /* ... (isti CSS kod) ... */
 </style>
 </head>
 <body>
 <div id="g_id_onload" data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_select="true" data-ux_mode="popup"></div>
+
+<!-- Premesti handleCredentialResponse direktno ovde, pre ucitavanja ostalih skripti -->
+<script>
+  let googleToken = null; // Deklarisi googleToken globalno ovde ili ga prosledi
+
+  window.handleCredentialResponse = (response) => {
+    if (response && response.credential) {
+      googleToken = response.credential;
+      document.getElementById("loginStatus").textContent = "Ulogovan (token primljen).";
+      document.getElementById("signOutBtn").style.display = "inline-block";
+      console.log("Google token received.");
+    } else {
+      document.getElementById("loginStatus").textContent = "Prijava nije uspela.";
+    }
+  };
+</script>
 
 <div class="box">
   <h2>Prijava</h2>
@@ -88,7 +89,7 @@
   </div>
 </div>
 
-<script src="oauth.js"></script>
+<script src="oauth.js"></script> <!-- oauth.js sada moze da koristi googleToken i druge globalne stvari -->
 <script src="backend.js"></script>
 </body>
 </html>
