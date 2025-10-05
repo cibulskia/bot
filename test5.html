@@ -1,4 +1,3 @@
-<!-- frontend.html -->
 <!DOCTYPE html>
 <html lang="sr">
 <head>
@@ -21,6 +20,9 @@
   .subcat-list { max-height:160px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
   .subcat-item { padding:6px; cursor:pointer; border-bottom:1px dashed #eee; }
   .subcat-item:hover { background:#f0f8ff; }
+
+  /* Sakrivanje labela za "proizvođač" */
+  .hidden-label { display:none; }
 </style>
 </head>
 <body>
@@ -36,8 +38,8 @@
   <h2>Korisnicka podesavanja</h2>
   <div class="row">
     <div class="col">
-      <!-- Checkbox "proizvođač" je sakriven i uvek true -->
-      <input type="hidden" id="cat_cb1" value="true">
+      <!-- Checkbox "proizvođač" je hidden i uvek true -->
+      <label class="hidden-label"><input type="hidden" id="cat_cb1" checked>proizvođač</label>
       <label><input type="checkbox" id="cat_cb2"> poslodavac</label>
     </div>
     <div class="col">
@@ -104,6 +106,7 @@ window.handleCredentialResponse = (response) => {
     googleToken = response.credential;
     document.getElementById("loginStatus").textContent = "Ulogovan (token primljen).";
     document.getElementById("signOutBtn").style.display = "inline-block";
+    console.log("Google token received.");
   } else {
     document.getElementById("loginStatus").textContent = "Prijava nije uspela.";
   }
@@ -115,26 +118,50 @@ document.getElementById("signOutBtn").addEventListener("click", () => {
   document.getElementById("signOutBtn").style.display = "none";
 });
 
+// helper: fetch with auth
 async function apiFetch(path, method="GET", body=null) {
-  if (!googleToken) throw new Error("No Google token. Please sign in.");
-  const headers = {"Authorization": `Bearer ${googleToken}`, "Content-Type": "application/json"};
-  const res = await fetch(API_BASE + path, {method, headers, body: body ? JSON.stringify(body) : undefined});
+  if (!googleToken) {
+    throw new Error("No Google token. Please sign in.");
+  }
+  const headers = {
+    "Authorization": `Bearer ${googleToken}`,
+    "Content-Type": "application/json"
+  };
+  const res = await fetch(API_BASE + path, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
   const txt = await res.text();
-  try { return { ok: res.ok, status: res.status, json: JSON.parse(txt) }; } 
-  catch(e) { return { ok: res.ok, status: res.status, json:{raw:txt} }; }
+  try {
+    const json = JSON.parse(txt);
+    return { ok: res.ok, status: res.status, json };
+  } catch (e) {
+    return { ok: res.ok, status: res.status, json: { raw: txt } };
+  }
 }
 
-// --- Kategorije ---
+// Category buttons
 document.getElementById("btnLoadCategory").addEventListener("click", async () => {
   const status = document.getElementById("catStatus");
   status.textContent = "Učitavanje...";
   try {
     const r = await apiFetch("/category/load", "GET");
     if (!r.ok) throw r.json;
-    setCategoryFields(r.json.category || {checkboxes:[true,false], dropdown:"", texts:["","","",""]});
+    const data = r.json;
+    if (!data.category) {
+      status.textContent = "Nema kategorije (još). Polja su prazna.";
+      setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]});
+      document.getElementById("subcatList").innerHTML = "";
+      return;
+    }
+    // obavezno "proizvođač" uvek true
+    if (!data.category.checkboxes) data.category.checkboxes = [];
+    data.category.checkboxes[0] = true;
+    setCategoryFields(data.category);
     const scList = document.getElementById("subcatList");
     scList.innerHTML = "";
-    (r.json.subcategories || []).forEach(s => {
+    (data.subcategories || []).forEach(s => {
       const div = document.createElement("div");
       div.className = "subcat-item";
       div.textContent = `${s.id} — ${s.name || "(bez imena)"}`;
@@ -143,7 +170,10 @@ document.getElementById("btnLoadCategory").addEventListener("click", async () =>
       scList.appendChild(div);
     });
     status.textContent = "Podesavanja učitana.";
-  } catch (e) { console.error(e); status.textContent = "Greška pri učitavanju kategorije."; }
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri učitavanju kategorije.";
+  }
 });
 
 document.getElementById("btnUpdateCategory").addEventListener("click", async () => {
@@ -151,75 +181,112 @@ document.getElementById("btnUpdateCategory").addEventListener("click", async () 
   status.textContent = "Šaljem...";
   try {
     const payload = getCategoryFields();
+    // obavezno "proizvođač" uvek true
+    payload.checkboxes[0] = true;
     const r = await apiFetch("/category/update", "POST", payload);
-    status.textContent = r.ok ? (r.json.message || "Sačuvano.") : "Greška: "+JSON.stringify(r.json);
-  } catch(e){console.error(e); status.textContent="Greška pri slanju.";}
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
+    status.textContent = r.json.message || "Sačuvano.";
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri slanju.";
+  }
 });
 
 document.getElementById("btnDeleteCategory").addEventListener("click", async () => {
-  if(!confirm("Da li stvarno želite da obrišete sve iz kategorije (uključujući podkategorije)?")) return;
-  const status = document.getElementById("catStatus"); status.textContent="Brišem...";
+  if (!confirm("Da li stvarno želite da obrišete sve iz kategorije (uključujući podkategorije)?")) return;
+  const status = document.getElementById("catStatus");
+  status.textContent = "Brišem...";
   try {
-    const r = await apiFetch("/category/delete_all","POST",{});
-    if(!r.ok){status.textContent="Greška: "+JSON.stringify(r.json); return;}
+    const r = await apiFetch("/category/delete_all", "POST", {});
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
     status.textContent = r.json.message || "Obrisano.";
     setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]});
-    document.getElementById("subcatList").innerHTML="";
-  } catch(e){console.error(e); status.textContent="Greška pri brisanju.";}
+    document.getElementById("subcatList").innerHTML = "";
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri brisanju.";
+  }
 });
 
-// --- Subcategories ---
-document.getElementById("btnListSubcats").addEventListener("click", async ()=>{
-  const status=document.getElementById("subStatus"); status.textContent="Učitavam listu...";
-  try{
-    const r=await apiFetch("/subcategories/list","GET");
-    if(!r.ok) throw r.json;
-    const list=r.json.subcategories||[];
-    const scList=document.getElementById("subcatList"); scList.innerHTML="";
-    list.forEach(s=>{
-      const div=document.createElement("div");
-      div.className="subcat-item"; div.textContent=`${s.id} — ${s.name||"(bez imena)"}`;
-      div.dataset.id=s.id;
-      div.addEventListener("click",()=>loadSubcatForEdit(s.id));
+// Subcategories list
+document.getElementById("btnListSubcats").addEventListener("click", async () => {
+  const status = document.getElementById("subStatus");
+  status.textContent = "Učitavam listu...";
+  try {
+    const r = await apiFetch("/subcategories/list", "GET");
+    if (!r.ok) throw r.json;
+    const list = r.json.subcategories || [];
+    const scList = document.getElementById("subcatList");
+    scList.innerHTML = "";
+    list.forEach(s => {
+      const div = document.createElement("div");
+      div.className = "subcat-item";
+      div.textContent = `${s.id} — ${s.name || "(bez imena)"}`;
+      div.dataset.id = s.id;
+      div.addEventListener("click", () => loadSubcatForEdit(s.id));
       scList.appendChild(div);
     });
-    status.textContent=`Pronađeno ${list.length} podkategorija.`;
-  } catch(e){console.error(e); status.textContent="Greška pri listanju ponuda.";}
+    status.textContent = `Pronađeno ${list.length} podkategorija.`;
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri listanju ponuda.";
+  }
 });
 
-async function loadSubcatForEdit(id){
-  const status=document.getElementById("subStatus"); status.textContent="Učitavam podkategoriju...";
-  try{
-    const r=await apiFetch("/subcategory/"+id,"GET");
-    if(!r.ok){status.textContent="Greška: "+JSON.stringify(r.json); return;}
-    const s=r.json.subcategory;
-    selectedSubcatId=s.id;
-    document.getElementById("subcatEditorTitle").textContent=`prijava za posao: ${s.id}`;
+async function loadSubcatForEdit(id) {
+  const status = document.getElementById("subStatus");
+  status.textContent = "Učitavam podkategoriju...";
+  try {
+    const r = await apiFetch("/subcategory/" + id, "GET");
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
+    const s = r.json.subcategory;
+    selectedSubcatId = s.id;
+    document.getElementById("subcatEditorTitle").textContent = `prijava za posao: ${s.id}`;
     setSubcatFields(s);
-    status.textContent="lista ponuda učitana.";
-  } catch(e){console.error(e); status.textContent="Greška pri učitavanju liste ponuda.";}
+    status.textContent = "lista ponuda učitana.";
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri učitavanju liste ponuda.";
+  }
 }
 
-document.getElementById("btnUpdateSubcat").addEventListener("click", async ()=>{
-  if(!selectedSubcatId){alert("Nije izabrana ponuda."); return;}
-  const status=document.getElementById("subStatus"); status.textContent="Ažuriram...";
-  try{
-    const payload={checkboxes:[document.getElementById("sub_cb1").checked]};
-    const r=await apiFetch("/subcategory/update/"+selectedSubcatId,"POST",payload);
-    status.textContent=r.ok ? (r.json.message || "Ažurirano.") : "Greška: "+JSON.stringify(r.json);
+document.getElementById("btnUpdateSubcat").addEventListener("click", async () => {
+  if (!selectedSubcatId) { alert("Nije izabrana ponuda."); return; }
+  const status = document.getElementById("subStatus");
+  status.textContent = "Ažuriram...";
+  try {
+    const payload = { checkboxes: [document.getElementById("sub_cb1").checked] };
+    const r = await apiFetch("/subcategory/update/" + selectedSubcatId, "POST", payload);
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
+    status.textContent = r.json.message || "Ažurirano.";
     await document.getElementById("btnListSubcats").click();
-  } catch(e){console.error(e); status.textContent="Greška pri ažuriranju.";}
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri ažuriranju.";
+  }
 });
 
-// --- Helpers ---
-function getCategoryFields(){
+// helpers for reading/writing UI
+function getCategoryFields() {
   return {
     checkboxes: [
-      true, // cat_cb1 uvek true
+      true, // "proizvođač" uvek true
       document.getElementById("cat_cb2").checked
     ],
     dropdown: document.getElementById("cat_dropdown").value,
-    texts:[
+    texts: [
       document.getElementById("cat_text1").value,
       document.getElementById("cat_text2").value,
       document.getElementById("cat_text3").value,
@@ -228,29 +295,29 @@ function getCategoryFields(){
   };
 }
 
-function setCategoryFields(obj){
-  document.getElementById("cat_cb1").value="true"; // hidden
-  document.getElementById("cat_cb2").checked=!!(obj.checkboxes && obj.checkboxes[1]);
-  document.getElementById("cat_dropdown").value=obj.dropdown||"";
-  const texts=obj.texts||["","","",""];
-  document.getElementById("cat_text1").value=texts[0]||"";
-  document.getElementById("cat_text2").value=texts[1]||"";
-  document.getElementById("cat_text3").value=texts[2]||"";
-  document.getElementById("cat_text4").value=texts[3]||"";
+function setCategoryFields(obj) {
+  document.getElementById("cat_cb1").value = "true"; // hidden input
+  document.getElementById("cat_cb2").checked = !!obj.checkboxes[1];
+  document.getElementById("cat_dropdown").value = obj.dropdown || "";
+  const texts = obj.texts || ["","","",""];
+  document.getElementById("cat_text1").value = texts[0] || "";
+  document.getElementById("cat_text2").value = texts[1] || "";
+  document.getElementById("cat_text3").value = texts[2] || "";
+  document.getElementById("cat_text4").value = texts[3] || "";
 }
 
-function setSubcatFields(s){
-  document.getElementById("sub_name").value=s.name||"";
-  document.getElementById("sub_name").disabled=true;
-  document.getElementById("sub_cb1").checked=(s.checkboxes && s.checkboxes[0])||false;
-  document.getElementById("sub_text1").value=(s.texts && s.texts[0])||"";
-  document.getElementById("sub_text2").value=(s.texts && s.texts[1])||"";
-  document.getElementById("sub_text3").value=(s.texts && s.texts[2])||"";
-  document.getElementById("sub_text4").value=(s.texts && s.texts[3])||"";
-  document.getElementById("sub_text1").disabled=true;
-  document.getElementById("sub_text2").disabled=true;
-  document.getElementById("sub_text3").disabled=true;
-  document.getElementById("sub_text4").disabled=true;
+function setSubcatFields(s) {
+  document.getElementById("sub_name").value = s.name || "";
+  document.getElementById("sub_name").disabled = true;
+  document.getElementById("sub_cb1").checked = (s.checkboxes && s.checkboxes[0]) || false;
+  document.getElementById("sub_text1").value = (s.texts && s.texts[0]) || "";
+  document.getElementById("sub_text2").value = (s.texts && s.texts[1]) || "";
+  document.getElementById("sub_text3").value = (s.texts && s.texts[2]) || "";
+  document.getElementById("sub_text4").value = (s.texts && s.texts[3]) || "";
+  document.getElementById("sub_text1").disabled = true;
+  document.getElementById("sub_text2").disabled = true;
+  document.getElementById("sub_text3").disabled = true;
+  document.getElementById("sub_text4").disabled = true;
 }
 </script>
 </body>
