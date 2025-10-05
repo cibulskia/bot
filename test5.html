@@ -1,3 +1,4 @@
+<!-- frontend.html -->
 <!DOCTYPE html>
 <html lang="sr">
 <head>
@@ -20,11 +21,6 @@
   .subcat-list { max-height:160px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
   .subcat-item { padding:6px; cursor:pointer; border-bottom:1px dashed #eee; }
   .subcat-item:hover { background:#f0f8ff; }
-
-  /* NOVO: CSS za sakrivanje checkboxa "proizvodjac" */
-  #label_cat_cb1 {
-    display: none; /* Sakriva celu labelu sa checkboxom */
-  }
 </style>
 </head>
 <body>
@@ -40,8 +36,7 @@
   <h2>Korisnicka podesavanja</h2>
   <div class="row">
     <div class="col">
-      <!-- NOVO: Dodat ID labeli za lakše sakrivanje -->
-      <label id="label_cat_cb1"><input type="checkbox" id="cat_cb1"> proizvodjac</label>
+      <label><input type="checkbox" id="cat_cb1"> proizvodjac</label>
       <label><input type="checkbox" id="cat_cb2"> poslodavac</label>
     </div>
     <div class="col">
@@ -153,7 +148,7 @@ document.getElementById("btnLoadCategory").addEventListener("click", async () =>
     const data = r.json;
     if (!data.category) {
       status.textContent = "Nema kategorije (još). Polja su prazna.";
-      setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]}); // OVDJE JE cat_cb1 FIKSIRAN NA TRUE
+      setCategoryFields({checkboxes:[false,false], dropdown:"", texts:["","","",""]});
       document.getElementById("subcatList").innerHTML = "";
       return;
     }
@@ -180,8 +175,6 @@ document.getElementById("btnUpdateCategory").addEventListener("click", async () 
   status.textContent = "Šaljem...";
   try {
     const payload = getCategoryFields();
-    // NOVO: Osiguravamo da je cat_cb1 uvek true pre slanja
-    payload.checkboxes[0] = true;
     const r = await apiFetch("/category/update", "POST", payload);
     if (!r.ok) {
       status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
@@ -205,8 +198,7 @@ document.getElementById("btnDeleteCategory").addEventListener("click", async () 
       return;
     }
     status.textContent = r.json.message || "Obrisano.";
-    // NOVO: Fiksiramo cat_cb1 na true i pri brisanju
-    setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]});
+    setCategoryFields({checkboxes:[false,false], dropdown:"", texts:["","","",""]});
     document.getElementById("subcatList").innerHTML = "";
   } catch (e) {
     console.error(e);
@@ -282,8 +274,7 @@ document.getElementById("btnUpdateSubcat").addEventListener("click", async () =>
 function getCategoryFields() {
   return {
     checkboxes: [
-      // NOVO: Vraćamo uvek true za prvi checkbox, bez obzira na stanje na UI (jer je skriven)
-      true,
+      document.getElementById("cat_cb1").checked,
       document.getElementById("cat_cb2").checked
     ],
     dropdown: document.getElementById("cat_dropdown").value,
@@ -297,8 +288,8 @@ function getCategoryFields() {
 }
 
 function setCategoryFields(obj) {
-  const cb = obj.checkboxes || [true,false]; // NOVO: Podrazumevano true za cat_cb1
-  document.getElementById("cat_cb1").checked = true; // NOVO: Uvek postavi na true
+  const cb = obj.checkboxes || [false,false];
+  document.getElementById("cat_cb1").checked = !!cb[0];
   document.getElementById("cat_cb2").checked = !!cb[1];
   document.getElementById("cat_dropdown").value = obj.dropdown || "";
   const texts = obj.texts || ["","","",""];
