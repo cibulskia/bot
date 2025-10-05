@@ -5,180 +5,363 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Platforma za saradnju (Demo)</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<!-- Koristimo Montserrat font kao u Botanica primeru -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link rel="stylesheet" href="stylew.css"> <!-- Povezujemo eksterni CSS fajl -->
+<style>
+  :root {
+    --primary-color: #0b76ff;
+    --primary-color-dark: #0056b3;
+    --secondary-color: #6c757d;
+    --secondary-color-dark: #5a6268;
+    --danger-color: #d9534f;
+    --danger-color-dark: #c9302c;
+    --background-light: #f6f7fb;
+    --background-white: #ffffff;
+    --text-color-dark: #111;
+    --text-color-light: #444;
+    --border-color: #e0e0e0;
+    --shadow-light: 0 4px 12px rgba(0,0,0,0.06);
+    --border-radius: 10px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+  }
+
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    margin: 0;
+    padding: var(--spacing-lg);
+    background: var(--background-light);
+    color: var(--text-color-dark);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+  }
+
+  .box {
+    background: var(--background-white);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid var(--border-color);
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 1.7em;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-color-dark);
+    font-weight: 600;
+    font-size: 1.25em;
+  }
+
+  label {
+    display: block;
+    margin: var(--spacing-sm) 0;
+    font-weight: 500;
+    color: var(--text-color-light);
+    font-size: 0.95em;
+  }
+
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: #fcfcfc;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(11, 118, 255, 0.2);
+    outline: none;
+    background-color: var(--background-white);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 90px;
+  }
+
+  button {
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    border: none;
+    background: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  button:hover {
+    background: var(--primary-color-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  button.danger {
+    background: var(--danger-color);
+  }
+
+  button.danger:hover {
+    background: var(--danger-color-dark);
+  }
+
+  button.secondary {
+    background: var(--secondary-color);
+  }
+
+  button.secondary:hover {
+    background: var(--secondary-color-dark);
+  }
+
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+  }
+
+  .row {
+    display: flex;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+  }
+
+  .col {
+    flex: 1;
+    min-width: 300px;
+  }
+
+  .settings-col {
+    flex-basis: 320px; /* Uža kolona za korisnička podešavanja */
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  .job-list-col {
+    flex: 1;
+    min-width: 600px; /* Šira kolona za ponudu poslova */
+  }
+
+  .status {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    background: #e0f7fa;
+    color: #00796b;
+    border: 1px solid #b2ebf2;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 500;
+  }
+
+  .status.error {
+    background: #ffebee;
+    color: #d32f2f;
+    border-color: #ffcdd2;
+  }
+
+  .subcat-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    background: #fdfdfd;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .subcat-item {
+    padding: var(--spacing-md);
+    cursor: pointer;
+    border-bottom: 1px dashed #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    color: var(--text-color-dark);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+  }
+
+  .subcat-item:last-child {
+    border-bottom: none;
+  }
+
+  .subcat-item:hover {
+    background: #e3f2fd;
+    border-radius: var(--border-radius);
+    transform: translateX(4px);
+  }
+
+  input[type="checkbox"] {
+    margin-right: var(--spacing-sm);
+    transform: scale(1.3);
+    accent-color: var(--primary-color);
+  }
+
+  @media (max-width: 1024px) {
+    .main-content-row {
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .row {
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    .col, .settings-col, .job-list-col {
+      min-width: unset;
+      width: 100%;
+      flex-basis: auto;
+    }
+    .subcat-list {
+      max-height: 250px;
+      margin-bottom: var(--spacing-md);
+    }
+    .button-group button {
+      width: 100%;
+    }
+    .box {
+      padding: var(--spacing-md);
+    }
+    body {
+      padding: var(--spacing-md);
+    }
+    h2 {
+        font-size: 1.5em;
+    }
+  }
+
+  input:disabled, textarea:disabled, select:disabled {
+    background-color: #eceff1;
+    cursor: not-allowed;
+    color: #111;
+  }
+
+  #cat_cb_container { display:none; }
+</style>
 </head>
 <body>
 <div id="g_id_onload" data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_select="true" data-ux_mode="popup"></div>
 
-<div class="app-wrapper"> <!-- Novi omotač za ceo sadržaj -->
-
-  <!-- LOGIN SEKCIJA - Prilagođena da izgleda kao Botanica auth-card -->
-  <div class="auth-card-mockup" id="login-card"> <!-- Novi ID za lakšu manipulaciju, ali app.js i dalje gleda loginStatus -->
-    <img src="https://via.placeholder.com/150/0b76ff/FFFFFF?text=Platforma+Logo" alt="Platforma Logo" class="app-logo">
-    <h2>Dobrodošli na Platformu za saradnju</h2>
-    <p>Molimo prijavite se putem Google naloga za pristup.</p>
-    <!-- Google dugme za prijavu, pozicionira se unutar auth-card-mockup -->
-    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="signin_with" data-shape="rectangular" data-logo_alignment="left"></div>
-    <p id="loginStatus" class="status-message-inline"></p> <!-- status message iz app.js -->
-    <button id="signOutBtn" style="display:none" class="btn btn-secondary btn-logout-inline"><i class="fas fa-sign-out-alt"></i> Odjavi se</button>
+<div class="container">
+  <div class="box">
+    <h2><i class="fas fa-user-circle"></i> Prijava na platformu</h2>
+    <p id="loginStatus">Čekam Google prijavu...</p>
+    <button id="signOutBtn" style="display:none" class="secondary"><i class="fas fa-sign-out-alt"></i> Odjavi se</button>
   </div>
-  
-  <!-- Ostatak sadržaja, nakon prijave -->
-  <div class="container main-dashboard-content" style="display:none;" id="logged-in-content"> <!-- Novi ID i klasa za ostatak sadržaja nakon prijave -->
-    <!-- Navbar za prikaz emaila i odjavu (ako app.js ne manipuliše signOutBtn direktno, ovo je opcija) -->
-    <header class="navbar-top-mockup">
-        <div class="navbar-title">
-            <h1>Platforma Dashboard</h1>
-        </div>
-        <div class="navbar-user-info">
-            <span id="user-email-display"></span> <!-- placeholder za email, popunjava se iz app.js -->
-            <!-- Dugme za odjavu se i dalje nalazi u login-card-u i to je ok, jer se skriva/pokazuje tamo -->
-        </div>
-    </header>
 
-    <div class="content-row-mockup"> <!-- Omotač za kolone, da izgleda kao "tab" sadržaj -->
-        <div class="card col-settings"> <!-- box postaje card -->
-            <h2><i class="fas fa-cogs"></i> Korisnička podešavanja</h2>
-            <div class="form-grid-mockup"> <!-- Umesto .row i .col, koristimo grid za bolji raspored -->
-                <!-- cat_cb_container je i dalje tu, sa display:none; kao u originalnom CSS-u -->
-                <div class="form-group checkbox-group" id="cat_cb_container">
-                    <label><input type="checkbox" id="cat_cb1"> Proizvođač</label>
-                    <label><input type="checkbox" id="cat_cb2"> Poslodavac</label>
-                </div>
-                <div class="form-group">
-                    <label for="cat_dropdown">Primarna delatnost:</label>
-                    <select id="cat_dropdown">
-                        <option value="">-- izaberi --</option>
-                        <option value="opt1">Strugarska obrada</option>
-                        <option value="opt2">Glodačka obrada</option>
-                        <option value="opt3">Strugarska i glodačka obrada</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="cat_text1">Naziv firme:</label>
-                    <input type="text" id="cat_text1" placeholder="Unesite naziv firme">
-                </div>
-                <div class="form-group full-width">
-                    <label for="cat_text2">Detaljan opis firme:</label>
-                    <textarea id="cat_text2" placeholder="Unesite detaljan opis vaše firme i usluga"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="cat_text3">Kontakt email:</label>
-                    <input type="text" id="cat_text3" placeholder="Unesite kontakt email">
-                </div>
-                <div class="form-group">
-                    <label for="cat_text4">Web stranica:</label>
-                    <input type="text" id="cat_text4" placeholder="Unesite URL vaše web stranice">
-                </div>
-            </div>
+  <div class="row main-content-row">
+    <!-- Korisnička podešavanja (levo) -->
+    <div class="box settings-col">
+      <h2><i class="fas fa-cogs"></i> Korisnička podešavanja</h2>
+      <div class="row">
+        <div class="col" id="cat_cb_container">
+          <label><input type="checkbox" id="cat_cb1"> Proizvođač</label>
+          <label><input type="checkbox" id="cat_cb2"> Poslodavac</label>
+        </div>
+        <div class="col">
+          <label>Primarna delatnost:
+            <select id="cat_dropdown">
+              <option value="">-- izaberi --</option>
+              <option value="opt1">Strugarska obrada</option>
+              <option value="opt2">Glodačka obrada</option>
+              <option value="opt3">Strugarska i glodačka obrada</option>
+            </select>
+          </label>
 
-            <div class="form-actions-mockup"> <!-- button-group postaje form-actions -->
-                <button id="btnLoadCategory" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Učitaj podešavanja</button>
-                <button id="btnUpdateCategory" class="btn btn-primary"><i class="fas fa-save"></i> Sačuvaj izmene</button>
-                <button id="btnDeleteCategory" class="btn btn-danger"><i class="fas fa-user-times"></i> Obriši nalog</button>
-            </div>
-            <div class="status-message mt-3" id="catStatus"></div>
+          <label>Naziv firme: <input type="text" id="cat_text1" placeholder="Unesite naziv firme"></label>
+          <label>Detaljan opis firme: <textarea id="cat_text2" placeholder="Unesite detaljan opis vaše firme i usluga"></textarea></label>
+          <label>Kontakt email: <input type="text" id="cat_text3" placeholder="Unesite kontakt email"></label>
+          <label>Web stranica: <input type="text" id="cat_text4" placeholder="Unesite URL vaše web stranice"></label>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button id="btnLoadCategory"><i class="fas fa-sync-alt"></i> Učitaj podešavanja</button>
+        <button id="btnUpdateCategory"><i class="fas fa-save"></i> Sačuvaj izmene</button>
+        <button id="btnDeleteCategory" class="danger"><i class="fas fa-user-times"></i> Obriši nalog</button>
+      </div>
+      <div class="status" id="catStatus"></div>
+    </div>
+
+    <!-- Ponuda poslova (desno) -->
+    <div class="box job-list-col">
+      <h2><i class="fas fa-briefcase"></i> Ponuda poslova</h2>
+      <div class="row">
+        <div class="col">
+          <div class="button-group">
+            <button id="btnListSubcats" style="width:100%;"><i class="fas fa-clipboard-list"></i> Prikaz svih ponuda</button>
+          </div>
+          <div class="subcat-list" id="subcatList"></div>
         </div>
 
-        <div class="card col-jobs"> <!-- box postaje card -->
-            <h2><i class="fas fa-briefcase"></i> Ponuda poslova</h2>
-            <div class="form-grid-mockup">
-                <div class="form-group full-width">
-                    <button id="btnListSubcats" class="btn btn-primary" style="width:100%;"><i class="fas fa-clipboard-list"></i> Prikaz svih ponuda</button>
-                </div>
-                <div class="form-group full-width subcat-list-container">
-                    <div class="subcat-list" id="subcatList"></div>
-                </div>
-            </div>
+        <div class="col">
+          <h3 id="subcatEditorTitle">Nije izabrana ponuda</h3>
+          <label>Naziv posla: <input type="text" id="sub_name" disabled></label>
+          <label>Kratak opis: <input type="text" id="sub_text1" disabled></label>
+          <label>Detaljan opis posla: <textarea id="sub_text2" disabled></textarea></label>
+          <label>Rok za dostavu ponude: <input type="text" id="sub_text3" disabled></label>
+          <label>Očekivani rok za izradu: <input type="text" id="sub_text4" disabled></label>
 
-            <div class="card sub-card mt-3"> <!-- Ugnježdena kartica za detalje posla -->
-                <h4 id="subcatEditorTitle" class="card-subtitle">Nije izabrana ponuda</h4>
-                <div class="form-grid-mockup">
-                    <div class="form-group">
-                        <label for="sub_name">Naziv posla:</label>
-                        <input type="text" id="sub_name" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="sub_text1">Kratak opis:</label>
-                        <input type="text" id="sub_text1" disabled>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="sub_text2">Detaljan opis posla:</label>
-                        <textarea id="sub_text2" disabled></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="sub_text3">Rok za dostavu ponude:</label>
-                        <input type="text" id="sub_text3" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label for="sub_text4">Očekivani rok za izradu:</label>
-                        <input type="text" id="sub_text4" disabled>
-                    </div>
-                    <div class="form-group checkbox-group full-width">
-                        <input type="checkbox" id="sub_cb1">
-                        <label for="sub_cb1">Želim da se prijavim za ovaj posao</label>
-                    </div>
-                </div>
-                <div class="form-actions-mockup">
-                    <button id="btnUpdateSubcat" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Pošalji prijavu</button>
-                </div>
-                <div class="status-message mt-3" id="subStatus"></div>
-            </div>
+          <label style="display:flex; align-items:center; font-weight:normal; margin-top:var(--spacing-md);"><input type="checkbox" id="sub_cb1"> Želim da se prijavim za ovaj posao</label>
+          <div class="button-group">
+            <button id="btnUpdateSubcat" style="width:auto;"><i class="fas fa-paper-plane"></i> Pošalji prijavu</button>
+          </div>
+          <div class="status" id="subStatus"></div>
         </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Aplikacijski kod - NE MENJA SE! -->
+<!-- aplikacijski kod -->
 <script src="app.js"></script>
-<script>
-    // Mala pomoćna skripta koja reaguje na prijavu/odjavu
-    // i skriva/pokazuje glavni sadržaj, pošto app.js ne radi "main-section" logiku
-    document.addEventListener('DOMContentLoaded', function() {
-        const loginCard = document.getElementById('login-card');
-        const loggedInContent = document.getElementById('logged-in-content');
-        const loginStatusParagraph = document.getElementById('loginStatus');
-        const signOutButton = document.getElementById('signOutBtn');
-        const userEmailDisplay = document.getElementById('user-email-display');
-
-        // Funkcija za praćenje promena u DOM-u
-        const observer = new MutationObserver(mutations => {
-            mutations.forEach(mutation => {
-                if (mutation.attributeName === 'style' || mutation.type === 'childList') {
-                    // Proveravamo da li je signOutBtn prikazan
-                    const isUserLoggedIn = signOutButton.style.display !== 'none';
-
-                    if (isUserLoggedIn) {
-                        loginCard.style.display = 'none';
-                        loggedInContent.style.display = 'flex'; // Promenjeno na 'flex' za layout
-                        userEmailDisplay.textContent = loginStatusParagraph.textContent.replace('Uspesna prijava kao: ', '');
-                    } else {
-                        loginCard.style.display = 'flex'; // Prikazujemo login karticu
-                        loggedInContent.style.display = 'none';
-                        userEmailDisplay.textContent = '';
-                    }
-                }
-            });
-        });
-
-        // Konfiguracija observera: prati promene atributa i dece u loginStatus i signOutBtn
-        observer.observe(loginStatusParagraph, { attributes: true, childList: true, subtree: true });
-        observer.observe(signOutButton, { attributes: true, childList: true });
-
-        // Dodatno, na početku proveri stanje
-        if (signOutButton.style.display !== 'none') {
-            loginCard.style.display = 'none';
-            loggedInContent.style.display = 'flex';
-            userEmailDisplay.textContent = loginStatusParagraph.textContent.replace('Uspesna prijava kao: ', '');
-        } else {
-            loginCard.style.display = 'flex';
-            loggedInContent.style.display = 'none';
-            userEmailDisplay.textContent = '';
-        }
-    });
-</script>
 </body>
 </html>
