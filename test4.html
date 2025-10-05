@@ -39,8 +39,6 @@
     <div class="col">
       <label><input type="checkbox" id="cat_cb1"> Checkbox 1</label>
       <label><input type="checkbox" id="cat_cb2"> Checkbox 2</label>
-      <label><input type="checkbox" id="cat_cb3"> Checkbox 3</label>
-      <label><input type="checkbox" id="cat_cb4"> Checkbox 4</label>
     </div>
     <div class="col">
       <label>Dropdown:
@@ -84,8 +82,6 @@
       <div style="display:flex; gap:12px;">
         <label><input type="checkbox" id="sub_cb1">CB1</label>
         <label><input type="checkbox" id="sub_cb2">CB2</label>
-        <label><input type="checkbox" id="sub_cb3">CB3</label>
-        <label><input type="checkbox" id="sub_cb4">CB4</label>
       </div>
       <label>Dropdown:
         <select id="sub_dropdown">
@@ -166,13 +162,11 @@ document.getElementById("btnLoadCategory").addEventListener("click", async () =>
     const data = r.json;
     if (!data.category) {
       status.textContent = "Nema kategorije (još). Polja su prazna.";
-      // clear fields
-      setCategoryFields({checkboxes:[false,false,false,false], dropdown:"", texts:["","","",""]});
+      setCategoryFields({checkboxes:[false,false], dropdown:"", texts:["","","",""]});
       document.getElementById("subcatList").innerHTML = "";
       return;
     }
     setCategoryFields(data.category);
-    // populate subcat list
     const scList = document.getElementById("subcatList");
     scList.innerHTML = "";
     (data.subcategories || []).forEach(s => {
@@ -218,8 +212,7 @@ document.getElementById("btnDeleteCategory").addEventListener("click", async () 
       return;
     }
     status.textContent = r.json.message || "Obrisano.";
-    // clear UI
-    setCategoryFields({checkboxes:[false,false,false,false], dropdown:"", texts:["","","",""]});
+    setCategoryFields({checkboxes:[false,false], dropdown:"", texts:["","","",""]});
     document.getElementById("subcatList").innerHTML = "";
   } catch (e) {
     console.error(e);
@@ -253,7 +246,6 @@ document.getElementById("btnListSubcats").addEventListener("click", async () => 
 });
 
 document.getElementById("btnCreateSubcat").addEventListener("click", async () => {
-  // create new with current editor values
   const status = document.getElementById("subStatus");
   status.textContent = "Kreiram...";
   try {
@@ -264,7 +256,6 @@ document.getElementById("btnCreateSubcat").addEventListener("click", async () =>
       return;
     }
     status.textContent = `Kreirana podkategorija id=${r.json.id}`;
-    // refresh list
     await document.getElementById("btnListSubcats").click();
   } catch (e) {
     console.error(e);
@@ -307,7 +298,6 @@ document.getElementById("btnUpdateSubcat").addEventListener("click", async () =>
       return;
     }
     status.textContent = r.json.message || "Ažurirano.";
-    // refresh list
     await document.getElementById("btnListSubcats").click();
   } catch (e) {
     console.error(e);
@@ -329,8 +319,7 @@ document.getElementById("btnDeleteSubcat").addEventListener("click", async () =>
     status.textContent = r.json.message || "Obrisano.";
     selectedSubcatId = null;
     document.getElementById("subcatEditorTitle").textContent = "Nije izabrana podkategorija";
-    // clear editor fields
-    setSubcatFields({name:"", checkboxes:[false,false,false,false], dropdown:"", texts:["","","",""]});
+    setSubcatFields({name:"", checkboxes:[false,false], dropdown:"", texts:["","","",""]});
     await document.getElementById("btnListSubcats").click();
   } catch (e) {
     console.error(e);
@@ -343,9 +332,7 @@ function getCategoryFields() {
   return {
     checkboxes: [
       document.getElementById("cat_cb1").checked,
-      document.getElementById("cat_cb2").checked,
-      document.getElementById("cat_cb3").checked,
-      document.getElementById("cat_cb4").checked
+      document.getElementById("cat_cb2").checked
     ],
     dropdown: document.getElementById("cat_dropdown").value,
     texts: [
@@ -358,11 +345,9 @@ function getCategoryFields() {
 }
 
 function setCategoryFields(obj) {
-  const cb = obj.checkboxes || [false,false,false,false];
+  const cb = obj.checkboxes || [false,false];
   document.getElementById("cat_cb1").checked = !!cb[0];
   document.getElementById("cat_cb2").checked = !!cb[1];
-  document.getElementById("cat_cb3").checked = !!cb[2];
-  document.getElementById("cat_cb4").checked = !!cb[3];
   document.getElementById("cat_dropdown").value = obj.dropdown || "";
   const texts = obj.texts || ["","","",""];
   document.getElementById("cat_text1").value = texts[0] || "";
@@ -376,9 +361,7 @@ function getSubcatFields() {
     name: document.getElementById("sub_name").value || "",
     checkboxes: [
       document.getElementById("sub_cb1").checked,
-      document.getElementById("sub_cb2").checked,
-      document.getElementById("sub_cb3").checked,
-      document.getElementById("sub_cb4").checked
+      document.getElementById("sub_cb2").checked
     ],
     dropdown: document.getElementById("sub_dropdown").value,
     texts: [
@@ -392,11 +375,9 @@ function getSubcatFields() {
 
 function setSubcatFields(s) {
   document.getElementById("sub_name").value = s.name || "";
-  const cb = s.checkboxes || [false,false,false,false];
+  const cb = s.checkboxes || [false,false];
   document.getElementById("sub_cb1").checked = !!cb[0];
   document.getElementById("sub_cb2").checked = !!cb[1];
-  document.getElementById("sub_cb3").checked = !!cb[2];
-  document.getElementById("sub_cb4").checked = !!cb[3];
   document.getElementById("sub_dropdown").value = s.dropdown || "";
   const texts = s.texts || ["","","",""];
   document.getElementById("sub_text1").value = texts[0] || "";
@@ -407,4 +388,3 @@ function setSubcatFields(s) {
 </script>
 </body>
 </html>
-
