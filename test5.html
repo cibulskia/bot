@@ -242,7 +242,7 @@ async function loadSubcatForEdit(id) {
     }
     const s = r.json.subcategory;
     selectedSubcatId = s.id;
-    document.getElementById("subcatEditorTitle").textContent = `Edit podkategorije: ${s.id}`;
+    document.getElementById("subcatEditorTitle").textContent = `Edit prijava za posao: ${s.id}`;
     setSubcatFields(s);
     status.textContent = "lista ponuda učitana.";
   } catch (e) {
