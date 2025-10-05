@@ -1,332 +1,410 @@
+<!-- frontend.html -->
 <!DOCTYPE html>
 <html lang="sr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kategorije & Podkategorije - Demo</title>
-  <meta http-equiv="Referrer-Policy" content="no-referrer-when-downgrade">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#f5f7fb; margin:0; padding:20px; }
-    .container { max-width:1000px; margin:0 auto; background:white; padding:20px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
-    h1 { margin-top:0; }
-    label { display:block; margin:8px 0 4px; font-weight:600; }
-    .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
-    .col { flex:1; min-width:160px; }
-    input[type="text"], select, textarea { width:100%; padding:8px; border-radius:6px; border:1px solid #d0d7de; }
-    button { padding:10px 14px; border-radius:8px; border:none; background:#0366d6; color:white; cursor:pointer; margin-right:8px; }
-    button.secondary { background:#6c757d; }
-    .small { font-size:13px; color:#444; margin-top:6px; }
-    #subList { width:100%; padding:8px; border-radius:6px; border:1px solid #d0d7de; }
-    .controls { margin-top:12px; }
-    .panel { background:#fbfdff; padding:12px; border-radius:8px; margin-top:12px; border:1px solid #eef3fb; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Category Manager (Demo)</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background:#f6f7fb; color:#111; }
+  .box { background:white; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); margin-bottom:16px; }
+  h2 { margin-top:0; }
+  label { display:block; margin:6px 0; }
+  input[type="text"] { width:100%; padding:8px; border-radius:6px; border:1px solid #ddd; }
+  select { padding:8px; border-radius:6px; }
+  button { padding:10px 14px; border-radius:8px; border:none; background:#0b76ff; color:white; cursor:pointer; margin-right:8px; }
+  button.danger { background:#d9534f; }
+  button.secondary { background:#6c757d; }
+  .row { display:flex; gap:12px; }
+  .col { flex:1; }
+  .status { margin-top:8px; color:#333; }
+  .subcat-list { max-height:160px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
+  .subcat-item { padding:6px; cursor:pointer; border-bottom:1px dashed #eee; }
+  .subcat-item:hover { background:#f0f8ff; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Kategorija i podkategorije</h1>
-    <div id="g_id_onload"
-         data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse"
-         data-auto_select="true"
-         data-ux_mode="popup">
+<div id="g_id_onload" data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_select="true" data-ux_mode="popup"></div>
+
+<div class="box">
+  <h2>Prijava</h2>
+  <p id="loginStatus">Čekam Google prijavu...</p>
+  <button id="signOutBtn" style="display:none" class="secondary">Odjavi se</button>
+</div>
+
+<div class="box">
+  <h2>Kategorija (glavni deo)</h2>
+  <div class="row">
+    <div class="col">
+      <label><input type="checkbox" id="cat_cb1"> Checkbox 1</label>
+      <label><input type="checkbox" id="cat_cb2"> Checkbox 2</label>
+      <label><input type="checkbox" id="cat_cb3"> Checkbox 3</label>
+      <label><input type="checkbox" id="cat_cb4"> Checkbox 4</label>
     </div>
-
-    <p id="loginStatus" class="small">Čekam Google prijavu...</p>
-
-    <div class="panel">
-      <h2>Glavna kategorija (1 kategorija po Google ID)</h2>
-      <div class="row">
-        <div class="col">
-          <label>Checkbox 1</label>
-          <input type="checkbox" id="cat_cb1">
-        </div>
-        <div class="col">
-          <label>Checkbox 2</label>
-          <input type="checkbox" id="cat_cb2">
-        </div>
-        <div class="col">
-          <label>Checkbox 3</label>
-          <input type="checkbox" id="cat_cb3">
-        </div>
-        <div class="col">
-          <label>Checkbox 4</label>
-          <input type="checkbox" id="cat_cb4">
-        </div>
-      </div>
-
-      <label>Dropdown</label>
-      <select id="cat_dropdown">
-        <option value="">-- izaberite --</option>
-        <option value="opcija1">Opcija 1</option>
-        <option value="opcija2">Opcija 2</option>
-        <option value="opcija3">Opcija 3</option>
-      </select>
-
-      <label>Tekstualni unosi</label>
-      <input type="text" id="cat_text1" placeholder="Text 1">
-      <input type="text" id="cat_text2" placeholder="Text 2">
-      <input type="text" id="cat_text3" placeholder="Text 3">
-      <input type="text" id="cat_text4" placeholder="Text 4">
-
-      <div class="controls">
-        <button id="btnLoadCategory">Učitaj kategoriju</button>
-        <button id="btnUpdateCategory">Ažuriraj / Sačuvaj kategoriju</button>
-        <button id="btnDeleteCategory" class="secondary">Obriši kategoriju</button>
-      </div>
-
-      <p id="catMessage" class="small"></p>
-    </div>
-
-    <div class="panel">
-      <h2>Podkategorije</h2>
-      <div>
-        <button id="btnListSubs">Učitaj listu podkategorija</button>
-        <button id="btnCreateSub">Kreiraj novu podkategoriju</button>
-      </div>
-
-      <label>Lista podkategorija</label>
-      <select id="subList" size="6"></select>
-
-      <div id="subEditor" style="display:none; margin-top:12px;">
-        <h3>Uredi podkategoriju</h3>
-        <label>Naslov</label>
-        <input type="text" id="sub_title">
-
-        <div class="row">
-          <div class="col"><label>CB1</label><input type="checkbox" id="sub_cb1"></div>
-          <div class="col"><label>CB2</label><input type="checkbox" id="sub_cb2"></div>
-          <div class="col"><label>CB3</label><input type="checkbox" id="sub_cb3"></div>
-          <div class="col"><label>CB4</label><input type="checkbox" id="sub_cb4"></div>
-        </div>
-
-        <label>Dropdown</label>
-        <select id="sub_dropdown">
-          <option value="">-- izaberite --</option>
-          <option value="opcija1">Opcija 1</option>
-          <option value="opcija2">Opcija 2</option>
-          <option value="opcija3">Opcija 3</option>
+    <div class="col">
+      <label>Dropdown:
+        <select id="cat_dropdown">
+          <option value="">-- izaberi --</option>
+          <option value="opt1">Opcija 1</option>
+          <option value="opt2">Opcija 2</option>
+          <option value="opt3">Opcija 3</option>
         </select>
+      </label>
 
-        <label>Tekstovi</label>
-        <input type="text" id="sub_text1" placeholder="Text 1">
-        <input type="text" id="sub_text2" placeholder="Text 2">
-        <input type="text" id="sub_text3" placeholder="Text 3">
-        <input type="text" id="sub_text4" placeholder="Text 4">
-
-        <div style="margin-top:10px;">
-          <button id="btnUpdateSub">Ažuriraj podkategoriju</button>
-          <button id="btnDeleteSub" class="secondary">Obriši podkategoriju</button>
-        </div>
-        <p id="subMessage" class="small"></p>
-      </div>
+      <label>Text 1: <input type="text" id="cat_text1"></label>
+      <label>Text 2: <input type="text" id="cat_text2"></label>
+      <label>Text 3: <input type="text" id="cat_text3"></label>
+      <label>Text 4: <input type="text" id="cat_text4"></label>
     </div>
   </div>
 
-<script>
-const API_BASE = "https://botanica.ngrok.app";
-const CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com";
+  <div style="margin-top:12px;">
+    <button id="btnLoadCategory">Učitaj kategoriju</button>
+    <button id="btnUpdateCategory">Sačuvaj / Ažuriraj kategoriju</button>
+    <button id="btnDeleteCategory" class="danger">Obriši sve iz kategorije</button>
+  </div>
+  <div class="status" id="catStatus"></div>
+</div>
 
+<div class="box">
+  <h2>Podkategorije</h2>
+  <div class="row">
+    <div style="width:280px;">
+      <div style="display:flex; gap:8px; margin-bottom:8px;">
+        <button id="btnListSubcats">Lista podkategorija</button>
+        <button id="btnCreateSubcat">Kreiraj novu</button>
+      </div>
+      <div class="subcat-list" id="subcatList"></div>
+    </div>
+
+    <div style="flex:1;">
+      <h3 id="subcatEditorTitle">Nije izabrana podkategorija</h3>
+      <label>Ime podkategorije: <input type="text" id="sub_name"></label>
+      <div style="display:flex; gap:12px;">
+        <label><input type="checkbox" id="sub_cb1">CB1</label>
+        <label><input type="checkbox" id="sub_cb2">CB2</label>
+        <label><input type="checkbox" id="sub_cb3">CB3</label>
+        <label><input type="checkbox" id="sub_cb4">CB4</label>
+      </div>
+      <label>Dropdown:
+        <select id="sub_dropdown">
+          <option value="">-- izaberi --</option>
+          <option value="opt1">Opcija 1</option>
+          <option value="opt2">Opcija 2</option>
+          <option value="opt3">Opcija 3</option>
+        </select>
+      </label>
+      <label>Text 1: <input type="text" id="sub_text1"></label>
+      <label>Text 2: <input type="text" id="sub_text2"></label>
+      <label>Text 3: <input type="text" id="sub_text3"></label>
+      <label>Text 4: <input type="text" id="sub_text4"></label>
+
+      <div style="margin-top:8px;">
+        <button id="btnUpdateSubcat">Ažuriraj podkategoriju</button>
+        <button id="btnDeleteSubcat" class="danger">Obriši podkategoriju</button>
+      </div>
+      <div class="status" id="subStatus"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com";
+const API_BASE = "https://botanica.ngrok.app"; // backend tunel
 let googleToken = null;
-let selectedSubId = null;
-const loginStatus = document.getElementById("loginStatus");
-const catMessage = document.getElementById("catMessage");
-const subMessage = document.getElementById("subMessage");
+let selectedSubcatId = null;
 
 // Google One Tap callback
 window.handleCredentialResponse = (response) => {
   if (response && response.credential) {
     googleToken = response.credential;
-    loginStatus.textContent = "Ulogovani ste. Možete koristiti funkcionalnosti.";
+    document.getElementById("loginStatus").textContent = "Ulogovan (token primljen).";
+    document.getElementById("signOutBtn").style.display = "inline-block";
+    console.log("Google token received.");
   } else {
-    loginStatus.textContent = "Prijava nije uspela.";
+    document.getElementById("loginStatus").textContent = "Prijava nije uspela.";
   }
 };
 
-// Helper: request with auth
-async function authFetch(path, opts) {
+document.getElementById("signOutBtn").addEventListener("click", () => {
+  googleToken = null;
+  document.getElementById("loginStatus").textContent = "Odjavljeno.";
+  document.getElementById("signOutBtn").style.display = "none";
+});
+
+// helper: fetch with auth
+async function apiFetch(path, method="GET", body=null) {
   if (!googleToken) {
-    throw new Error("Niste ulogovani (Google token nedostaje).");
+    throw new Error("No Google token. Please sign in.");
   }
-  opts = opts || {};
-  opts.headers = opts.headers || {};
-  opts.headers["Authorization"] = "Bearer " + googleToken;
-  opts.headers["Content-Type"] = "application/json";
-  const res = await fetch(API_BASE + path, opts);
-  const data = await res.json().catch(()=>({}));
-  if (!res.ok) throw {status: res.status, data};
-  return data;
+  const headers = {
+    "Authorization": `Bearer ${googleToken}`,
+    "Content-Type": "application/json"
+  };
+  const res = await fetch(API_BASE + path, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const txt = await res.text();
+  try {
+    const json = JSON.parse(txt);
+    return { ok: res.ok, status: res.status, json };
+  } catch (e) {
+    return { ok: res.ok, status: res.status, json: { raw: txt } };
+  }
 }
 
-/* ---------- Category actions ---------- */
-document.getElementById("btnLoadCategory").addEventListener("click", async ()=>{
-  catMessage.textContent = "Učitavam...";
+// Category buttons
+document.getElementById("btnLoadCategory").addEventListener("click", async () => {
+  const status = document.getElementById("catStatus");
+  status.textContent = "Učitavanje...";
   try {
-    const data = await authFetch("/category", { method: "GET" });
+    const r = await apiFetch("/category/load", "GET");
+    if (!r.ok) throw r.json;
+    const data = r.json;
     if (!data.category) {
-      catMessage.textContent = "Nema kategorije (kreirajte je).";
-      // clear UI
-      ["cat_cb1","cat_cb2","cat_cb3","cat_cb4"].forEach(id => document.getElementById(id).checked = false);
-      document.getElementById("cat_dropdown").value = "";
-      ["cat_text1","cat_text2","cat_text3","cat_text4"].forEach(id => document.getElementById(id).value = "");
+      status.textContent = "Nema kategorije (još). Polja su prazna.";
+      // clear fields
+      setCategoryFields({checkboxes:[false,false,false,false], dropdown:"", texts:["","","",""]});
+      document.getElementById("subcatList").innerHTML = "";
       return;
     }
-    const cat = data.category;
-    document.getElementById("cat_cb1").checked = !!cat.cb1;
-    document.getElementById("cat_cb2").checked = !!cat.cb2;
-    document.getElementById("cat_cb3").checked = !!cat.cb3;
-    document.getElementById("cat_cb4").checked = !!cat.cb4;
-    document.getElementById("cat_dropdown").value = cat.dropdown || "";
-    document.getElementById("cat_text1").value = cat.text1 || "";
-    document.getElementById("cat_text2").value = cat.text2 || "";
-    document.getElementById("cat_text3").value = cat.text3 || "";
-    document.getElementById("cat_text4").value = cat.text4 || "";
-    catMessage.textContent = "Kategorija učitana.";
-  } catch (err) {
-    console.error(err);
-    catMessage.textContent = "Greška pri učitavanju kategorije.";
-  }
-});
-
-document.getElementById("btnUpdateCategory").addEventListener("click", async ()=>{
-  catMessage.textContent = "Šaljem...";
-  const payload = {
-    cb1: document.getElementById("cat_cb1").checked ? 1 : 0,
-    cb2: document.getElementById("cat_cb2").checked ? 1 : 0,
-    cb3: document.getElementById("cat_cb3").checked ? 1 : 0,
-    cb4: document.getElementById("cat_cb4").checked ? 1 : 0,
-    dropdown: document.getElementById("cat_dropdown").value,
-    text1: document.getElementById("cat_text1").value,
-    text2: document.getElementById("cat_text2").value,
-    text3: document.getElementById("cat_text3").value,
-    text4: document.getElementById("cat_text4").value
-  };
-  try {
-    const data = await authFetch("/category", { method: "POST", body: JSON.stringify(payload) });
-    catMessage.textContent = data.message || "Sačuvano.";
-  } catch (err) {
-    console.error(err);
-    catMessage.textContent = "Greška pri čuvanju kategorije.";
-  }
-});
-
-document.getElementById("btnDeleteCategory").addEventListener("click", async ()=>{
-  if (!confirm("Obrisati kategoriju i sve podkategorije?")) return;
-  catMessage.textContent = "Brišem...";
-  try {
-    const data = await authFetch("/category", { method: "DELETE" });
-    catMessage.textContent = data.message || "Obrisano.";
-    // clear UI
-    ["cat_cb1","cat_cb2","cat_cb3","cat_cb4"].forEach(id => document.getElementById(id).checked = false);
-    document.getElementById("cat_dropdown").value = "";
-    ["cat_text1","cat_text2","cat_text3","cat_text4"].forEach(id => document.getElementById(id).value = "");
-    // clear subs
-    document.getElementById("subList").innerHTML = "";
-    document.getElementById("subEditor").style.display = "none";
-  } catch (err) {
-    console.error(err);
-    catMessage.textContent = "Greška pri brisanju kategorije.";
-  }
-});
-
-/* ---------- Subcategory actions ---------- */
-document.getElementById("btnListSubs").addEventListener("click", async ()=>{
-  subMessage.textContent = "Učitavam...";
-  try {
-    const data = await authFetch("/subcategories", { method: "GET" });
-    const list = document.getElementById("subList");
-    list.innerHTML = "";
+    setCategoryFields(data.category);
+    // populate subcat list
+    const scList = document.getElementById("subcatList");
+    scList.innerHTML = "";
     (data.subcategories || []).forEach(s => {
-      const opt = document.createElement("option");
-      opt.value = s.id;
-      opt.textContent = `${s.id} - ${s.title || "(no title)"}`;
-      opt.dataset.raw = JSON.stringify(s);
-      list.appendChild(opt);
+      const div = document.createElement("div");
+      div.className = "subcat-item";
+      div.textContent = `${s.id} — ${s.name || "(bez imena)"}`;
+      div.dataset.id = s.id;
+      div.addEventListener("click", () => loadSubcatForEdit(s.id));
+      scList.appendChild(div);
     });
-    subMessage.textContent = `Učitano ${data.subcategories.length} podkategorija.`;
-  } catch (err) {
-    console.error(err);
-    subMessage.textContent = "Greška pri učitavanju podkategorija.";
+    status.textContent = "Kategorija učitana.";
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri učitavanju kategorije.";
   }
 });
 
-// select sub -> populate editor
-document.getElementById("subList").addEventListener("change", function(){
-  const opt = this.selectedOptions[0];
-  if (!opt) return;
-  const raw = JSON.parse(opt.dataset.raw || "{}");
-  selectedSubId = parseInt(opt.value);
-  document.getElementById("subEditor").style.display = "block";
-  document.getElementById("sub_title").value = raw.title || "";
-  document.getElementById("sub_cb1").checked = !!raw.cb1;
-  document.getElementById("sub_cb2").checked = !!raw.cb2;
-  document.getElementById("sub_cb3").checked = !!raw.cb3;
-  document.getElementById("sub_cb4").checked = !!raw.cb4;
-  document.getElementById("sub_dropdown").value = raw.dropdown || "";
-  document.getElementById("sub_text1").value = raw.text1 || "";
-  document.getElementById("sub_text2").value = raw.text2 || "";
-  document.getElementById("sub_text3").value = raw.text3 || "";
-  document.getElementById("sub_text4").value = raw.text4 || "";
-  subMessage.textContent = "";
-});
-
-document.getElementById("btnCreateSub").addEventListener("click", async ()=>{
-  const title = prompt("Naslov nove podkategorije (ostavi prazno za default):", "Nova podkategorija");
-  if (title === null) return;
-  const payload = { title: title || "" };
-  subMessage.textContent = "Kreiram...";
+document.getElementById("btnUpdateCategory").addEventListener("click", async () => {
+  const status = document.getElementById("catStatus");
+  status.textContent = "Šaljem...";
   try {
-    const data = await authFetch("/subcategory", { method: "POST", body: JSON.stringify(payload) });
-    subMessage.textContent = `Kreirano (id=${data.id})`;
-    // refresh list
-    document.getElementById("btnListSubs").click();
-  } catch (err) {
-    console.error(err);
-    subMessage.textContent = "Greška pri kreiranju.";
+    const payload = getCategoryFields();
+    const r = await apiFetch("/category/update", "POST", payload);
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
+    status.textContent = r.json.message || "Sačuvano.";
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri slanju.";
   }
 });
 
-document.getElementById("btnUpdateSub").addEventListener("click", async ()=>{
-  if (!selectedSubId) { subMessage.textContent = "Nije odabrana podkategorija."; return; }
-  const payload = {
-    title: document.getElementById("sub_title").value || "",
-    cb1: document.getElementById("sub_cb1").checked ? 1 : 0,
-    cb2: document.getElementById("sub_cb2").checked ? 1 : 0,
-    cb3: document.getElementById("sub_cb3").checked ? 1 : 0,
-    cb4: document.getElementById("sub_cb4").checked ? 1 : 0,
-    dropdown: document.getElementById("sub_dropdown").value,
-    text1: document.getElementById("sub_text1").value,
-    text2: document.getElementById("sub_text2").value,
-    text3: document.getElementById("sub_text3").value,
-    text4: document.getElementById("sub_text4").value
+document.getElementById("btnDeleteCategory").addEventListener("click", async () => {
+  if (!confirm("Da li stvarno želite da obrišete sve iz kategorije (uključujući podkategorije)?")) return;
+  const status = document.getElementById("catStatus");
+  status.textContent = "Brišem...";
+  try {
+    const r = await apiFetch("/category/delete_all", "POST", {});
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
+    status.textContent = r.json.message || "Obrisano.";
+    // clear UI
+    setCategoryFields({checkboxes:[false,false,false,false], dropdown:"", texts:["","","",""]});
+    document.getElementById("subcatList").innerHTML = "";
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri brisanju.";
+  }
+});
+
+// Subcategories list/create
+document.getElementById("btnListSubcats").addEventListener("click", async () => {
+  const status = document.getElementById("subStatus");
+  status.textContent = "Učitavam listu...";
+  try {
+    const r = await apiFetch("/subcategories/list", "GET");
+    if (!r.ok) throw r.json;
+    const list = r.json.subcategories || [];
+    const scList = document.getElementById("subcatList");
+    scList.innerHTML = "";
+    list.forEach(s => {
+      const div = document.createElement("div");
+      div.className = "subcat-item";
+      div.textContent = `${s.id} — ${s.name || "(bez imena)"}`;
+      div.dataset.id = s.id;
+      div.addEventListener("click", () => loadSubcatForEdit(s.id));
+      scList.appendChild(div);
+    });
+    status.textContent = `Pronađeno ${list.length} podkategorija.`;
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri listanju podkategorija.";
+  }
+});
+
+document.getElementById("btnCreateSubcat").addEventListener("click", async () => {
+  // create new with current editor values
+  const status = document.getElementById("subStatus");
+  status.textContent = "Kreiram...";
+  try {
+    const payload = getSubcatFields();
+    const r = await apiFetch("/subcategory/create", "POST", payload);
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
+    status.textContent = `Kreirana podkategorija id=${r.json.id}`;
+    // refresh list
+    await document.getElementById("btnListSubcats").click();
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri kreiranju.";
+  }
+});
+
+async function loadSubcatForEdit(id) {
+  const status = document.getElementById("subStatus");
+  status.textContent = "Učitavam podkategoriju...";
+  try {
+    const r = await apiFetch("/subcategory/" + id, "GET");
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
+    const s = r.json.subcategory;
+    selectedSubcatId = s.id;
+    document.getElementById("subcatEditorTitle").textContent = `Edit podkategorije: ${s.id}`;
+    setSubcatFields(s);
+    status.textContent = "Podkategorija učitana.";
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri učitavanju podkategorije.";
+  }
+}
+
+document.getElementById("btnUpdateSubcat").addEventListener("click", async () => {
+  if (!selectedSubcatId) {
+    alert("Nije izabrana podkategorija. Možete kreirati novu ili iz liste izabrati neku.");
+    return;
+  }
+  const status = document.getElementById("subStatus");
+  status.textContent = "Ažuriram...";
+  try {
+    const payload = getSubcatFields();
+    const r = await apiFetch("/subcategory/update/" + selectedSubcatId, "POST", payload);
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
+    status.textContent = r.json.message || "Ažurirano.";
+    // refresh list
+    await document.getElementById("btnListSubcats").click();
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri ažuriranju.";
+  }
+});
+
+document.getElementById("btnDeleteSubcat").addEventListener("click", async () => {
+  if (!selectedSubcatId) { alert("Niste izabrali podkategoriju."); return; }
+  if (!confirm("Da li stvarno obrisati podkategoriju?")) return;
+  const status = document.getElementById("subStatus");
+  status.textContent = "Brišem...";
+  try {
+    const r = await apiFetch("/subcategory/delete/" + selectedSubcatId, "POST", {});
+    if (!r.ok) {
+      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+      return;
+    }
+    status.textContent = r.json.message || "Obrisano.";
+    selectedSubcatId = null;
+    document.getElementById("subcatEditorTitle").textContent = "Nije izabrana podkategorija";
+    // clear editor fields
+    setSubcatFields({name:"", checkboxes:[false,false,false,false], dropdown:"", texts:["","","",""]});
+    await document.getElementById("btnListSubcats").click();
+  } catch (e) {
+    console.error(e);
+    status.textContent = "Greška pri brisanju podkategorije.";
+  }
+});
+
+// helpers for reading/writing UI
+function getCategoryFields() {
+  return {
+    checkboxes: [
+      document.getElementById("cat_cb1").checked,
+      document.getElementById("cat_cb2").checked,
+      document.getElementById("cat_cb3").checked,
+      document.getElementById("cat_cb4").checked
+    ],
+    dropdown: document.getElementById("cat_dropdown").value,
+    texts: [
+      document.getElementById("cat_text1").value,
+      document.getElementById("cat_text2").value,
+      document.getElementById("cat_text3").value,
+      document.getElementById("cat_text4").value
+    ]
   };
-  subMessage.textContent = "Ažuriram...";
-  try {
-    const data = await authFetch(`/subcategory/${selectedSubId}`, { method: "PUT", body: JSON.stringify(payload) });
-    subMessage.textContent = data.message || "Sačuvano.";
-    // refresh list
-    document.getElementById("btnListSubs").click();
-  } catch (err) {
-    console.error(err);
-    subMessage.textContent = "Greška pri ažuriranju podkategorije.";
-  }
-});
+}
 
-document.getElementById("btnDeleteSub").addEventListener("click", async ()=>{
-  if (!selectedSubId) { subMessage.textContent = "Nije odabrana podkategorija."; return; }
-  if (!confirm("Obrisati ovu podkategoriju?")) return;
-  subMessage.textContent = "Brišem...";
-  try {
-    const data = await authFetch(`/subcategory/${selectedSubId}`, { method: "DELETE" });
-    subMessage.textContent = data.message || "Obrisano.";
-    selectedSubId = null;
-    document.getElementById("subEditor").style.display = "none";
-    document.getElementById("btnListSubs").click();
-  } catch (err) {
-    console.error(err);
-    subMessage.textContent = "Greška pri brisanju podkategorije.";
-  }
-});
+function setCategoryFields(obj) {
+  const cb = obj.checkboxes || [false,false,false,false];
+  document.getElementById("cat_cb1").checked = !!cb[0];
+  document.getElementById("cat_cb2").checked = !!cb[1];
+  document.getElementById("cat_cb3").checked = !!cb[2];
+  document.getElementById("cat_cb4").checked = !!cb[3];
+  document.getElementById("cat_dropdown").value = obj.dropdown || "";
+  const texts = obj.texts || ["","","",""];
+  document.getElementById("cat_text1").value = texts[0] || "";
+  document.getElementById("cat_text2").value = texts[1] || "";
+  document.getElementById("cat_text3").value = texts[2] || "";
+  document.getElementById("cat_text4").value = texts[3] || "";
+}
+
+function getSubcatFields() {
+  return {
+    name: document.getElementById("sub_name").value || "",
+    checkboxes: [
+      document.getElementById("sub_cb1").checked,
+      document.getElementById("sub_cb2").checked,
+      document.getElementById("sub_cb3").checked,
+      document.getElementById("sub_cb4").checked
+    ],
+    dropdown: document.getElementById("sub_dropdown").value,
+    texts: [
+      document.getElementById("sub_text1").value,
+      document.getElementById("sub_text2").value,
+      document.getElementById("sub_text3").value,
+      document.getElementById("sub_text4").value
+    ]
+  };
+}
+
+function setSubcatFields(s) {
+  document.getElementById("sub_name").value = s.name || "";
+  const cb = s.checkboxes || [false,false,false,false];
+  document.getElementById("sub_cb1").checked = !!cb[0];
+  document.getElementById("sub_cb2").checked = !!cb[1];
+  document.getElementById("sub_cb3").checked = !!cb[2];
+  document.getElementById("sub_cb4").checked = !!cb[3];
+  document.getElementById("sub_dropdown").value = s.dropdown || "";
+  const texts = s.texts || ["","","",""];
+  document.getElementById("sub_text1").value = texts[0] || "";
+  document.getElementById("sub_text2").value = texts[1] || "";
+  document.getElementById("sub_text3").value = texts[2] || "";
+  document.getElementById("sub_text4").value = texts[3] || "";
+}
 </script>
 </body>
 </html>
+
