@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Category Manager (Demo)</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+  :root {
+    --primary-color: #0b76ff;
+    --primary-color-dark: #0056b3; /* Darker shade for hover */
+    --secondary-color: #6c757d;
+    --secondary-color-dark: #5a6268;
+    --danger-color: #d9534f;
+    --danger-color-dark: #c9302c;
+    --background-light: #f6f7fb;
+    --background-white: #ffffff;
+    --text-color-dark: #111;
+    --text-color-light: #444; /* Slightly darker light text */
+    --border-color: #e0e0e0; /* Lighter border */
+    --shadow-light: 0 4px 12px rgba(0,0,0,0.06); /* Softer shadow */
+    --border-radius: 10px; /* Slightly larger radius */
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px; /* Slightly larger main padding */
+  }
+
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    margin: 0;
+    padding: var(--spacing-lg);
+    background: var(--background-light);
+    color: var(--text-color-dark);
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 1200px; /* Povećana maksimalna širina za bolji raspored side-by-side */
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+  }
+
+  .box {
+    background: var(--background-white);
+    padding: var(--spacing-lg); /* Povećan padding unutar kutija */
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    margin-bottom: var(--spacing-lg); /* Povećan razmak između kutija */
+    border: 1px solid var(--border-color); /* Dodatni lagani border */
+    flex-grow: 1; /* Omogućava kutijama da se šire unutar reda */
+  }
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 1.6em; /* Veći naslovi */
+    font-weight: 600;
+  }
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-color-dark);
+    font-weight: 600;
+    font-size: 1.2em;
+  }
+
+  label {
+    display: block;
+    margin: var(--spacing-sm) 0;
+    font-weight: 500;
+    color: var(--text-color-light);
+    font-size: 0.95em;
+  }
+
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 10px 12px; /* Malo veći padding */
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 15px; /* Malo veći font */
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: #fcfcfc; /* Blago off-white pozadina */
+  }
+
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(11, 118, 255, 0.2); /* Jača senka na fokusu */
+    outline: none;
+    background-color: var(--background-white);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 90px; /* Malo veća minimalna visina */
+  }
+
+  button {
+    padding: 12px 20px; /* Veći padding za dugmad */
+    border-radius: var(--border-radius);
+    border: none;
+    background: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    margin-right: var(--spacing-sm);
+    font-weight: 600;
+    font-size: 15px; /* Veći font za dugmad */
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Blaga senka na dugmadima */
+  }
+
+  button:hover {
+    background: var(--primary-color-dark); /* Tamnija boja na hoveru */
+    transform: translateY(-2px); /* Veći podizanje na hoveru */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* Jača senka na hoveru */
+  }
+
+  button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  button.danger {
+    background: var(--danger-color);
+  }
+
+  button.danger:hover {
+    background: var(--danger-color-dark);
+  }
+
+  button.secondary {
+    background: var(--secondary-color);
+  }
+
+  button.secondary:hover {
+    background: var(--secondary-color-dark);
+  }
+
+  .button-group {
+    display: flex;
+    flex-wrap: wrap; /* Omogućava da dugmad pređu u novi red */
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
+  }
+
+  .button-group button {
+    margin-right: 0; /* Ukloni margin-right kada je u grupi sa gap-om */
+  }
+
+  .row {
+    display: flex;
+    gap: var(--spacing-lg); /* Veći razmak između kolona */
+    flex-wrap: wrap;
+  }
+
+  .col {
+    flex: 1;
+    min-width: 300px; /* Povećana minimalna širina */
+  }
+
+  /* Specific style for job list column */
+  .job-list-col {
+    flex-basis: 300px; /* Fixed width for the list on larger screens */
+    flex-grow: 0; /* Prevent it from growing */
+    flex-shrink: 0; /* Prevent it from shrinking too much */
+  }
+
+  .status {
+    margin-top: var(--spacing-md); /* Veći razmak */
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    background: #e0f7fa; /* Svetlija plava za info */
+    color: #00796b; /* Tamno zelena za tekst */
+    border: 1px solid #b2ebf2;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 500;
+  }
+
+  .status.error {
+    background: #ffebee; /* Svetlija crvena za greške */
+    color: #d32f2f; /* Tamno crvena za tekst */
+    border-color: #ffcdd2;
+  }
+
+  .subcat-list {
+    max-height: 250px; /* Još veća visina */
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    background: #fdfdfd; /* Skoro bela pozadina */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* Unutrašnja senka */
+  }
+
+  .subcat-item {
+    padding: var(--spacing-md); /* Veći padding */
+    cursor: pointer;
+    border-bottom: 1px dashed #f0f0f0; /* Svetlija linija */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    color: var(--text-color-dark);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+  }
+
+  .subcat-item:last-child {
+    border-bottom: none;
+  }
+
+  .subcat-item:hover {
+    background: #e3f2fd; /* Svetlo plava na hoveru */
+    border-radius: var(--border-radius); /* Radius na hoveru */
+    transform: translateX(4px); /* Blago pomeranje udesno */
+  }
+
+  input[type="checkbox"] {
+    margin-right: var(--spacing-sm);
+    transform: scale(1.3); /* Još veći checkbox */
+    accent-color: var(--primary-color); /* Boja čekboksa */
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 1024px) { /* Adjust breakpoint for main sections */
+    .main-content-row { /* Cilja glavni red za korisnicka podesavanja i ponudu poslova */
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+  }
+
+  @media (max-width: 900px) { /* Adjust breakpoint for job list inside ponuda poslova */
+    .row { /* Cilja interne redove */
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    .col, .job-list-col {
+      min-width: unset;
+      width: 100%;
+      flex-basis: auto; /* Reset flex-basis for mobile */
+    }
+    .subcat-list {
+      max-height: 200px;
+      margin-bottom: var(--spacing-md); /* Dodatni razmak ispod liste na mobilnom */
+    }
+    .button-group button {
+      width: 100%;
+      margin-bottom: var(--spacing-sm);
+      justify-content: center;
+    }
+    .button-group button:last-child {
+      margin-bottom: 0;
+    }
+    .box {
+      padding: var(--spacing-md);
+    }
+    body {
+      padding: var(--spacing-md);
+    }
+  }
+
+  input:disabled, textarea:disabled, select:disabled {
+    background-color: #eceff1; /* Svetlija siva za disabled */
+    cursor: not-allowed;
+    color: #78909c;
+  }
+
+  #cat_cb_container { display:none; }
+</style>
+</head>
+<body>
+<div id="g_id_onload" data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_select="true" data-ux_mode="popup"></div>
+
+<div class="container">
+  <div class="box">
+    <h2><i class="fas fa-user-circle"></i> Prijava</h2>
+    <p id="loginStatus">Čekam Google prijavu...</p>
+    <button id="signOutBtn" style="display:none" class="secondary"><i class="fas fa-sign-out-alt"></i> Odjavi se</button>
+  </div>
+
+  <div class="row main-content-row"> <!-- Novi red za Korisnička podešavanja i Ponudu poslova -->
+    <div class="box">
+      <h2><i class="fas fa-cog"></i> Korisnička podešavanja</h2>
+      <div class="row">
+        <!-- Ova sekcija ostaje skrivena -->
+        <div class="col" id="cat_cb_container">
+          <label><input type="checkbox" id="cat_cb1"> proizvodjač</label>
+          <label><input type="checkbox" id="cat_cb2"> poslodavac</label>
+        </div>
+        <div class="col">
+          <label>Vrsta obrade:
+            <select id="cat_dropdown">
+              <option value="">-- izaberi --</option>
+              <option value="opt1">Strug</option>
+              <option value="opt2">Glodalica</option>
+              <option value="opt3">Strug i glodalica</option>
+            </select>
+          </label>
+
+          <label>Ime firme: <input type="text" id="cat_text1" placeholder="Unesite ime firme"></label>
+          <label>Opis firme: <textarea id="cat_text2" placeholder="Unesite opis firme"></textarea></label>
+          <label>Email: <input type="text" id="cat_text3" placeholder="Unesite email"></label>
+          <label>Internet stranica: <input type="text" id="cat_text4" placeholder="Unesite internet stranicu"></label>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button id="btnLoadCategory"><i class="fas fa-sync-alt"></i> Učitaj podešavanja</button>
+        <button id="btnUpdateCategory"><i class="fas fa-save"></i> Sačuvaj / Ažuriraj podešavanja</button>
+        <button id="btnDeleteCategory" class="danger"><i class="fas fa-trash-alt"></i> Obriši nalog</button>
+      </div>
+      <div class="status" id="catStatus"></div>
+    </div>
+
+    <div class="box">
+      <h2><i class="fas fa-briefcase"></i> Ponuda poslova</h2>
+      <div class="row"> <!-- Ovaj red drži listu ponuda i detalje ponude jedan pored drugog -->
+        <div class="job-list-col"> <!-- Specifična klasa za kolonu sa listom -->
+          <div class="button-group">
+            <button id="btnListSubcats" style="width:100%;"><i class="fas fa-list-alt"></i> Lista ponuda</button>
+          </div>
+          <div class="subcat-list" id="subcatList"></div>
+        </div>
+
+        <div class="col"> <!-- Kolona za detalje ponude -->
+          <h3 id="subcatEditorTitle">Nije izabrana lista ponuda</h3>
+          <label>Posao: <input type="text" id="sub_name" disabled></label>
+          <label>Kratak opis: <input type="text" id="sub_text1" disabled></label>
+          <label>Objašnjenje: <textarea id="sub_text2" disabled></textarea></label>
+          <label>Rok za ponudu: <input type="text" id="sub_text3" disabled></label>
+          <label>Rok za izradu: <input type="text" id="sub_text4" disabled></label>
+
+          <label style="display:flex; align-items:center; font-weight:normal; margin-top:var(--spacing-md);"><input type="checkbox" id="sub_cb1"> Prijavljujem se za posao</label>
+          <div class="button-group">
+            <button id="btnUpdateSubcat" style="width:auto;"><i class="fas fa-paper-plane"></i> Pošalji prijavu</button>
+          </div>
+          <div class="status" id="subStatus"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- aplikacijski kod -->
+<script src="app.js"></script>
+</body>
+</html>
