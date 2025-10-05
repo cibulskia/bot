@@ -10,7 +10,8 @@ document.getElementById("signOutBtn").addEventListener("click", () => {
 });
 
 // helper: fetch with auth
-async function apiFetch(path, method = "GET", body = null) {
+// Postavi apiFetch u globalni opseg
+window.apiFetch = async function (path, method = "GET", body = null) {
   if (!googleToken) { // Koristi globalni googleToken iz frontend.html
     throw new Error("No Google token. Please sign in.");
   }
