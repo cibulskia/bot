@@ -3,114 +3,402 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>JobLink Pro</title>
-<link rel="stylesheet" href="stylew.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<title>ProMesto | Upravljanje Profilom i Poslovima</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="stylesheet" href="stylew.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 <div id="g_id_onload" data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_select="true" data-ux_mode="popup"></div>
 
 <header class="header">
   <div class="container">
-    <div class="logo">JobLink Pro</div>
-    <div class="user-info" id="loginStatusContainer">
-      <span id="loginStatus">Čekam Google prijavu...</span>
+    <div class="logo">ProMesto</div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="#profile-settings">Moj Profil</a></li>
+        <li><a href="#job-offers">Poslovi</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="card" id="login-section">
+    <div class="card-header">
+      <i class="fas fa-user-circle icon-large"></i>
+      <h2>Status Prijave</h2>
+    </div>
+    <div class="card-body">
+      <p id="loginStatus" class="status-message">Čekam Google prijavu...</p>
       <button id="signOutBtn" class="btn btn-secondary btn-icon" style="display:none">
         <i class="fas fa-sign-out-alt"></i> Odjavi se
       </button>
     </div>
-  </div>
-</header>
-
-<main class="container content-grid">
-  <section class="card settings-card">
-    <h2><i class="fas fa-user-cog"></i> Korisnička podešavanja</h2>
-    <div class="form-group">
-      <label for="cat_dropdown"><i class="fas fa-tools"></i> Vrsta obrade:</label>
-      <div class="input-icon-wrapper">
-        <select id="cat_dropdown">
-          <option value="">-- izaberi --</option>
-          <option value="opt1">Strug</option>
-          <option value="opt2">Glodalica</option>
-          <option value="opt3">Strug i glodalica</option>
-        </select>
-        <i class="fas fa-chevron-down input-icon-right"></i>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="cat_text1"><i class="fas fa-building"></i> Ime firme:</label>
-      <input type="text" id="cat_text1" placeholder="Unesite ime firme">
-    </div>
-
-    <div class="form-group">
-      <label for="cat_text2"><i class="fas fa-info-circle"></i> Opis firme:</label>
-      <textarea id="cat_text2" placeholder="Unesite opis firme"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="cat_text3"><i class="fas fa-envelope"></i> Email:</label>
-      <input type="text" id="cat_text3" placeholder="Unesite email">
-    </div>
-
-    <div class="form-group">
-      <label for="cat_text4"><i class="fas fa-globe"></i> Internet stranica:</label>
-      <input type="text" id="cat_text4" placeholder="Unesite internet stranicu">
-    </div>
-
-    <div class="button-group">
-      <button id="btnLoadCategory" class="btn btn-primary btn-icon"><i class="fas fa-sync-alt"></i> Učitaj podešavanja</button>
-      <button id="btnUpdateCategory" class="btn btn-success btn-icon"><i class="fas fa-save"></i> Sačuvaj / Ažuriraj</button>
-      <button id="btnDeleteCategory" class="btn btn-danger btn-icon"><i class="fas fa-trash-alt"></i> Obriši nalog</button>
-    </div>
-    <div class="status-message" id="catStatus"></div>
   </section>
 
-  <section class="card job-offers-card">
-    <h2><i class="fas fa-briefcase"></i> Ponuda poslova</h2>
-    <div class="job-list-container">
-      <div class="job-list-header">
-        <button id="btnListSubcats" class="btn btn-secondary btn-icon"><i class="fas fa-list"></i> Lista ponuda</button>
-      </div>
-      <div class="subcat-list" id="subcatList">
-        <p class="empty-state">Nema aktivnih ponuda. Kliknite 'Lista ponuda' da učitate.</p>
-      </div>
+  <section class="card" id="profile-settings">
+    <div class="card-header">
+      <i class="fas fa-cog icon-large"></i>
+      <h2>Korisnička Podešavanja</h2>
     </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group" style="display:none;"> <!-- Sakriveno po originalnom zahtevu -->
+          <label class="checkbox-label">
+            <input type="checkbox" id="cat_cb1" checked disabled>
+            <span class="checkbox-custom"></span> Proizvođač
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="cat_cb2" disabled>
+            <span class="checkbox-custom"></span> Poslodavac
+          </label>
+        </div>
+        <div class="form-group">
+          <label for="cat_dropdown">Vrsta obrade:</label>
+          <div class="select-wrapper">
+            <select id="cat_dropdown">
+              <option value="">-- izaberi --</option>
+              <option value="opt1">Strug</option>
+              <option value="opt2">Glodalica</option>
+              <option value="opt3">Strug i glodalica</option>
+            </select>
+            <i class="fas fa-chevron-down select-icon"></i>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="cat_text1">Ime firme:</label>
+          <input type="text" id="cat_text1" placeholder="Unesite ime firme">
+        </div>
+        <div class="form-group full-width">
+          <label for="cat_text2">Opis firme:</label>
+          <textarea id="cat_text2" placeholder="Detaljan opis vaše firme i delatnosti"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="cat_text3">Email:</label>
+          <input type="email" id="cat_text3" placeholder="kontakt@vasafirma.com">
+        </div>
+        <div class="form-group">
+          <label for="cat_text4">Internet stranica:</label>
+          <input type="url" id="cat_text4" placeholder="https://www.vasafirma.com">
+        </div>
+      </div>
 
-    <div class="job-details">
-      <h3 id="subcatEditorTitle"><i class="fas fa-file-alt"></i> Nije izabrana ponuda</h3>
-      <div class="form-group">
-        <label for="sub_name"><i class="fas fa-tag"></i> Posao:</label>
-        <input type="text" id="sub_name" disabled>
+      <div class="form-actions">
+        <button id="btnLoadCategory" class="btn btn-primary btn-icon">
+          <i class="fas fa-sync-alt"></i> Učitaj podešavanja
+        </button>
+        <button id="btnUpdateCategory" class="btn btn-success btn-icon">
+          <i class="fas fa-save"></i> Sačuvaj / Ažuriraj
+        </button>
+        <button id="btnDeleteCategory" class="btn btn-danger btn-icon">
+          <i class="fas fa-trash-alt"></i> Obriši nalog
+        </button>
       </div>
-      <div class="form-group">
-        <label for="sub_text1"><i class="fas fa-align-left"></i> Kratak opis:</label>
-        <input type="text" id="sub_text1" disabled>
-      </div>
-      <div class="form-group">
-        <label for="sub_text2"><i class="fas fa-comment-alt"></i> Objašnjenje:</label>
-        <textarea id="sub_text2" disabled></textarea>
-      </div>
-      <div class="form-group">
-        <label for="sub_text3"><i class="fas fa-calendar-alt"></i> Rok za ponudu:</label>
-        <input type="text" id="sub_text3" disabled>
-      </div>
-      <div class="form-group">
-        <label for="sub_text4"><i class="fas fa-hourglass-half"></i> Rok za izradu:</label>
-        <input type="text" id="sub_text4" disabled>
+      <div class="status-message" id="catStatus"></div>
+    </div>
+  </section>
+
+  <section class="card" id="job-offers">
+    <div class="card-header">
+      <i class="fas fa-briefcase icon-large"></i>
+      <h2>Ponuda Poslova</h2>
+    </div>
+    <div class="card-body job-offer-layout">
+      <div class="job-list-panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-clipboard-list"></i> Dostupne ponude</h3>
+          <button id="btnListSubcats" class="btn btn-secondary btn-small btn-icon">
+            <i class="fas fa-list"></i> Lista ponuda
+          </button>
+        </div>
+        <div class="subcat-list" id="subcatList">
+          <p class="empty-state">Nema aktivnih ponuda poslova. Kliknite "Lista ponuda" da ih učitate.</p>
+        </div>
       </div>
 
-      <div class="form-group checkbox-group">
-        <input type="checkbox" id="sub_cb1">
-        <label for="sub_cb1">Prijavljujem se za posao</label>
+      <div class="job-details-panel">
+        <h3 id="subcatEditorTitle"><i class="fas fa-info-circle"></i> Nije izabrana ponuda</h3>
+        <div class="form-group">
+          <label for="sub_name">Posao:</label>
+          <input type="text" id="sub_name" disabled class="disabled-input">
+        </div>
+        <div class="form-group">
+          <label for="sub_text1">Kratak opis:</label>
+          <input type="text" id="sub_text1" disabled class="disabled-input">
+        </div>
+        <div class="form-group">
+          <label for="sub_text2">Objašnjenje:</label>
+          <textarea id="sub_text2" disabled class="disabled-input"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="sub_text3">Rok za ponudu:</label>
+          <input type="text" id="sub_text3" disabled class="disabled-input">
+        </div>
+        <div class="form-group">
+          <label for="sub_text4">Rok za izradu:</label>
+          <input type="text" id="sub_text4" disabled class="disabled-input">
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="sub_cb1">
+            <span class="checkbox-custom"></span> Prijavljujem se za posao
+          </label>
+        </div>
+        <div class="form-actions">
+          <button id="btnUpdateSubcat" class="btn btn-primary btn-icon">
+            <i class="fas fa-paper-plane"></i> Pošalji prijavu
+          </button>
+        </div>
+        <div class="status-message" id="subStatus"></div>
       </div>
-      <button id="btnUpdateSubcat" class="btn btn-primary btn-block btn-icon"><i class="fas fa-paper-plane"></i> Pošalji prijavu</button>
-      <div class="status-message" id="subStatus"></div>
     </div>
   </section>
 </main>
 
-<script src="scriptw.js"></script>
+<footer class="footer">
+  <div class="container">
+    <p>&copy; 2023 ProMesto. Sva prava zadržana.</p>
+  </div>
+</footer>
+
+<!-- Originalni JS kod ide ovde, ali bez izmena za sada -->
+<script>
+    const CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com";
+    const API_BASE = "https://botanica.ngrok.app"; // backend tunel
+    let googleToken = null;
+    let selectedSubcatId = null;
+
+    // Google One Tap callback
+    window.handleCredentialResponse = (response) => {
+      if (response && response.credential) {
+        googleToken = response.credential;
+        document.getElementById("loginStatus").textContent = "Ulogovan (token primljen).";
+        document.getElementById("signOutBtn").style.display = "inline-block";
+        console.log("Google token received.");
+      } else {
+        document.getElementById("loginStatus").textContent = "Prijava nije uspela.";
+      }
+    };
+
+    document.getElementById("signOutBtn").addEventListener("click", () => {
+      googleToken = null;
+      document.getElementById("loginStatus").textContent = "Odjavljeno.";
+      document.getElementById("signOutBtn").style.display = "none";
+    });
+
+    // helper: fetch with auth
+    async function apiFetch(path, method="GET", body=null) {
+      if (!googleToken) {
+        throw new Error("No Google token. Please sign in.");
+      }
+      const headers = {
+        "Authorization": `Bearer ${googleToken}`,
+        "Content-Type": "application/json"
+      };
+      const res = await fetch(API_BASE + path, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const txt = await res.text();
+      try {
+        const json = JSON.parse(txt);
+        return { ok: res.ok, status: res.status, json };
+      } catch (e) {
+        return { ok: res.ok, status: res.status, json: { raw: txt } };
+      }
+    }
+
+    // Category buttons
+    document.getElementById("btnLoadCategory").addEventListener("click", async () => {
+      const status = document.getElementById("catStatus");
+      status.textContent = "Učitavanje...";
+      try {
+        const r = await apiFetch("/category/load", "GET");
+        if (!r.ok) throw r.json;
+        const data = r.json;
+        if (!data.category) {
+          status.textContent = "Nema kategorije (još). Polja su prazna.";
+          setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]});
+          document.getElementById("subcatList").innerHTML = `<p class="empty-state">Nema aktivnih ponuda poslova. Kliknite "Lista ponuda" da ih učitate.</p>`;
+          return;
+        }
+        setCategoryFields(data.category);
+        const scList = document.getElementById("subcatList");
+        scList.innerHTML = "";
+        (data.subcategories || []).forEach(s => {
+          const div = document.createElement("div");
+          div.className = "subcat-item";
+          div.textContent = `${s.id} — ${s.name || "(bez imena)"}`;
+          div.dataset.id = s.id;
+          div.addEventListener("click", () => loadSubcatForEdit(s.id));
+          scList.appendChild(div);
+        });
+        if (data.subcategories.length === 0) {
+            scList.innerHTML = `<p class="empty-state">Nema aktivnih ponuda poslova. Kliknite "Lista ponuda" da ih učitate.</p>`;
+        }
+        status.textContent = "Podešavanja učitana.";
+      } catch (e) {
+        console.error(e);
+        status.textContent = "Greška pri učitavanju kategorije.";
+      }
+    });
+
+    document.getElementById("btnUpdateCategory").addEventListener("click", async () => {
+      const status = document.getElementById("catStatus");
+      status.textContent = "Šaljem...";
+      try {
+        const payload = getCategoryFields();
+        const r = await apiFetch("/category/update", "POST", payload);
+        if (!r.ok) {
+          status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+          return;
+        }
+        status.textContent = r.json.message || "Sačuvano.";
+      } catch (e) {
+        console.error(e);
+        status.textContent = "Greška pri slanju.";
+      }
+    });
+
+    document.getElementById("btnDeleteCategory").addEventListener("click", async () => {
+      if (!confirm("Da li stvarno želite da obrišete sve iz kategorije (uključujući podkategorije)?")) return;
+      const status = document.getElementById("catStatus");
+      status.textContent = "Brišem...";
+      try {
+        const r = await apiFetch("/category/delete_all", "POST", {});
+        if (!r.ok) {
+          status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+          return;
+        }
+        status.textContent = r.json.message || "Obrisano.";
+        setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]});
+        document.getElementById("subcatList").innerHTML = `<p class="empty-state">Nema aktivnih ponuda poslova. Kliknite "Lista ponuda" da ih učitate.</p>`;
+      } catch (e) {
+        console.error(e);
+        status.textContent = "Greška pri brisanju.";
+      }
+    });
+
+    // Subcategories list
+    document.getElementById("btnListSubcats").addEventListener("click", async () => {
+      const status = document.getElementById("subStatus");
+      status.textContent = "Učitavam listu...";
+      try {
+        const r = await apiFetch("/subcategories/list", "GET");
+        if (!r.ok) throw r.json;
+        const list = r.json.subcategories || [];
+        const scList = document.getElementById("subcatList");
+        scList.innerHTML = "";
+        list.forEach(s => {
+          const div = document.createElement("div");
+          div.className = "subcat-item";
+          div.textContent = `${s.id} — ${s.name || "(bez imena)"}`;
+          div.dataset.id = s.id;
+          div.addEventListener("click", () => loadSubcatForEdit(s.id));
+          scList.appendChild(div);
+        });
+        if (list.length === 0) {
+            scList.innerHTML = `<p class="empty-state">Nema aktivnih ponuda poslova. Kliknite "Lista ponuda" da ih učitate.</p>`;
+        }
+        status.textContent = `Pronađeno ${list.length} podkategorija.`;
+      } catch (e) {
+        console.error(e);
+        status.textContent = "Greška pri listanju ponuda.";
+      }
+    });
+
+    async function loadSubcatForEdit(id) {
+      const status = document.getElementById("subStatus");
+      status.textContent = "Učitavam podkategoriju...";
+      try {
+        const r = await apiFetch("/subcategory/" + id, "GET");
+        if (!r.ok) {
+          status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+          return;
+        }
+        const s = r.json.subcategory;
+        selectedSubcatId = s.id;
+        document.getElementById("subcatEditorTitle").textContent = `Prijava za posao: ${s.id}`;
+        setSubcatFields(s);
+        status.textContent = "Lista ponuda učitana.";
+      } catch (e) {
+        console.error(e);
+        status.textContent = "Greška pri učitavanju liste ponuda.";
+      }
+    }
+
+    document.getElementById("btnUpdateSubcat").addEventListener("click", async () => {
+      if (!selectedSubcatId) { alert("Nije izabrana ponuda."); return; }
+      const status = document.getElementById("subStatus");
+      status.textContent = "Ažuriram...";
+      try {
+        const payload = {
+          checkboxes: [document.getElementById("sub_cb1").checked],
+          name: document.getElementById("sub_name").value,
+          texts: [
+            document.getElementById("sub_text1").value,
+            document.getElementById("sub_text2").value,
+            document.getElementById("sub_text3").value,
+            document.getElementById("sub_text4").value
+          ]
+        };
+        const r = await apiFetch("/subcategory/update/" + selectedSubcatId, "POST", payload);
+        if (!r.ok) {
+          status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
+          return;
+        }
+        status.textContent = r.json.message || "Ažurirano.";
+        await document.getElementById("btnListSubcats").click();
+      } catch (e) {
+        console.error(e);
+        status.textContent = "Greška pri ažuriranju.";
+      }
+    });
+
+    // helpers for reading/writing UI
+    function getCategoryFields() {
+      return {
+        checkboxes: [true, false], // uvek proizvodjac = true, poslodavac = false
+        dropdown: document.getElementById("cat_dropdown").value,
+        texts: [
+          document.getElementById("cat_text1").value,
+          document.getElementById("cat_text2").value,
+          document.getElementById("cat_text3").value,
+          document.getElementById("cat_text4").value
+        ]
+      };
+    }
+
+    function setCategoryFields(obj) {
+      // proizvodjac uvek true, poslodavac false
+      document.getElementById("cat_cb1").checked = true;
+      document.getElementById("cat_cb2").checked = false;
+
+      document.getElementById("cat_dropdown").value = obj.dropdown || "";
+      const texts = obj.texts || ["","","",""];
+      document.getElementById("cat_text1").value = texts[0] || "";
+      document.getElementById("cat_text2").value = texts[1] || "";
+      document.getElementById("cat_text3").value = texts[2] || "";
+      document.getElementById("cat_text4").value = texts[3] || "";
+    }
+
+    function setSubcatFields(s) {
+      document.getElementById("sub_name").value = s.name || "";
+      document.getElementById("sub_name").disabled = true;
+      document.getElementById("sub_cb1").checked = (s.checkboxes && s.checkboxes[0]) || false;
+      document.getElementById("sub_text1").value = (s.texts && s.texts[0]) || "";
+      document.getElementById("sub_text2").value = (s.texts && s.texts[1]) || "";
+      document.getElementById("sub_text3").value = (s.texts && s.texts[2]) || "";
+      document.getElementById("sub_text4").value = (s.texts && s.texts[3]) || "";
+      document.getElementById("sub_text1").disabled = true;
+      document.getElementById("sub_text2").disabled = true;
+      document.getElementById("sub_text3").disabled = true;
+      document.getElementById("sub_text4").disabled = true;
+    }
+</script>
 </body>
 </html>
