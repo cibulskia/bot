@@ -3,176 +3,92 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ProMesto | Upravljanje Profilom i Poslovima</title>
+<title>Category Manager (Demo)</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<link rel="stylesheet" href="stylew.css" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background:#f6f7fb; color:#111; }
+  .box { background:white; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); margin-bottom:16px; }
+  h2 { margin-top:0; }
+  label { display:block; margin:6px 0; }
+  input[type="text"], textarea, select { width:100%; padding:8px; border-radius:6px; border:1px solid #ddd; font-family:Arial,sans-serif; font-size:14px; }
+  textarea { resize:vertical; min-height:80px; }
+  button { padding:10px 14px; border-radius:8px; border:none; background:#0b76ff; color:white; cursor:pointer; margin-right:8px; }
+  button.danger { background:#d9534f; }
+  button.secondary { background:#6c757d; }
+  .row { display:flex; gap:12px; }
+  .col { flex:1; }
+  .status { margin-top:8px; color:#333; }
+  .subcat-list { max-height:160px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
+  .subcat-item { padding:6px; cursor:pointer; border-bottom:1px dashed #eee; }
+  .subcat-item:hover { background:#f0f8ff; }
+  #cat_cb_container { display:none; }
+</style>
 </head>
 <body>
 <div id="g_id_onload" data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_select="true" data-ux_mode="popup"></div>
 
-<header class="header">
-  <div class="container">
-    <div class="logo">ProMesto</div>
-    <nav class="main-nav">
-      <ul>
-        <li><a href="#profile-settings">Moj Profil</a></li>
-        <li><a href="#job-offers">Poslovi</a></li>
-      </ul>
-    </nav>
+<div class="box">
+  <h2>Prijava</h2>
+  <p id="loginStatus">Čekam Google prijavu...</p>
+  <button id="signOutBtn" style="display:none" class="secondary">Odjavi se</button>
+</div>
+
+<div class="box">
+  <h2>Korisnicka podesavanja</h2>
+  <div class="row">
+    <div class="col" id="cat_cb_container">
+      <label><input type="checkbox" id="cat_cb1"> proizvodjac</label>
+      <label><input type="checkbox" id="cat_cb2"> poslodavac</label>
+    </div>
+    <div class="col">
+      <label>vrsta obrade:
+        <select id="cat_dropdown">
+          <option value="">-- izaberi --</option>
+          <option value="opt1">strug</option>
+          <option value="opt2">glodalica</option>
+          <option value="opt3">strug i glodalica</option>
+        </select>
+      </label>
+      <label>ime firme: <input type="text" id="cat_text1" placeholder="Unesite ime firme"></label>
+      <label>opis firme: <textarea id="cat_text2" placeholder="Unesite opis firme"></textarea></label>
+      <label>email: <input type="text" id="cat_text3" placeholder="Unesite email"></label>
+      <label>internet stranica: <input type="text" id="cat_text4" placeholder="Unesite internet stranicu"></label>
+    </div>
   </div>
-</header>
-
-<main class="container dashboard-grid">
-  <section class="card" id="login-section">
-    <div class="card-header status-header">
-      <i class="fas fa-user-circle icon-large"></i>
-      <h2>Status Prijave</h2>
-      <span class="status-indicator" id="loginIndicator"></span>
-    </div>
-    <div class="card-body">
-      <p id="loginStatus" class="status-message">Čekam Google prijavu...</p>
-      <div class="login-info">
-        <span id="loggedInEmail" class="logged-in-email" style="display:none;"></span>
-        <button id="signOutBtn" class="btn btn-secondary btn-icon" style="display:none">
-          <i class="fas fa-sign-out-alt"></i> Odjavi se
-        </button>
-        <button id="disconnectBtn" class="btn btn-danger btn-icon" style="display:none">
-          <i class="fas fa-trash-alt"></i>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <section class="card" id="current-job-display">
-    <div class="card-header current-job-header">
-        <i class="fas fa-briefcase icon-large"></i>
-        <h2 id="subcatEditorTitle">Nije izabrana ponuda</h2>
-    </div>
-    <div class="card-body">
-        <div class="job-detail-group">
-            <label class="checkbox-label radio-label">
-                <input type="radio" name="jobType" id="jobTypeStrug" value="opt1" disabled>
-                <span class="radio-custom"></span> Strug
-            </label>
-            <label class="checkbox-label radio-label">
-                <input type="radio" name="jobType" id="jobTypeGlodalica" value="opt2" disabled>
-                <span class="radio-custom"></span> Glodalica
-            </label>
-            <label class="checkbox-label radio-label">
-                <input type="radio" name="jobType" id="jobTypeBoth" value="opt3" disabled>
-                <span class="radio-custom"></span> Strug i glodalica
-            </label>
-        </div>
-        <div class="subcat-list" id="subcatList">
-            <p class="empty-state">Nema aktivnih ponuda poslova.</p>
-        </div>
-    </div>
-  </section>
-
-  <section class="card" id="profile-settings">
-    <div class="card-header profile-header">
-      <i class="fas fa-cog icon-large"></i>
-      <h2>Korisnička Podešavanja</h2>
-    </div>
-    <div class="card-body">
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="cat_dropdown">Vrsta obrade:</label>
-          <div class="select-wrapper">
-            <select id="cat_dropdown">
-              <option value="">-- izaberi --</option>
-              <option value="opt1">Strug</option>
-              <option value="opt2">Glodalica</option>
-              <option value="opt3">Strug i glodalica</option>
-            </select>
-            <i class="fas fa-chevron-down select-icon"></i>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="cat_text1">Ime firme:</label>
-          <input type="text" id="cat_text1" placeholder="Unesite ime firme">
-        </div>
-        <div class="form-group full-width">
-          <label for="cat_text2">Opis firme:</label>
-          <textarea id="cat_text2" placeholder="Detaljan opis vaše firme i delatnosti"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="cat_text3">Email:</label>
-          <input type="email" id="cat_text3" placeholder="kontakt@vasafirma.com">
-        </div>
-        <div class="form-group">
-          <label for="cat_text4">Internet stranica:</label>
-          <input type="url" id="cat_text4" placeholder="https://www.vasafirma.com">
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <button id="btnLoadCategory" class="btn btn-secondary btn-icon">
-          <i class="fas fa-sync-alt"></i> Učitaj
-        </button>
-        <button id="btnUpdateCategory" class="btn btn-primary btn-icon">
-          <i class="fas fa-save"></i> Sačuvaj / Ažuriraj
-        </button>
-        <button id="btnDeleteCategory" class="btn btn-danger btn-icon">
-          <i class="fas fa-trash-alt"></i> Obriši nalog
-        </button>
-      </div>
-      <div class="status-message" id="catStatus"></div>
-    </div>
-  </section>
-
-  <section class="card" id="job-offers">
-    <div class="card-header job-offer-header">
-      <i class="fas fa-layer-group icon-large"></i>
-      <h2>Ponuda Poslova</h2>
-    </div>
-    <div class="card-body">
-      <div class="form-group">
-        <label for="sub_name">Posao:</label>
-        <input type="text" id="sub_name" disabled class="disabled-input">
-      </div>
-      <div class="form-group">
-        <label for="sub_text1">Kratak opis:</label>
-        <input type="text" id="sub_text1" disabled class="disabled-input">
-      </div>
-      <div class="form-group">
-        <label for="sub_text2">Objašnjenje:</label>
-        <textarea id="sub_text2" disabled class="disabled-input"></textarea>
-      </div>
-      <div class="form-group">
-        <label for="sub_text3">Rok za ponudu:</label>
-        <input type="text" id="sub_text3" disabled class="disabled-input">
-      </div>
-      <div class="form-group">
-        <label for="sub_text4">Rok za izradu:</label>
-        <input type="text" id="sub_text4" disabled class="disabled-input">
-      </div>
-
-      <div class="form-group">
-        <label class="checkbox-label">
-          <input type="checkbox" id="sub_cb1">
-          <span class="checkbox-custom"></span> Prijavljujem se za posao
-        </label>
-      </div>
-      <div class="form-actions">
-        <button id="btnUpdateSubcat" class="btn btn-success btn-icon">
-          <i class="fas fa-paper-plane"></i> Pošalji prijavu
-        </button>
-      </div>
-      <div class="status-message" id="subStatus"></div>
-    </div>
-  </section>
-</main>
-
-<footer class="footer">
-  <div class="container">
-    <p>&copy; 2023 ProMesto. Sva prava zadržana.</p>
+  <div style="margin-top:12px;">
+    <button id="btnLoadCategory">Učitaj podesavanja</button>
+    <button id="btnUpdateCategory">Sačuvaj / Ažuriraj podesavanja</button>
+    <button id="btnDeleteCategory" class="danger">Obriši nalog</button>
   </div>
-</footer>
+  <div class="status" id="catStatus"></div>
+</div>
 
-<script src="auth.js"></script>
-<script src="app.js"></script>
+<div class="box">
+  <h2>Ponuda poslova</h2>
+  <div class="row">
+    <div style="width:280px;">
+      <div style="display:flex; gap:8px; margin-bottom:8px;">
+        <button id="btnListSubcats">Lista ponuda</button>
+      </div>
+      <div class="subcat-list" id="subcatList"></div>
+    </div>
+    <div style="flex:1;">
+      <h3 id="subcatEditorTitle">Nije izabrana lista ponuda</h3>
+      <label>posao: <input type="text" id="sub_name" disabled></label>
+      <label>kratak opis: <input type="text" id="sub_text1" disabled></label>
+      <label>objasnjenje: <textarea id="sub_text2" disabled></textarea></label>
+      <label>rok za ponudu: <input type="text" id="sub_text3" disabled></label>
+      <label>rok za izradu: <input type="text" id="sub_text4" disabled></label>
+      <label><input type="checkbox" id="sub_cb1">prijavljujem se za posao</label>
+      <div style="margin-top:8px;">
+        <button id="btnUpdateSubcat">posalji prijavu</button>
+      </div>
+      <div class="status" id="subStatus"></div>
+    </div>
+  </div>
+</div>
+
+<script src="oauth.js"></script>
+<script src="backend.js"></script>
 </body>
 </html>
