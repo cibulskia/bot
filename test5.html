@@ -21,8 +21,8 @@
   .subcat-list { max-height:160px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
   .subcat-item { padding:6px; cursor:pointer; border-bottom:1px dashed #eee; }
   .subcat-item:hover { background:#f0f8ff; }
-  /* sakrij proizvodjac checkbox */
-  #cat_cb1 { display:none; }
+  /* sakrij sve checkboxe kategorije */
+  #cat_cb_container { display:none; }
 </style>
 </head>
 <body>
@@ -37,9 +37,8 @@
 <div class="box">
   <h2>Korisnicka podesavanja</h2>
   <div class="row">
-    <div class="col">
-      <!-- proizvodjac checkbox je sada skriven -->
-      <input type="checkbox" id="cat_cb1" checked>
+    <div class="col" id="cat_cb_container">
+      <label><input type="checkbox" id="cat_cb1"> proizvodjac</label>
       <label><input type="checkbox" id="cat_cb2"> poslodavac</label>
     </div>
     <div class="col">
@@ -155,8 +154,6 @@ document.getElementById("btnLoadCategory").addEventListener("click", async () =>
       document.getElementById("subcatList").innerHTML = "";
       return;
     }
-    // fiksiraj proizvodjac na true
-    if (data.category.checkboxes) data.category.checkboxes[0] = true;
     setCategoryFields(data.category);
     const scList = document.getElementById("subcatList");
     scList.innerHTML = "";
@@ -180,8 +177,6 @@ document.getElementById("btnUpdateCategory").addEventListener("click", async () 
   status.textContent = "Šaljem...";
   try {
     const payload = getCategoryFields();
-    // fiksiraj proizvodjac checkbox na true pre slanja
-    payload.checkboxes[0] = true;
     const r = await apiFetch("/category/update", "POST", payload);
     if (!r.ok) {
       status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
@@ -280,10 +275,7 @@ document.getElementById("btnUpdateSubcat").addEventListener("click", async () =>
 // helpers for reading/writing UI
 function getCategoryFields() {
   return {
-    checkboxes: [
-      true, // proizvodjac uvek true
-      document.getElementById("cat_cb2").checked
-    ],
+    checkboxes: [true, false], // uvek proizvodjac = true, poslodavac = false
     dropdown: document.getElementById("cat_dropdown").value,
     texts: [
       document.getElementById("cat_text1").value,
@@ -295,9 +287,10 @@ function getCategoryFields() {
 }
 
 function setCategoryFields(obj) {
-  // proizvodjac uvek true
+  // proizvodjac uvek true, poslodavac false
   document.getElementById("cat_cb1").checked = true;
-  document.getElementById("cat_cb2").checked = !!(obj.checkboxes && obj.checkboxes[1]);
+  document.getElementById("cat_cb2").checked = false;
+
   document.getElementById("cat_dropdown").value = obj.dropdown || "";
   const texts = obj.texts || ["","","",""];
   document.getElementById("cat_text1").value = texts[0] || "";
