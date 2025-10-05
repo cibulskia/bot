@@ -1,4 +1,3 @@
-<!-- frontend.html -->
 <!DOCTYPE html>
 <html lang="sr">
 <head>
@@ -6,323 +5,316 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Category Manager (Demo)</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
-  body { font-family: Arial, sans-serif; margin: 20px; background:#f6f7fb; color:#111; }
-  .box { background:white; padding:16px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.08); margin-bottom:16px; }
-  h2 { margin-top:0; }
-  label { display:block; margin:6px 0; }
-  input[type="text"], textarea, select { width:100%; padding:8px; border-radius:6px; border:1px solid #ddd; font-family:Arial,sans-serif; font-size:14px; }
-  textarea { resize:vertical; min-height:80px; }
-  button { padding:10px 14px; border-radius:8px; border:none; background:#0b76ff; color:white; cursor:pointer; margin-right:8px; }
-  button.danger { background:#d9534f; }
-  button.secondary { background:#6c757d; }
-  .row { display:flex; gap:12px; }
-  .col { flex:1; }
-  .status { margin-top:8px; color:#333; }
-  .subcat-list { max-height:160px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
-  .subcat-item { padding:6px; cursor:pointer; border-bottom:1px dashed #eee; }
-  .subcat-item:hover { background:#f0f8ff; }
-  /* sakrij sve checkboxe kategorije */
+  :root {
+    --primary-color: #0b76ff;
+    --secondary-color: #6c757d;
+    --danger-color: #d9534f;
+    --background-light: #f6f7fb;
+    --background-white: #ffffff;
+    --text-color-dark: #111;
+    --text-color-light: #333;
+    --border-color: #ddd;
+    --shadow-light: 0 2px 6px rgba(0,0,0,0.08);
+    --border-radius: 8px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 20px;
+  }
+
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    margin: 0;
+    padding: var(--spacing-lg);
+    background: var(--background-light);
+    color: var(--text-color-dark);
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+  }
+
+  .box {
+    background: var(--background-white);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    margin-bottom: var(--spacing-md);
+  }
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  h3 {
+    margin-top: 0;
+    color: var(--text-color-dark);
+    font-weight: 500;
+  }
+
+  label {
+    display: block;
+    margin: var(--spacing-sm) 0;
+    font-weight: 500;
+    color: var(--text-color-light);
+  }
+
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    padding: var(--spacing-sm) 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 14px;
+    box-sizing: border-box; /* Ensures padding doesn't increase width */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(11, 118, 255, 0.2);
+    outline: none;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  button {
+    padding: 10px 18px;
+    border-radius: var(--border-radius);
+    border: none;
+    background: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    margin-right: var(--spacing-sm);
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  button:hover {
+    background: darken(var(--primary-color), 10%);
+    transform: translateY(-1px);
+  }
+
+  button:active {
+    transform: translateY(0);
+  }
+
+  button.danger {
+    background: var(--danger-color);
+  }
+
+  button.danger:hover {
+    background: darken(var(--danger-color), 10%);
+  }
+
+  button.secondary {
+    background: var(--secondary-color);
+  }
+
+  button.secondary:hover {
+    background: darken(var(--secondary-color), 10%);
+  }
+
+  .row {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap; /* Added for responsiveness */
+  }
+
+  .col {
+    flex: 1;
+    min-width: 280px; /* Minimum width for columns before wrapping */
+  }
+
+  .status {
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    background: #e0f2f7;
+    color: #0b5f88;
+    border: 1px solid #cce9f4;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .status.error {
+    background: #fde8e8;
+    color: #a70c0c;
+    border-color: #f7dcdc;
+  }
+
+  .subcat-list {
+    max-height: 200px; /* Povećana visina */
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    background: #fafafa;
+    min-width: 250px; /* Fiksna širina za listu ponuda */
+  }
+
+  .subcat-item {
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    border-bottom: 1px dashed #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: var(--text-color-dark);
+    transition: background-color 0.2s ease;
+  }
+
+  .subcat-item:last-child {
+    border-bottom: none;
+  }
+
+  .subcat-item:hover {
+    background: #e9f5ff;
+    border-radius: 4px;
+  }
+
+  input[type="checkbox"] {
+    margin-right: var(--spacing-sm);
+    transform: scale(1.2); /* Veći checkbox */
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .row {
+      flex-direction: column;
+    }
+    .col {
+      min-width: unset;
+      width: 100%;
+    }
+    .subcat-list {
+      width: 100%; /* Puna širina na manjim ekranima */
+      max-height: 150px; /* Manja visina liste na mobilnom */
+      margin-bottom: var(--spacing-md);
+    }
+    button {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: var(--spacing-sm);
+      justify-content: center;
+    }
+    button:last-child {
+      margin-bottom: 0;
+    }
+    .box {
+      padding: var(--spacing-md);
+    }
+    body {
+      padding: var(--spacing-md);
+    }
+  }
+
+  /* Specific styles for disabled inputs */
+  input:disabled, textarea:disabled, select:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+  }
+
+  /* sakrij sve checkboxe kategorije - zadržano */
   #cat_cb_container { display:none; }
 </style>
 </head>
 <body>
 <div id="g_id_onload" data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_select="true" data-ux_mode="popup"></div>
 
-<div class="box">
-  <h2>Prijava</h2>
-  <p id="loginStatus">Čekam Google prijavu...</p>
-  <button id="signOutBtn" style="display:none" class="secondary">Odjavi se</button>
-</div>
-
-<div class="box">
-  <h2>Korisnicka podesavanja</h2>
-  <div class="row">
-    <div class="col" id="cat_cb_container">
-      <label><input type="checkbox" id="cat_cb1"> proizvodjac</label>
-      <label><input type="checkbox" id="cat_cb2"> poslodavac</label>
-    </div>
-    <div class="col">
-      <label>vrsta obrade:
-        <select id="cat_dropdown">
-          <option value="">-- izaberi --</option>
-          <option value="opt1">strug</option>
-          <option value="opt2">glodalica</option>
-          <option value="opt3">strug i glodalica</option>
-        </select>
-      </label>
-
-      <label>ime firme: <input type="text" id="cat_text1" placeholder="Unesite ime firme"></label>
-      <label>opis firme: <textarea id="cat_text2" placeholder="Unesite opis firme"></textarea></label>
-      <label>email: <input type="text" id="cat_text3" placeholder="Unesite email"></label>
-      <label>internet stranica: <input type="text" id="cat_text4" placeholder="Unesite internet stranicu"></label>
-    </div>
+<div class="container">
+  <div class="box">
+    <h2><i class="fas fa-user-circle"></i> Prijava</h2>
+    <p id="loginStatus">Čekam Google prijavu...</p>
+    <button id="signOutBtn" style="display:none" class="secondary"><i class="fas fa-sign-out-alt"></i> Odjavi se</button>
   </div>
 
-  <div style="margin-top:12px;">
-    <button id="btnLoadCategory">Učitaj podesavanja</button>
-    <button id="btnUpdateCategory">Sačuvaj / Ažuriraj podesavanja</button>
-    <button id="btnDeleteCategory" class="danger">Obriši nalog</button>
-  </div>
-  <div class="status" id="catStatus"></div>
-</div>
-
-<div class="box">
-  <h2>Ponuda poslova</h2>
-  <div class="row">
-    <div style="width:280px;">
-      <div style="display:flex; gap:8px; margin-bottom:8px;">
-        <button id="btnListSubcats">Lista ponuda</button>
+  <div class="box">
+    <h2><i class="fas fa-cog"></i> Korisnička podešavanja</h2>
+    <div class="row">
+      <div class="col" id="cat_cb_container">
+        <!-- This section remains hidden as per original request -->
+        <label><input type="checkbox" id="cat_cb1"> proizvodjač</label>
+        <label><input type="checkbox" id="cat_cb2"> poslodavac</label>
       </div>
-      <div class="subcat-list" id="subcatList"></div>
+      <div class="col">
+        <label>Vrsta obrade:
+          <select id="cat_dropdown">
+            <option value="">-- izaberi --</option>
+            <option value="opt1">Strug</option>
+            <option value="opt2">Glodalica</option>
+            <option value="opt3">Strug i glodalica</option>
+          </select>
+        </label>
+
+        <label>Ime firme: <input type="text" id="cat_text1" placeholder="Unesite ime firme"></label>
+        <label>Opis firme: <textarea id="cat_text2" placeholder="Unesite opis firme"></textarea></label>
+        <label>Email: <input type="text" id="cat_text3" placeholder="Unesite email"></label>
+        <label>Internet stranica: <input type="text" id="cat_text4" placeholder="Unesite internet stranicu"></label>
+      </div>
     </div>
 
-    <div style="flex:1;">
-      <h3 id="subcatEditorTitle">Nije izabrana lista ponuda</h3>
-      <label>posao: <input type="text" id="sub_name" disabled></label>
-      <label>kratak opis: <input type="text" id="sub_text1" disabled></label>
-      <label>objasnjenje: <textarea id="sub_text2" disabled></textarea></label>
-      <label>rok za ponudu: <input type="text" id="sub_text3" disabled></label>
-      <label>rok za izradu: <input type="text" id="sub_text4" disabled></label>
+    <div style="margin-top:var(--spacing-md);">
+      <button id="btnLoadCategory"><i class="fas fa-sync-alt"></i> Učitaj podešavanja</button>
+      <button id="btnUpdateCategory"><i class="fas fa-save"></i> Sačuvaj / Ažuriraj podešavanja</button>
+      <button id="btnDeleteCategory" class="danger"><i class="fas fa-trash-alt"></i> Obriši nalog</button>
+    </div>
+    <div class="status" id="catStatus"></div>
+  </div>
 
-      <label><input type="checkbox" id="sub_cb1">prijavljujem se za posao</label>
-      <div style="margin-top:8px;">
-        <button id="btnUpdateSubcat">posalji prijavu</button>
+  <div class="box">
+    <h2><i class="fas fa-briefcase"></i> Ponuda poslova</h2>
+    <div class="row">
+      <div class="col">
+        <div style="display:flex; gap:var(--spacing-sm); margin-bottom:var(--spacing-sm);">
+          <button id="btnListSubcats" style="width:100%;"><i class="fas fa-list-alt"></i> Lista ponuda</button>
+        </div>
+        <div class="subcat-list" id="subcatList"></div>
       </div>
-      <div class="status" id="subStatus"></div>
+
+      <div class="col">
+        <h3 id="subcatEditorTitle">Nije izabrana lista ponuda</h3>
+        <label>Posao: <input type="text" id="sub_name" disabled></label>
+        <label>Kratak opis: <input type="text" id="sub_text1" disabled></label>
+        <label>Objašnjenje: <textarea id="sub_text2" disabled></textarea></label>
+        <label>Rok za ponudu: <input type="text" id="sub_text3" disabled></label>
+        <label>Rok za izradu: <input type="text" id="sub_text4" disabled></label>
+
+        <label style="display:flex; align-items:center; font-weight:normal;"><input type="checkbox" id="sub_cb1"> Prijavljujem se za posao</label>
+        <div style="margin-top:var(--spacing-md);">
+          <button id="btnUpdateSubcat" style="width:auto;"><i class="fas fa-paper-plane"></i> Pošalji prijavu</button>
+        </div>
+        <div class="status" id="subStatus"></div>
+      </div>
     </div>
   </div>
 </div>
 
-<script>
-const CLIENT_ID = "252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com";
-const API_BASE = "https://botanica.ngrok.app"; // backend tunel
-let googleToken = null;
-let selectedSubcatId = null;
-
-// Google One Tap callback
-window.handleCredentialResponse = (response) => {
-  if (response && response.credential) {
-    googleToken = response.credential;
-    document.getElementById("loginStatus").textContent = "Ulogovan (token primljen).";
-    document.getElementById("signOutBtn").style.display = "inline-block";
-    console.log("Google token received.");
-  } else {
-    document.getElementById("loginStatus").textContent = "Prijava nije uspela.";
-  }
-};
-
-document.getElementById("signOutBtn").addEventListener("click", () => {
-  googleToken = null;
-  document.getElementById("loginStatus").textContent = "Odjavljeno.";
-  document.getElementById("signOutBtn").style.display = "none";
-});
-
-// helper: fetch with auth
-async function apiFetch(path, method="GET", body=null) {
-  if (!googleToken) {
-    throw new Error("No Google token. Please sign in.");
-  }
-  const headers = {
-    "Authorization": `Bearer ${googleToken}`,
-    "Content-Type": "application/json"
-  };
-  const res = await fetch(API_BASE + path, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const txt = await res.text();
-  try {
-    const json = JSON.parse(txt);
-    return { ok: res.ok, status: res.status, json };
-  } catch (e) {
-    return { ok: res.ok, status: res.status, json: { raw: txt } };
-  }
-}
-
-// Category buttons
-document.getElementById("btnLoadCategory").addEventListener("click", async () => {
-  const status = document.getElementById("catStatus");
-  status.textContent = "Učitavanje...";
-  try {
-    const r = await apiFetch("/category/load", "GET");
-    if (!r.ok) throw r.json;
-    const data = r.json;
-    if (!data.category) {
-      status.textContent = "Nema kategorije (još). Polja su prazna.";
-      setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]});
-      document.getElementById("subcatList").innerHTML = "";
-      return;
-    }
-    setCategoryFields(data.category);
-    const scList = document.getElementById("subcatList");
-    scList.innerHTML = "";
-    (data.subcategories || []).forEach(s => {
-      const div = document.createElement("div");
-      div.className = "subcat-item";
-      div.textContent = `${s.id} — ${s.name || "(bez imena)"}`;
-      div.dataset.id = s.id;
-      div.addEventListener("click", () => loadSubcatForEdit(s.id));
-      scList.appendChild(div);
-    });
-    status.textContent = "Podesavanja učitana.";
-  } catch (e) {
-    console.error(e);
-    status.textContent = "Greška pri učitavanju kategorije.";
-  }
-});
-
-document.getElementById("btnUpdateCategory").addEventListener("click", async () => {
-  const status = document.getElementById("catStatus");
-  status.textContent = "Šaljem...";
-  try {
-    const payload = getCategoryFields();
-    const r = await apiFetch("/category/update", "POST", payload);
-    if (!r.ok) {
-      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
-      return;
-    }
-    status.textContent = r.json.message || "Sačuvano.";
-  } catch (e) {
-    console.error(e);
-    status.textContent = "Greška pri slanju.";
-  }
-});
-
-document.getElementById("btnDeleteCategory").addEventListener("click", async () => {
-  if (!confirm("Da li stvarno želite da obrišete sve iz kategorije (uključujući podkategorije)?")) return;
-  const status = document.getElementById("catStatus");
-  status.textContent = "Brišem...";
-  try {
-    const r = await apiFetch("/category/delete_all", "POST", {});
-    if (!r.ok) {
-      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
-      return;
-    }
-    status.textContent = r.json.message || "Obrisano.";
-    setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]});
-    document.getElementById("subcatList").innerHTML = "";
-  } catch (e) {
-    console.error(e);
-    status.textContent = "Greška pri brisanju.";
-  }
-});
-
-// Subcategories list
-document.getElementById("btnListSubcats").addEventListener("click", async () => {
-  const status = document.getElementById("subStatus");
-  status.textContent = "Učitavam listu...";
-  try {
-    const r = await apiFetch("/subcategories/list", "GET");
-    if (!r.ok) throw r.json;
-    const list = r.json.subcategories || [];
-    const scList = document.getElementById("subcatList");
-    scList.innerHTML = "";
-    list.forEach(s => {
-      const div = document.createElement("div");
-      div.className = "subcat-item";
-      div.textContent = `${s.id} — ${s.name || "(bez imena)"}`;
-      div.dataset.id = s.id;
-      div.addEventListener("click", () => loadSubcatForEdit(s.id));
-      scList.appendChild(div);
-    });
-    status.textContent = `Pronađeno ${list.length} podkategorija.`;
-  } catch (e) {
-    console.error(e);
-    status.textContent = "Greška pri listanju ponuda.";
-  }
-});
-
-async function loadSubcatForEdit(id) {
-  const status = document.getElementById("subStatus");
-  status.textContent = "Učitavam podkategoriju...";
-  try {
-    const r = await apiFetch("/subcategory/" + id, "GET");
-    if (!r.ok) {
-      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
-      return;
-    }
-    const s = r.json.subcategory;
-    selectedSubcatId = s.id;
-    document.getElementById("subcatEditorTitle").textContent = `prijava za posao: ${s.id}`;
-    setSubcatFields(s);
-    status.textContent = "lista ponuda učitana.";
-  } catch (e) {
-    console.error(e);
-    status.textContent = "Greška pri učitavanju liste ponuda.";
-  }
-}
-
-document.getElementById("btnUpdateSubcat").addEventListener("click", async () => {
-  if (!selectedSubcatId) { alert("Nije izabrana ponuda."); return; }
-  const status = document.getElementById("subStatus");
-  status.textContent = "Ažuriram...";
-  try {
-    const payload = {
-      checkboxes: [document.getElementById("sub_cb1").checked],
-      name: document.getElementById("sub_name").value,
-      texts: [
-        document.getElementById("sub_text1").value,
-        document.getElementById("sub_text2").value,
-        document.getElementById("sub_text3").value,
-        document.getElementById("sub_text4").value
-      ]
-    };
-    const r = await apiFetch("/subcategory/update/" + selectedSubcatId, "POST", payload);
-    if (!r.ok) {
-      status.textContent = "Greška: " + (r.json.error || JSON.stringify(r.json));
-      return;
-    }
-    status.textContent = r.json.message || "Ažurirano.";
-    await document.getElementById("btnListSubcats").click();
-  } catch (e) {
-    console.error(e);
-    status.textContent = "Greška pri ažuriranju.";
-  }
-});
-
-// helpers for reading/writing UI
-function getCategoryFields() {
-  return {
-    checkboxes: [true, false], // uvek proizvodjac = true, poslodavac = false
-    dropdown: document.getElementById("cat_dropdown").value,
-    texts: [
-      document.getElementById("cat_text1").value,
-      document.getElementById("cat_text2").value,
-      document.getElementById("cat_text3").value,
-      document.getElementById("cat_text4").value
-    ]
-  };
-}
-
-function setCategoryFields(obj) {
-  // proizvodjac uvek true, poslodavac false
-  document.getElementById("cat_cb1").checked = true;
-  document.getElementById("cat_cb2").checked = false;
-
-  document.getElementById("cat_dropdown").value = obj.dropdown || "";
-  const texts = obj.texts || ["","","",""];
-  document.getElementById("cat_text1").value = texts[0] || "";
-  document.getElementById("cat_text2").value = texts[1] || "";
-  document.getElementById("cat_text3").value = texts[2] || "";
-  document.getElementById("cat_text4").value = texts[3] || "";
-}
-
-function setSubcatFields(s) {
-  document.getElementById("sub_name").value = s.name || "";
-  document.getElementById("sub_name").disabled = true;
-  document.getElementById("sub_cb1").checked = (s.checkboxes && s.checkboxes[0]) || false;
-  document.getElementById("sub_text1").value = (s.texts && s.texts[0]) || "";
-  document.getElementById("sub_text2").value = (s.texts && s.texts[1]) || "";
-  document.getElementById("sub_text3").value = (s.texts && s.texts[2]) || "";
-  document.getElementById("sub_text4").value = (s.texts && s.texts[3]) || "";
-  document.getElementById("sub_text1").disabled = true;
-  document.getElementById("sub_text2").disabled = true;
-  document.getElementById("sub_text3").disabled = true;
-  document.getElementById("sub_text4").disabled = true;
-}
-</script>
+<!-- aplikacijski kod -->
+<script src="app.js"></script>
 </body>
 </html>
-
