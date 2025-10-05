@@ -1,3 +1,4 @@
+<!-- frontend.html -->
 <!DOCTYPE html>
 <html lang="sr">
 <head>
@@ -20,13 +21,9 @@
   .subcat-list { max-height:160px; overflow:auto; border:1px solid #eee; padding:8px; border-radius:6px; background:#fafafa; }
   .subcat-item { padding:6px; cursor:pointer; border-bottom:1px dashed #eee; }
   .subcat-item:hover { background:#f0f8ff; }
-
-  /* sakrivanje oba checkboxa sa UI, ali ostaju funkcionalni u JS */
-  .hidden-checkbox { display:none; }
 </style>
 </head>
 <body>
-
 <div id="g_id_onload" data-client_id="252373158568-4up41b7jo8ik6cu8c1pl3mlvvck2sq2t.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_select="true" data-ux_mode="popup"></div>
 
 <div class="box">
@@ -39,9 +36,8 @@
   <h2>Korisnicka podesavanja</h2>
   <div class="row">
     <div class="col">
-      <!-- sakriveni checkboxi -->
-      <label class="hidden-checkbox"><input type="checkbox" id="cat_cb1" checked> proizvodjac</label>
-      <label class="hidden-checkbox"><input type="checkbox" id="cat_cb2"> poslodavac</label>
+      <label><input type="checkbox" id="cat_cb1"> proizvodjac</label>
+      <label><input type="checkbox" id="cat_cb2"> poslodavac</label>
     </div>
     <div class="col">
       <label>vrsta obrade:
@@ -152,7 +148,7 @@ document.getElementById("btnLoadCategory").addEventListener("click", async () =>
     const data = r.json;
     if (!data.category) {
       status.textContent = "Nema kategorije (još). Polja su prazna.";
-      setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]});
+      setCategoryFields({checkboxes:[false,false], dropdown:"", texts:["","","",""]});
       document.getElementById("subcatList").innerHTML = "";
       return;
     }
@@ -202,7 +198,7 @@ document.getElementById("btnDeleteCategory").addEventListener("click", async () 
       return;
     }
     status.textContent = r.json.message || "Obrisano.";
-    setCategoryFields({checkboxes:[true,false], dropdown:"", texts:["","","",""]});
+    setCategoryFields({checkboxes:[false,false], dropdown:"", texts:["","","",""]});
     document.getElementById("subcatList").innerHTML = "";
   } catch (e) {
     console.error(e);
@@ -292,9 +288,9 @@ function getCategoryFields() {
 }
 
 function setCategoryFields(obj) {
-  const cb = obj.checkboxes || [true,false];
-  document.getElementById("cat_cb1").checked = !!cb[0]; // proizvodjac
-  document.getElementById("cat_cb2").checked = !!cb[1]; // poslodavac
+  const cb = obj.checkboxes || [false,false];
+  document.getElementById("cat_cb1").checked = !!cb[0];
+  document.getElementById("cat_cb2").checked = !!cb[1];
   document.getElementById("cat_dropdown").value = obj.dropdown || "";
   const texts = obj.texts || ["","","",""];
   document.getElementById("cat_text1").value = texts[0] || "";
@@ -319,4 +315,3 @@ function setSubcatFields(s) {
 </script>
 </body>
 </html>
-
