@@ -1,0 +1,516 @@
+/* General Body & Typography */
+:root {
+  --primary-color: #0b76ff;
+  --primary-dark: #0056e0;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --secondary-color: #6c757d;
+  --bg-light: #f6f7fb;
+  --bg-dark: #1a202c; /* Darker background for components */
+  --text-color: #333;
+  --text-dark: #eee;
+  --card-bg: #ffffff;
+  --card-bg-dark: #2d3748; /* Card background in dark mode */
+  --border-color: #e2e8f0;
+  --border-color-dark: #4a5568;
+  --input-bg: #fdfdfd;
+  --input-bg-dark: #4a5568;
+  --hover-light: #f0f8ff;
+  --hover-dark: #3a445a;
+  --placeholder-color: #a0aec0;
+  --shadow-light: rgba(0, 0, 0, 0.08);
+  --shadow-hover: rgba(0, 0, 0, 0.12);
+}
+
+body {
+  font-family: 'Roboto', 'Arial', sans-serif;
+  margin: 0;
+  background-color: var(--bg-light);
+  color: var(--text-color);
+  line-height: 1.6;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #2c3e50; /* A slightly darker heading color */
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Container & Layout */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.header {
+  background-color: var(--primary-color);
+  color: var(--text-dark);
+  padding: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Cards */
+.card {
+  background-color: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow-light);
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--shadow-hover);
+}
+
+/* Forms & Inputs */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+input[type="text"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-family: 'Roboto', Arial, sans-serif;
+  font-size: 15px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  box-sizing: border-box; /* Include padding in width */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(11, 118, 255, 0.2);
+  outline: none;
+}
+
+input[type="text"]:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: #eceff3;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.input-icon-wrapper {
+  position: relative;
+}
+
+.input-icon-wrapper select {
+  padding-right: 35px; /* Make space for the icon */
+  -webkit-appearance: none; /* Remove default arrow on Chrome/Safari */
+  -moz-appearance: none; /* Remove default arrow on Firefox */
+  appearance: none; /* Remove default arrow */
+}
+
+.input-icon-right {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a0aec0;
+  pointer-events: none; /* Make icon unclickable */
+}
+
+/* Checkboxes */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-right: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: var(--input-bg);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.checkbox-group input[type="checkbox"]:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  position: relative;
+}
+
+.checkbox-group input[type="checkbox"]:checked::after {
+  content: '\f00c'; /* Font Awesome check icon */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+}
+
+.checkbox-group label {
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  box-shadow: 0 4px 10px rgba(11, 118, 255, 0.3);
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.btn-icon {
+  font-size: 1rem;
+}
+
+.btn-icon i {
+  font-size: 1.1em;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+  gap: 10px;
+  margin-top: 1.5rem;
+}
+
+/* Status Messages */
+.status-message {
+  margin-top: 1rem;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #333;
+  background-color: #e0f2f7; /* Light blue for general status */
+  border: 1px solid #b3e5fc;
+  display: none; /* Hidden by default, shown by JS */
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out, background-color 0.3s ease;
+}
+
+.status-message.show {
+  display: block;
+  opacity: 1;
+}
+
+.status-message.success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.status-message.error {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+/* Job Offers Section */
+.job-offers-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.job-list-container {
+  flex-shrink: 0; /* Don't allow it to shrink */
+  margin-bottom: 1.5rem;
+}
+
+.job-list-header {
+  margin-bottom: 1rem;
+}
+
+.subcat-list {
+  max-height: 280px; /* Increased height for more visibility */
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: #fdfdfd;
+  padding: 8px 0; /* Adjust padding for items */
+}
+
+.subcat-list .empty-state {
+  text-align: center;
+  color: var(--placeholder-color);
+  padding: 1rem;
+}
+
+.subcat-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px dashed var(--border-color);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.subcat-item:last-child {
+  border-bottom: none;
+}
+
+.subcat-item:hover {
+  background-color: var(--hover-light);
+  transform: translateX(3px);
+}
+
+.subcat-item.selected {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 500;
+  border-color: var(--primary-color);
+}
+
+.subcat-item.selected:hover {
+  background-color: var(--primary-dark);
+}
+
+.job-details h3 {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.8rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #2c3e50;
+}
+
+/* Grid Layout for Main Content */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Default to single column */
+  gap: 1.5rem;
+}
+
+@media (min-width: 992px) {
+  .content-grid {
+    grid-template-columns: 1.5fr 1fr; /* Two columns for larger screens */
+  }
+  .settings-card {
+    grid-column: 1;
+  }
+  .job-offers-card {
+    grid-column: 2;
+  }
+}
+
+@media (min-width: 768px) {
+  .button-group {
+    justify-content: flex-start;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .header .container {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  .logo {
+    margin-bottom: 0.5rem;
+  }
+  .button-group button {
+    width: 100%; /* Full width buttons on small screens */
+  }
+  .content-grid {
+    padding: 0 0.5rem; /* Less padding on very small screens */
+  }
+  .card {
+    padding: 1rem;
+  }
+}
+
+/* Icons styling */
+.fa-user-cog, .fa-briefcase, .fa-file-alt,
+.fa-tools, .fa-building, .fa-info-circle,
+.fa-envelope, .fa-globe, .fa-list,
+.fa-tag, .fa-align-left, .fa-comment-alt,
+.fa-calendar-alt, .fa-hourglass-half {
+  color: var(--primary-color);
+  margin-right: 5px;
+}
+
+/* Dark Mode (Example - could be toggled by JS) */
+/*
+body.dark-mode {
+  background-color: var(--bg-dark);
+  color: var(--text-dark);
+}
+body.dark-mode .card {
+  background-color: var(--card-bg-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4, body.dark-mode h5, body.dark-mode h6 {
+  color: var(--text-dark);
+}
+body.dark-mode label {
+  color: var(--text-dark);
+}
+body.dark-mode input[type="text"],
+body.dark-mode textarea,
+body.dark-mode select {
+  background-color: var(--input-bg-dark);
+  border-color: var(--border-color-dark);
+  color: var(--text-dark);
+}
+body.dark-mode input[type="text"]:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(11, 118, 255, 0.3);
+}
+body.dark-mode .checkbox-group input[type="checkbox"] {
+  background-color: var(--input-bg-dark);
+  border-color: var(--border-color-dark);
+}
+body.dark-mode .subcat-list {
+  background-color: var(--input-bg-dark);
+  border-color: var(--border-color-dark);
+}
+body.dark-mode .subcat-item {
+  border-color: var(--border-color-dark);
+  color: var(--text-dark);
+}
+body.dark-mode .subcat-item:hover {
+  background-color: var(--hover-dark);
+}
+body.dark-mode .subcat-item.selected {
+  background-color: var(--primary-color);
+  color: white;
+}
+body.dark-mode .subcat-item.selected:hover {
+  background-color: var(--primary-dark);
+}
+body.dark-mode .job-details h3 {
+  border-color: var(--border-color-dark);
+  color: var(--text-dark);
+}
+body.dark-mode .status-message {
+  background-color: #3a445a;
+  border-color: #4a5568;
+  color: var(--text-dark);
+}
+body.dark-mode .status-message.success {
+  background-color: #218838;
+  border-color: #28a745;
+  color: white;
+}
+body.dark-mode .status-message.error {
+  background-color: #c82333;
+  border-color: #dc3545;
+  color: white;
+}
+*/
